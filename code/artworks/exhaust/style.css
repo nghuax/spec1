@@ -1,0 +1,14 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Stack Sans Notch', Arial, Helvetica, sans-serif;
+}
+canvas {
+  display: block;
+}
+
+/* Integration accessibility: expose keyboard focus around the on-canvas control. */
+button:focus-visible {
+  outline: 4px solid #ffffff !important;
+  outline-offset: 6px;
+}

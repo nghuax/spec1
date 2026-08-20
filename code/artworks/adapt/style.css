@@ -1,0 +1,52 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #17181c;
+  font-family: 'Stack Sans Notch', Arial, Helvetica, sans-serif;
+}
+
+body, canvas {
+  display: block;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+#overlay {
+  position: fixed;
+  top: 18px;
+  left: 22px;
+  z-index: 10;
+  pointer-events: none;
+  color: #ffffff;
+}
+
+.title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.subtitle {
+  margin-top: 7px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  opacity: 0.9;
+}
+
+.help {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  max-width: 480px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.72;
+}
