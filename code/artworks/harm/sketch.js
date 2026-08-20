@@ -2575,7 +2575,7 @@ function drawHUD() {
   textStyle(BOLD);
   textSize(60);
   fill(p > .76 ? color(238, 238, 235) : color(C.ink));
-  text('BURN', 50, 60);
+  text('HARM', 50, 60);
 
   fill(C.blue); rect(105, 142, 100, 4);
   fill(C.orange); rect(184, 142, 40, 4);
