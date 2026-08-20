@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A complete technical explanation of the HEAL website and its four interactive p5.js artworks.">
+  <meta name="theme-color" content="#141414">
+  <title>HEAL — Code Report</title>
+  <style>
+    @font-face {
+      font-family: 'Stack Sans Notch';
+      src: url('assets/fonts/stack-sans-notch-variable.woff2') format('woff2');
+      font-style: normal;
+      font-weight: 200 700;
+      font-display: swap;
+    }
+
+    :root {
+      --ink: #141414;
+      --grey: #9ea2a3;
+      --fog: #e7e9e9;
+      --paper: #f6f5f1;
+      --white: #ffffff;
+      --blue: #2033ff;
+      --purple: #6952eb;
+      --orange: #fe7d21;
+      --lime: #b3ff3b;
+      --brown: #643f28;
+      --rule: 1px solid var(--ink);
+      --gutter: clamp(1rem, 3vw, 3.25rem);
+      --max: 1560px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: 'Stack Sans Notch', Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+    body, button, input { font: inherit; }
+    a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: .18em; }
+    button { color: inherit; }
+    code, pre { font-family: Consolas, 'SFMono-Regular', monospace; }
+    :focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+    ::selection { color: var(--white); background: var(--blue); }
+
+    .skip-link {
+      position: fixed;
+      left: 1rem;
+      top: 1rem;
+      z-index: 100;
+      padding: .7rem 1rem;
+      color: var(--white);
+      background: var(--blue);
+      transform: translateY(-180%);
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    .progress {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 90;
+      height: 4px;
+      background: transparent;
+    }
+    .progress span { display: block; width: 0; height: 100%; background: var(--orange); }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 80;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      min-height: 4rem;
+      padding: .75rem var(--gutter);
+      color: var(--white);
+      background: rgba(20, 20, 20, .96);
+      border-bottom: 1px solid rgba(255,255,255,.22);
+      backdrop-filter: blur(14px);
+    }
+    .topbar__brand { font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+    .topbar__title { color: var(--grey); font-size: .72rem; letter-spacing: .12em; text-align: center; }
+    .topbar__links { display: flex; gap: 1rem; font-size: .72rem; letter-spacing: .08em; }
+
+    .hero {
+      position: relative;
+      min-height: min(760px, calc(100svh - 4rem));
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+      padding: var(--gutter);
+      color: var(--white);
+      background: var(--blue);
+      border-bottom: var(--rule);
+    }
+    .hero::before,
+    .hero::after {
+      content: '';
+      position: absolute;
+      pointer-events: none;
+      border: 1px solid rgba(255,255,255,.22);
+      transform: rotate(18deg);
+    }
+    .hero::before { width: 38vw; height: 38vw; right: -8vw; top: -18vw; }
+    .hero::after { width: 22vw; height: 22vw; left: 24vw; bottom: -16vw; background: var(--purple); }
+    .hero__meta {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: .72rem;
+      letter-spacing: .11em;
+    }
+    .hero h1 {
+      position: relative;
+      z-index: 1;
+      align-self: center;
+      max-width: 12ch;
+      margin: 3rem 0;
+      font-size: clamp(4.3rem, 12vw, 12rem);
+      font-weight: 700;
+      letter-spacing: -.075em;
+      line-height: .72;
+      text-transform: uppercase;
+    }
+    .hero h1 span { display: block; margin-left: .78em; color: var(--lime); }
+    .hero__bottom {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(17rem, 35rem);
+      gap: 2rem;
+      align-items: end;
+    }
+    .hero__bottom > p { max-width: 62ch; margin: 0; font-size: clamp(1rem, 1.5vw, 1.35rem); }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid currentColor; }
+    .stat { min-height: 5.5rem; padding: .75rem; border-right: 1px solid currentColor; }
+    .stat:last-child { border-right: 0; }
+    .stat strong { display: block; font-size: 1.8rem; line-height: 1; }
+    .stat span { display: block; margin-top: .65rem; font-size: .63rem; letter-spacing: .08em; }
+
+    .layout {
+      width: min(100%, var(--max));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 17rem minmax(0, 1fr);
+      align-items: start;
+    }
+    .toc {
+      position: sticky;
+      top: 4rem;
+      max-height: calc(100vh - 4rem);
+      overflow: auto;
+      padding: 2rem 1.25rem 3rem var(--gutter);
+      border-right: var(--rule);
+    }
+    .toc__label { margin: 0 0 1rem; font-size: .67rem; letter-spacing: .14em; }
+    .toc ol { margin: 0; padding: 0; list-style: none; }
+    .toc a {
+      display: grid;
+      grid-template-columns: 1.8rem 1fr;
+      gap: .45rem;
+      padding: .48rem 0;
+      color: #555;
+      font-size: .76rem;
+      text-decoration: none;
+      border-bottom: 1px solid #d5d5d0;
+    }
+    .toc a::before { content: attr(data-index); color: var(--grey); }
+    .toc a:hover, .toc a.is-active { color: var(--blue); }
+
+    main { min-width: 0; }
+    .section { scroll-margin-top: 4rem; padding: clamp(3rem, 7vw, 7rem) var(--gutter); border-bottom: var(--rule); }
+    .section--ink { color: var(--white); background: var(--ink); }
+    .section--grey { background: var(--fog); }
+    .section--orange { background: var(--orange); }
+    .section--lime { background: var(--lime); }
+    .section__head {
+      display: grid;
+      grid-template-columns: 7rem minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+      margin-bottom: clamp(2rem, 5vw, 4.5rem);
+    }
+    .kicker { margin: .2rem 0 0; font-size: .66rem; letter-spacing: .13em; }
+    .section h2 {
+      max-width: 17ch;
+      margin: 0;
+      font-size: clamp(2.4rem, 6vw, 6rem);
+      letter-spacing: -.055em;
+      line-height: .88;
+      text-transform: uppercase;
+    }
+    .section h3 { margin: 0 0 .75rem; font-size: clamp(1.35rem, 2.5vw, 2.3rem); letter-spacing: -.025em; line-height: 1; }
+    .section h4 { margin: 0 0 .45rem; font-size: .82rem; letter-spacing: .08em; text-transform: uppercase; }
+    .lead { max-width: 66ch; margin: 0 0 2.4rem 8rem; font-size: clamp(1.05rem, 1.6vw, 1.35rem); }
+    .muted { color: #666; }
+    .section--ink .muted { color: #b8b8b5; }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      align-items: stretch;
+      gap: .4rem;
+    }
+    .architecture__node {
+      min-height: 9rem;
+      padding: .85rem;
+      color: var(--ink);
+      background: var(--white);
+      border: var(--rule);
+    }
+    .architecture__node:nth-of-type(3) { background: var(--lime); }
+    .architecture__node:nth-of-type(5) { color: var(--white); background: var(--purple); }
+    .architecture__node:nth-of-type(7) { color: var(--white); background: var(--blue); }
+    .architecture__node strong { display: block; font-size: 1rem; }
+    .architecture__node span { display: block; margin-top: 2rem; font-size: .7rem; }
+    .architecture__arrow { align-self: center; text-align: center; font-size: 1.3rem; }
+
+    .grid-2, .grid-3, .grid-4 { display: grid; gap: 1px; background: var(--ink); border: var(--rule); }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card { min-width: 0; padding: clamp(1rem, 2.4vw, 2rem); background: var(--paper); }
+    .section--ink .card { color: var(--ink); background: var(--white); }
+    .section--orange .card, .section--lime .card { background: rgba(255,255,255,.8); }
+    .card p, .card ul { margin: .55rem 0 0; }
+    .card ul { padding-left: 1.1rem; }
+    .card li + li { margin-top: .35rem; }
+    .file-label { display: block; margin-bottom: .8rem; color: var(--blue); font: 600 .7rem/1.3 Consolas, monospace; overflow-wrap: anywhere; }
+    .tag {
+      display: inline-block;
+      margin: 0 .3rem .3rem 0;
+      padding: .24rem .38rem;
+      font: 600 .62rem/1 Consolas, monospace;
+      color: var(--white);
+      background: var(--ink);
+    }
+    .tag--blue { background: var(--blue); }
+    .tag--orange { color: var(--ink); background: var(--orange); }
+    .tag--lime { color: var(--ink); background: var(--lime); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+      counter-reset: flow;
+    }
+    .flow__step { position: relative; min-height: 10rem; padding: 1rem; border: var(--rule); counter-increment: flow; }
+    .flow__step::before { content: '0' counter(flow); display: block; margin-bottom: 2rem; color: var(--blue); font-weight: 700; }
+    .flow__step:not(:last-child)::after { content: '→'; position: absolute; right: -.8rem; top: 50%; z-index: 2; padding: .1rem; background: var(--paper); }
+
+    .code-block { position: relative; margin: 1.4rem 0 0; color: #e7e7e3; background: #0e0e0e; border: 1px solid #4b4b4b; }
+    .code-block__bar { display: flex; justify-content: space-between; gap: 1rem; padding: .6rem .8rem; color: #a8a8a4; border-bottom: 1px solid #3a3a3a; font: .68rem/1.3 Consolas, monospace; }
+    .copy-code { padding: 0; color: var(--lime); background: transparent; border: 0; cursor: pointer; }
+    pre { margin: 0; padding: 1rem; overflow: auto; font-size: .75rem; line-height: 1.6; tab-size: 2; }
+    .token-key { color: #a68cff; }
+    .token-string { color: #b3ff3b; }
+    .token-fn { color: #69b9ff; }
+    .token-comment { color: #8c8c88; }
+
+    .formula {
+      margin: 1rem 0 0;
+      padding: 1rem;
+      font: 600 clamp(.8rem, 1.4vw, 1rem)/1.5 Consolas, monospace;
+      color: var(--white);
+      background: var(--blue);
+      overflow-wrap: anywhere;
+    }
+
+    .artwork-hero {
+      display: grid;
+      grid-template-columns: 1fr minmax(14rem, .48fr);
+      gap: 2rem;
+      align-items: end;
+      margin-bottom: 2.5rem;
+    }
+    .artwork-mark { font-size: clamp(6rem, 16vw, 15rem); font-weight: 700; letter-spacing: -.1em; line-height: .62; }
+    .artwork-summary { padding-top: 1rem; border-top: 5px solid currentColor; }
+    .function-table, .file-table { width: 100%; border-collapse: collapse; }
+    .function-table th, .function-table td,
+    .file-table th, .file-table td { padding: .75rem; text-align: left; vertical-align: top; border: 1px solid currentColor; }
+    .function-table th, .file-table th { font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; }
+    .function-table code, .file-table code { color: var(--blue); font-size: .72rem; overflow-wrap: anywhere; }
+    .section--ink .function-table code { color: var(--lime); }
+    .function-table td:first-child { width: 31%; }
+
+    .callout {
+      display: grid;
+      grid-template-columns: 3.5rem 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding: 1rem;
+      color: var(--white);
+      background: var(--purple);
+    }
+    .callout strong { font-size: 2.4rem; line-height: 1; }
+    .callout p { margin: 0; }
+
+    .inventory-tools {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .inventory-tools label { font-size: .7rem; letter-spacing: .08em; }
+    .inventory-tools input {
+      width: min(100%, 28rem);
+      padding: .75rem .9rem;
+      color: var(--ink);
+      background: var(--white);
+      border: var(--rule);
+      border-radius: 0;
+    }
+    .file-table tbody tr[hidden] { display: none; }
+    .file-table td:nth-child(2), .file-table td:nth-child(3) { white-space: nowrap; }
+    .owner-project { color: var(--blue); font-weight: 700; }
+    .owner-vendor { color: var(--brown); font-weight: 700; }
+    .owner-doc { color: #5c643e; font-weight: 700; }
+
+    .footer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      padding: 2rem var(--gutter);
+      color: var(--white);
+      background: var(--ink);
+      font-size: .75rem;
+    }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 13rem minmax(0, 1fr); }
+      .architecture { grid-template-columns: 1fr; }
+      .architecture__arrow { transform: rotate(90deg); }
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow__step:nth-child(2)::after { display: none; }
+    }
+
+    @media (max-width: 820px) {
+      .topbar { grid-template-columns: 1fr auto; }
+      .topbar__title { display: none; }
+      .layout { display: block; }
+      .toc { display: none; }
+      .hero__bottom, .artwork-hero { grid-template-columns: 1fr; }
+      .section__head { grid-template-columns: 1fr; }
+      .lead { margin-left: 0; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .file-table { display: block; overflow-x: auto; }
+    }
+
+    @media (max-width: 560px) {
+      .topbar__links a:first-child { display: none; }
+      .hero { min-height: 680px; }
+      .hero__meta { display: grid; }
+      .stats, .grid-2, .grid-4, .flow { grid-template-columns: 1fr; }
+      .stat { border-right: 0; border-bottom: 1px solid currentColor; }
+      .stat:last-child { border-bottom: 0; }
+      .flow__step::after { display: none; }
+      .inventory-tools { align-items: stretch; flex-direction: column; }
+      .footer { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      .topbar, .toc, .progress, .copy-code, .inventory-tools { display: none !important; }
+      .layout { display: block; }
+      .hero { min-height: 0; color: var(--ink); background: var(--white); }
+      .section, .hero { break-inside: avoid; }
+      .section--ink { color: var(--ink); background: var(--white); }
+      .card { border: 1px solid var(--ink); }
+      a { text-decoration: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#report">Skip to report</a>
+  <div class="progress" aria-hidden="true"><span data-progress></span></div>
+
+  <header class="topbar">
+    <a class="topbar__brand" href="index.html">HEAL</a>
+    <span class="topbar__title">TECHNICAL CODE REPORT / 20 AUGUST 2026</span>
+    <nav class="topbar__links" aria-label="Report links">
+      <a href="https://github.com/nghuax/spec1" target="_blank" rel="noreferrer">SOURCE ↗</a>
+      <a href="index.html">LIVE SITE →</a>
+    </nav>
+  </header>
+
+  <section class="hero" aria-labelledby="report-title">
+    <div class="hero__meta">
+      <span>COMM2748 / RMIT UNIVERSITY VIETNAM</span>
+      <span>ORIGINAL RELEASE D4FBCD3</span>
+    </div>
+    <h1 id="report-title">Code <span>Report</span></h1>
+    <div class="hero__bottom">
+      <p>A file-by-file explanation of the HEAL static exhibition, its renderer-driven page system, its design language, and the state machines behind HARM, EXHAUST, ADAPT and LIVEN.</p>
+      <div class="stats" aria-label="Project statistics">
+        <div class="stat"><strong>43</strong><span>DEPLOYED FILES</span></div>
+        <div class="stat"><strong>4</strong><span>P5 ARTWORKS</span></div>
+        <div class="stat"><strong>0</strong><span>BUILD STEPS</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <aside class="toc" aria-label="Report contents">
+      <p class="toc__label">CONTENTS</p>
+      <ol>
+        <li><a href="#overview" data-index="01">System overview</a></li>
+        <li><a href="#architecture" data-index="02">Architecture</a></li>
+        <li><a href="#html" data-index="03">HTML entry points</a></li>
+        <li><a href="#javascript" data-index="04">Website JavaScript</a></li>
+        <li><a href="#css" data-index="05">CSS system</a></li>
+        <li><a href="#harm" data-index="06">HARM artwork</a></li>
+        <li><a href="#exhaust" data-index="07">EXHAUST artwork</a></li>
+        <li><a href="#adapt" data-index="08">ADAPT artwork</a></li>
+        <li><a href="#liven" data-index="09">LIVEN artwork</a></li>
+        <li><a href="#integration" data-index="10">Integration & access</a></li>
+        <li><a href="#deployment" data-index="11">Deployment</a></li>
+        <li><a href="#inventory" data-index="12">Complete file register</a></li>
+        <li><a href="#maintenance" data-index="13">Maintenance guide</a></li>
+      </ol>
+    </aside>
+
+    <main id="report">
+      <section class="section" id="overview">
+        <div class="section__head">
+          <p class="kicker">01 / OVERVIEW</p>
+          <h2>One shell. Four independent systems.</h2>
+        </div>
+        <p class="lead">HEAL is a static, framework-free site. Six public HTML documents provide accessible shells; three JavaScript modules insert shared content and navigation; CSS defines the campaign identity; four local p5.js packages run inside same-origin iframes.</p>
+
+        <div class="grid-3">
+          <article class="card">
+            <span class="file-label">WEBSITE SHELL</span>
+            <h3>Renderer-driven pages</h3>
+            <p>The HTML contains semantic mounting points rather than duplicated page content. <code>site.js</code> reads body data attributes and renders the correct page into those mounts.</p>
+          </article>
+          <article class="card">
+            <span class="file-label">CONTENT MODEL</span>
+            <h3>One source of truth</h3>
+            <p>Project text, chapter order, iframe paths and controls live in <code>content.js</code>. Navigation, home panels and work pages all consume the same objects.</p>
+          </article>
+          <article class="card">
+            <span class="file-label">ARTWORK BOUNDARY</span>
+            <h3>Isolated canvases</h3>
+            <p>Each artwork owns its p5 runtime, canvas, interaction state and local stylesheet. An iframe prevents sketch globals such as <code>setup()</code> and <code>draw()</code> from colliding.</p>
+          </article>
+        </div>
+
+        <div class="callout">
+          <strong>!</strong>
+          <p><b>No compilation happens.</b> The browser loads the committed HTML, CSS, ES modules, font and p5 files directly. This makes the repository itself the deployable artifact, but it also means paths and filename case must remain correct.</p>
+        </div>
+      </section>
+
+      <section class="section section--ink" id="architecture">
+        <div class="section__head">
+          <p class="kicker">02 / ARCHITECTURE</p>
+          <h2>What happens after a URL opens.</h2>
+        </div>
+        <p class="lead">The browser follows a short deterministic chain. Content is centralized, layout is generated once, and continuous animation stays confined to the chosen artwork frame.</p>
+
+        <div class="architecture" aria-label="Website runtime architecture">
+          <div class="architecture__node"><strong>HTML route</strong><span>Body attributes declare page type, root path and chapter.</span></div>
+          <div class="architecture__arrow" aria-hidden="true">→</div>
+          <div class="architecture__node"><strong>site.js</strong><span>Calls all render functions; only the matching mount exists.</span></div>
+          <div class="architecture__arrow" aria-hidden="true">→</div>
+          <div class="architecture__node"><strong>content.js</strong><span>Supplies project and chapter data.</span></div>
+          <div class="architecture__arrow" aria-hidden="true">→</div>
+          <div class="architecture__node"><strong>Generated DOM</strong><span>Navigation, page content, footer and iframe are inserted.</span></div>
+        </div>
+
+        <div class="flow" style="margin-top:2rem">
+          <article class="flow__step"><h4>Parse</h4><p>The page loads shared CSS and the module entry point.</p></article>
+          <article class="flow__step"><h4>Identify</h4><p><code>data-page</code>, <code>data-root</code> and <code>data-chapter</code> establish context.</p></article>
+          <article class="flow__step"><h4>Render</h4><p>Header, footer and exactly one page body are generated.</p></article>
+          <article class="flow__step"><h4>Run artwork</h4><p>The iframe loads its own p5 library and sketch loop.</p></article>
+        </div>
+
+        <div class="grid-2" style="margin-top:2rem">
+          <article class="card">
+            <h4>Path rule</h4>
+            <p>Top-level pages use <code>data-root="."</code>; work pages use <code>data-root=".."</code>. The helper <code>route(root, target)</code> then builds links that work both locally and under GitHub Pages' <code>/spec1/</code> project path.</p>
+          </article>
+          <article class="card">
+            <h4>Progressive enhancement</h4>
+            <p>The static shells retain titles, descriptions, landmarks and skip links before JavaScript runs. The detailed content requires modules, so the site is intentionally served over HTTP rather than opened through <code>file://</code>.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="html">
+        <div class="section__head">
+          <p class="kicker">03 / HTML</p>
+          <h2>Entry points declare context.</h2>
+        </div>
+        <p class="lead">The six public page files are deliberately thin. Their job is metadata, stylesheet selection, landmarks and routing context—not repeated content.</p>
+
+        <div class="code-block">
+          <div class="code-block__bar"><span>works/harm.html — the page contract</span><button class="copy-code" type="button">COPY</button></div>
+          <pre><code>&lt;body data-page="artwork" data-root=".." data-chapter="harm"&gt;
+  &lt;a class="skip-link" href="#main-content"&gt;Skip to main content&lt;/a&gt;
+  &lt;header class="site-header" data-site-header&gt;&lt;/header&gt;
+  &lt;main class="artwork-main" id="main-content" data-artwork-content&gt;&lt;/main&gt;
+  &lt;footer class="site-footer" data-site-footer&gt;&lt;/footer&gt;
+  &lt;script type="module" src="../js/site.js"&gt;&lt;/script&gt;
+&lt;/body&gt;</code></pre>
+        </div>
+
+        <div class="grid-3" style="margin-top:2rem">
+          <article class="card"><span class="file-label">index.html</span><h4>Homepage shell</h4><p>Declares <code>data-page="home"</code>, mounts <code>data-home-content</code>, and adds <code>home.css</code> for the campaign landing composition.</p></article>
+          <article class="card"><span class="file-label">about.html</span><h4>About shell</h4><p>Declares <code>data-page="about"</code>. Its content is produced by <code>renderAbout()</code> using the same chapter data as the rest of the site.</p></article>
+          <article class="card"><span class="file-label">works/*.html × 4</span><h4>Chapter shells</h4><p>All share <code>artwork.css</code>. Only title, description, theme colour and <code>data-chapter</code> differ, which removes structural drift between chapters.</p></article>
+        </div>
+
+        <h3 style="margin-top:3rem">Artwork HTML</h3>
+        <table class="function-table">
+          <thead><tr><th>Package entry</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>artworks/harm/index.html</code></td><td>Creates the 16:9 canvas holder and an <code>aria-live</code> status strip, then loads p5 1.9.0 and the HARM sketch.</td></tr>
+            <tr><td><code>artworks/exhaust/index.html</code></td><td>Provides a labelled main landmark. The sketch itself creates an invisible DOM button over the on-canvas pollutant control.</td></tr>
+            <tr><td><code>artworks/adapt/index.html</code></td><td>Creates the full-window app and a pointer-transparent instruction overlay before loading p5 and the regeneration field.</td></tr>
+            <tr><td><code>artworks/liven/index.html</code></td><td>Loads the minified p5 build in the head, mounts the puzzle in <code>#artwork</code>, then runs its sketch.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section section--grey" id="javascript">
+        <div class="section__head">
+          <p class="kicker">04 / JAVASCRIPT</p>
+          <h2>Three modules generate the site.</h2>
+        </div>
+
+        <div class="grid-3">
+          <article class="card">
+            <span class="file-label">js/content.js · 86 source lines</span>
+            <h3>Data</h3>
+            <p>Exports <code>siteContent</code> plus <code>getChapter()</code> and <code>getChapterIndex()</code>. Chapter objects contain identity, narrative, iframe path, accessible description and controls.</p>
+            <p><span class="tag tag--blue">PURE DATA</span><span class="tag">NO DOM</span></p>
+          </article>
+          <article class="card">
+            <span class="file-label">js/navigation.js · 87 source lines</span>
+            <h3>Shared chrome</h3>
+            <p>Builds the desktop/mobile navigation and footer. It marks the active page with <code>aria-current</code>, manages menu state, closes on Escape and resets when the viewport crosses 840px.</p>
+            <p><span class="tag tag--orange">EVENTS</span><span class="tag">ARIA</span></p>
+          </article>
+          <article class="card">
+            <span class="file-label">js/site.js · 398 source lines</span>
+            <h3>Page renderer</h3>
+            <p>Renders home, work or about content, builds journey links, monitors iframe loading, and reveals selected elements with <code>IntersectionObserver</code>.</p>
+            <p><span class="tag tag--lime">RENDERING</span><span class="tag">IFRAMES</span></p>
+          </article>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block__bar"><span>js/site.js — one safe entry point for every page</span><button class="copy-code" type="button">COPY</button></div>
+          <pre><code>function init() {
+  renderNavigation();
+  renderFooter();
+  renderHome();
+  renderArtworkPage();
+  renderAbout();
+  setupReveal();
+}
+
+init();</code></pre>
+        </div>
+        <p class="muted">This works because every renderer begins with a guard such as <code>if (!host) return;</code>. All functions may be called, but only the renderer whose mount exists performs work.</p>
+
+        <h3 style="margin-top:3rem">Important function groups</h3>
+        <table class="function-table">
+          <thead><tr><th>Function(s)</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td><code>route()</code>, <code>chapterHref()</code></td><td>Resolve relative URLs consistently from both top-level and nested pages.</td></tr>
+            <tr><td><code>renderJourneyWord()</code>, <code>homeTypeField()</code>, <code>chapterTypeField()</code></td><td>Generate decorative editorial typography. Decorative duplicates are hidden from assistive technology.</td></tr>
+            <tr><td><code>renderHome()</code></td><td>Maps the chapter array into four panels, so adding or reordering a chapter is primarily a data change.</td></tr>
+            <tr><td><code>progressMarkup()</code>, <code>adjacentLink()</code></td><td>Derive completed/current/future states and previous/next navigation from the chapter index.</td></tr>
+            <tr><td><code>renderArtworkPage()</code></td><td>Builds masthead, progress, iframe, instructions, error UI and adjacent chapter links for the active chapter.</td></tr>
+            <tr><td><code>setupArtworkFrame()</code></td><td>Hides the loader after <code>load</code>, exposes a fallback after 18 seconds, and reloads by assigning the iframe URL to itself.</td></tr>
+            <tr><td><code>optionalAboutSections()</code></td><td>Omits quote, call-to-action, member and credit sections when their content arrays/strings are empty—no placeholder copy leaks into production.</td></tr>
+            <tr><td><code>setupReveal()</code></td><td>Observes elements at a 0.16 threshold and stops observing once visible. It exits entirely when reduced motion is requested.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section" id="css">
+        <div class="section__head">
+          <p class="kicker">05 / CSS</p>
+          <h2>The visual system is layered.</h2>
+        </div>
+        <p class="lead">Six shared stylesheets move from universal foundations to page-specific composition. Cascade order is intentional: tokens and reset load first, common site rules next, then home or artwork-page rules.</p>
+
+        <div class="grid-3">
+          <article class="card"><span class="file-label">css/fonts.css</span><h4>Typeface registration</h4><p>Registers the local WOFF2 as a variable font with weights 200–700 and <code>font-display: swap</code>.</p></article>
+          <article class="card"><span class="file-label">css/variables.css</span><h4>Design tokens</h4><p>Defines the eight-colour HEAL palette, fluid spacing, page gutter, header height, border rule and transition curves.</p></article>
+          <article class="card"><span class="file-label">css/reset.css</span><h4>Predictable defaults</h4><p>Normalizes box sizing and margins, applies Stack Sans Notch system-wide, supplies focus/selection rules, and neutralizes motion when requested.</p></article>
+          <article class="card"><span class="file-label">css/site.css</span><h4>Shared layout</h4><p>Sets chapter-specific themes via body attributes, styles navigation/footer, and contains the complete About page system and responsive menu.</p></article>
+          <article class="card"><span class="file-label">css/home.css</span><h4>Homepage composition</h4><p>Controls the giant HEAL word, poster-like type field, chapter colour panels, geometric hover responses and small/landscape adaptations.</p></article>
+          <article class="card"><span class="file-label">css/artwork.css</span><h4>Work-page composition</h4><p>Styles chapter mastheads, progress state, 16:9 iframe, loader/error layers, interaction instructions and adjacent navigation.</p></article>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block__bar"><span>css/site.css — attribute-driven chapter theming</span><button class="copy-code" type="button">COPY</button></div>
+          <pre><code>body[data-chapter='harm'] {
+  --page-background: var(--heal-ink);
+  --page-foreground: var(--heal-white);
+  --page-accent: var(--heal-orange);
+}
+
+body[data-chapter='adapt'] {
+  --page-background: var(--heal-blue);
+  --page-foreground: var(--heal-white);
+  --page-accent: var(--heal-lime);
+}</code></pre>
+        </div>
+
+        <div class="grid-2" style="margin-top:2rem">
+          <article class="card"><h4>Responsive strategy</h4><p><code>clamp()</code> provides fluid type and spacing. Major layout changes happen near 840px; tighter adjustments occur around 520–580px; a short landscape query protects artwork controls on shallow screens.</p></article>
+          <article class="card"><h4>Graphic strategy</h4><p>Oversized text, hard borders, pseudo-elements and transformed rectangles create the poster aesthetic without image assets. The only shared visual binary is the font.</p></article>
+        </div>
+      </section>
+
+      <section class="section section--ink" id="harm">
+        <div class="artwork-hero">
+          <div><p class="kicker">06 / ARTWORK 01</p><div class="artwork-mark">H</div></div>
+          <div class="artwork-summary"><h2>HARM</h2><p>Coal creates electricity and architecture, but every burn adds persistent environmental debt. This is the largest and most simulation-heavy sketch.</p></div>
+        </div>
+
+        <div class="flow">
+          <article class="flow__step"><h4>Demand</h4><p>Hovering a completed house or factory for 0.45 seconds creates an orange demand signal.</p></article>
+          <article class="flow__step"><h4>Coal</h4><p>Clicking coal—or dropping it into the hopper—fractures it into pieces travelling on quadratic curves.</p></article>
+          <article class="flow__step"><h4>Combustion</h4><p>The leader fragment triggers power, unlocks architecture and emits smoke, carbon and ash.</p></article>
+          <article class="flow__step"><h4>Consequence</h4><p>Particles deposit into a diffusing pollution grid that damages local objects and thickens the atmosphere.</p></article>
+        </div>
+
+        <div class="formula">burn → useful power + architecture + 3.8 × overdrive multiplier pollution</div>
+
+        <h3 style="margin-top:3rem">State and update pipeline</h3>
+        <div class="grid-2">
+          <article class="card">
+            <span class="file-label">WORLD STATE</span>
+            <p><code>houses</code>, <code>trees</code>, <code>poles</code>, <code>factories</code> and <code>demandNodes</code> describe the built environment. Architecture starts locked and is released through five curated <code>ARCHITECTURE_WAVES</code>.</p>
+          </article>
+          <article class="card">
+            <span class="file-label">TRANSIENT STATE</span>
+            <p><code>coal</code>, <code>fragments</code>, <code>demandSignals</code>, <code>energyClusters</code>, <code>smoke</code>, <code>carbonDust</code>, <code>ash</code> and <code>debris</code> are capped particle collections.</p>
+          </article>
+          <article class="card">
+            <span class="file-label">ENVIRONMENT STATE</span>
+            <p>An 18 × 10 pair of grids stores local pollution. Deposits diffuse to neighbours, decay slowly, receive upward bias and can be sampled by position or column.</p>
+          </article>
+          <article class="card">
+            <span class="file-label">GLOBAL STATE</span>
+            <p><code>pollution</code>, <code>smokeCeiling</code>, <code>machineHeat</code>, <code>overdrive</code> and recent <code>burnTimes</code> connect individual actions to the full composition.</p>
+          </article>
+        </div>
+
+        <table class="function-table" style="margin-top:2rem">
+          <thead><tr><th>Function group</th><th>Explanation</th></tr></thead>
+          <tbody>
+            <tr><td><code>setup()</code>, <code>resetScene()</code>, <code>buildWorld()</code></td><td>Create the 1920 × 1080 canvas, seed random/noise, clear all state and assemble world objects with deterministic variation.</td></tr>
+            <tr><td><code>updateHover()</code> → <code>requestDemand()</code> → <code>queueDemand()</code></td><td>Turn sustained architectural hover into an expiring demand target, while preventing coal dragging from accidentally triggering demand.</td></tr>
+            <tr><td><code>updateCoal()</code>, <code>fractureCoal()</code>, <code>updateFragments()</code></td><td>Animate seven falling coal pieces, add demand attraction, split selected coal and delay combustion until its leader reaches the hopper.</td></tr>
+            <tr><td><code>triggerBurn()</code>, <code>spawnEnergy()</code>, <code>applyPower()</code></td><td>Record burns, calculate overdrive, increase pollution, form buildings, send energy to a target and briefly charge it.</td></tr>
+            <tr><td><code>depositPollution()</code>, <code>updatePollutionField()</code>, <code>samplePollution()</code></td><td>Maintain spatial pollution rather than a purely global score. This lets nearby trees, houses and factories decay differently.</td></tr>
+            <tr><td><code>emitFactorySmoke()</code>, <code>updateSmoke()</code></td><td>Build independent chimney plumes. Noise is recalculated every other frame and field deposits every third frame to reduce cost.</td></tr>
+            <tr><td><code>updateWorld()</code>, <code>updateObjectExposure()</code>, <code>updateDamageParts()</code></td><td>Convert local exposure into staged damage and release object-specific debris.</td></tr>
+            <tr><td><code>draw()</code></td><td>Updates every subsystem first, then paints in a strict back-to-front order: atmosphere, world, signals, particles, veil, HUD and grain.</td></tr>
+            <tr><td><code>mousePressed/Dragged/Released()</code>, <code>keyPressed()</code></td><td>Implement click/drag coal, hopper detection, reset and PNG export.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <strong>60</strong>
+          <p>The simulation targets 60 fps, caps <code>deltaTime</code> at 0.05 seconds, limits every heavy array, caches smoke noise, and converts settled particles into cheap grid deposits. These are stability controls, not merely visual choices.</p>
+        </div>
+
+        <div class="grid-4" style="margin-top:2rem">
+          <article class="card"><span class="file-label">harm/index.html</span><p>Canvas/status mount and dependency order.</p></article>
+          <article class="card"><span class="file-label">harm/style.css</span><p>Maintains 16:9 framing and styles the live status strip.</p></article>
+          <article class="card"><span class="file-label">harm/sketch.js</span><p>2,740 source lines of world, interaction, simulation and drawing logic.</p></article>
+          <article class="card"><span class="file-label">harm/perf_test.html</span><p>Development harness for observing the sketch's performance; not linked from the visitor journey.</p></article>
+        </div>
+      </section>
+
+      <section class="section section--orange" id="exhaust">
+        <div class="artwork-hero">
+          <div><p class="kicker">07 / ARTWORK 02</p><div class="artwork-mark">E</div></div>
+          <div class="artwork-summary"><h2>EXHAUST</h2><p>A rising boundary converts a calm field into pollution. Natural objects continuously enter, cross the line and change state.</p></div>
+        </div>
+
+        <div class="grid-3">
+          <article class="card"><span class="file-label">CONTROL</span><h3>11 steps</h3><p>The DOM <code>POLLUTANT</code> button increments <code>lineClicks</code>. <code>targetLineLevel = lineClicks / 11</code>; exponential interpolation makes the boundary move smoothly.</p></article>
+          <article class="card"><span class="file-label">OBJECT STREAM</span><h3>22 forms</h3><p>Trees, mountains, ponds, clouds, flowers, leaves and fish spawn beyond alternating canvas edges and move through the composition.</p></article>
+          <article class="card"><span class="file-label">STATE CHANGE</span><h3>Alive → damaged</h3><p>On first contact with the line, each object maps to a semantic damaged state; selected forms instead shatter into physics-driven fragments.</p></article>
+        </div>
+
+        <div class="formula">pollutionLineY = lerp(canvas bottom + 8, canvas top − 8, lineLevel)</div>
+
+        <table class="function-table" style="margin-top:2rem">
+          <thead><tr><th>Function group</th><th>Explanation</th></tr></thead>
+          <tbody>
+            <tr><td><code>setup()</code>, <code>fitArtboardToWindow()</code></td><td>Create a fixed 1920 × 1080 logical artboard and scale its CSS dimensions to fit the iframe without distorting aspect ratio.</td></tr>
+            <tr><td><code>regenerateArtwork()</code>, <code>createSeed()</code></td><td>Reset all interaction state and seed both random and noise. Cryptographic browser entropy is used when available.</td></tr>
+            <tr><td><code>resetNaturalObject()</code></td><td>Choose type-specific size/rotation ranges, an entry edge, destination vector and initial travel position.</td></tr>
+            <tr><td><code>updateNaturalObjects()</code></td><td>Apply velocity plus sinusoidal float, detect the pollution crossing once, and recycle objects that leave the expanded bounds.</td></tr>
+            <tr><td><code>transformNaturalObject()</code></td><td>Map living forms to dead, ruined, polluted, smog, wilted, withered or skeleton states. Some variants call <code>createShatteredPieces()</code>.</td></tr>
+            <tr><td><code>drawTree()</code> … <code>drawFish()</code></td><td>Seven procedural illustrators render both healthy and damaged appearances using hard-edged polygons from the HEAL palette.</td></tr>
+            <tr><td><code>drawPollutedBackground()</code>, <code>drawPollutionMotes()</code></td><td>Clip brown strata, stains and motes to the contaminated side of the moving line.</td></tr>
+            <tr><td><code>drawPollutantCore()</code></td><td>Draw the visual control, hover/press feedback, orbital fragments, label and an 11-block progress indicator underneath an accessible DOM hit target.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="grid-4" style="margin-top:2rem">
+          <article class="card"><span class="file-label">exhaust/index.html</span><p>Accessible artwork shell and local script order.</p></article>
+          <article class="card"><span class="file-label">exhaust/style.css</span><p>Canvas reset plus keyboard focus outline for the transparent button.</p></article>
+          <article class="card"><span class="file-label">exhaust/sketch.js</span><p>1,046 source lines of object flow, contamination and procedural drawing.</p></article>
+          <article class="card"><span class="file-label">exhaust/p5.js</span><p>Unmodified p5.js 2.3.2 runtime; third-party LGPL code.</p></article>
+        </div>
+      </section>
+
+      <section class="section section--ink" id="adapt">
+        <div class="artwork-hero">
+          <div><p class="kicker">08 / ARTWORK 03</p><div class="artwork-mark">A</div></div>
+          <div class="artwork-summary"><h2>ADAPT</h2><p>Sun and wind are complementary tools. Neither charge alone fully restores a module; recovery depends mostly on the lower of the two.</p></div>
+        </div>
+
+        <div class="code-block">
+          <div class="code-block__bar"><span>adapt/sketch.js — the central recovery rule</span><button class="copy-code" type="button">COPY</button></div>
+          <pre><code>function moduleRecovery(m) {
+  const dual = min(m.sun, m.wind);
+  return constrain(dual * 0.84 + (m.sun + m.wind) * 0.08, 0, 1);
+}</code></pre>
+        </div>
+        <p class="muted">84% of recovery comes from the weaker shared charge. The remaining 16% comes from total sun plus wind. This encodes the concept that balanced systems outperform a single intervention.</p>
+
+        <div class="grid-3" style="margin-top:2rem">
+          <article class="card"><span class="file-label">MODULE FIELD</span><h3>46–58 modules</h3><p>Houses, trees, flowers, factories, farms, stores, bushes and gardens are distributed with collision-aware spacing and kind-specific mass.</p></article>
+          <article class="card"><span class="file-label">SUN TOOL</span><h3>Charge + burst</h3><p>Dragging adds sun charge inside a 248px falloff radius and creates expanding blue/lime rings.</p></article>
+          <article class="card"><span class="file-label">WIND TOOL</span><h3>Charge + force</h3><p>Dragging adds wind charge inside 274px, pushes modules based on inverse mass and accelerates nearby smoke away.</p></article>
+        </div>
+
+        <table class="function-table" style="margin-top:2rem">
+          <thead><tr><th>Function group</th><th>Explanation</th></tr></thead>
+          <tbody>
+            <tr><td><code>buildModules()</code>, <code>makeModule()</code></td><td>Place at least one of every kind, reject overlaps, and assign charge, mass, platform, loose part offsets and organic motion values.</td></tr>
+            <tr><td><code>flowAt()</code>, <code>updateModules()</code></td><td>Use a noise vector field for motion. Low-recovery modules remain more chaotic; restored modules become calmer and produce pollen.</td></tr>
+            <tr><td><code>updateSmoke()</code></td><td>Advect 130–190 smoke fragments through the same flow. Combined wind, sun and global recovery reduce smoke life.</td></tr>
+            <tr><td><code>partTransform()</code>, <code>drawHouse()</code> … <code>drawFlower()</code></td><td>Reassemble scattered component parts and interpolate their visual state as local recovery increases.</td></tr>
+            <tr><td><code>updateWindCursor()</code>, <code>drawWindCursor()</code></td><td>Derive pointer direction/speed, animate a three-blade fan and emit wind traces only while the wind tool is active.</td></tr>
+            <tr><td><code>applyEnergy()</code></td><td>Calculate radial falloff, update the relevant charge and apply directional wind force to modules and smoke.</td></tr>
+            <tr><td><code>updateModules()</code> completion branch</td><td>When 82% of modules exceed 0.72 recovery and the average passes 0.72, all modules finish, bursts fire and the final status appears.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="grid-4" style="margin-top:2rem">
+          <article class="card"><span class="file-label">adapt/index.html</span><p>Canvas mount and non-interactive help overlay.</p></article>
+          <article class="card"><span class="file-label">adapt/style.css</span><p>Fullscreen dark field, typography and overlay layout.</p></article>
+          <article class="card"><span class="file-label">adapt/sketch.js</span><p>1,033 source lines of ecosystem modules, tools and recovery.</p></article>
+          <article class="card"><span class="file-label">adapt/p5.js</span><p>Unmodified p5.js 1.9.0 runtime; third-party LGPL code.</p></article>
+        </div>
+      </section>
+
+      <section class="section section--lime" id="liven">
+        <div class="artwork-hero">
+          <div><p class="kicker">09 / ARTWORK 04</p><div class="artwork-mark">L</div></div>
+          <div class="artwork-summary"><h2>LIVEN</h2><p>A class-based drag-and-drop puzzle. Three renewable pieces fit three Earth slots; eight trash pieces remain draggable decoys.</p></div>
+        </div>
+
+        <div class="grid-3">
+          <article class="card"><span class="file-label">EarthPuzzle</span><h3>Target + feedback</h3><p>Owns three slots and the planet's visual progress. As placements rise from 0 to 3, ocean grey becomes blue and land black becomes lime.</p></article>
+          <article class="card"><span class="file-label">OrbitPiece</span><h3>Reusable draggable</h3><p>Represents both energy and trash. It updates orbital position, tests its polygon, floats, draws, snaps or interpolates back to orbit.</p></article>
+          <article class="card"><span class="file-label">EnergyPanel</span><h3>Progress display</h3><p>Interpolates toward <code>placedCount() / 3</code> and draws the renewable-energy restoration bar.</p></article>
+        </div>
+
+        <div class="formula">screen pointer → inverse viewport transform → logical 1920 × 1080 coordinates → polygon hit test</div>
+
+        <table class="function-table" style="margin-top:2rem">
+          <thead><tr><th>Function group</th><th>Explanation</th></tr></thead>
+          <tbody>
+            <tr><td><code>updateViewport()</code>, <code>updateLogicalMouse()</code></td><td>Letterbox the 1920 × 1080 scene within any iframe size and reverse that scale/translation for accurate pointer interaction.</td></tr>
+            <tr><td><code>createEnergyPieces()</code>, <code>createTrashPieces()</code></td><td>Create solar, turbine and water pieces plus trash decoys on three elliptical orbit rings with separated starting angles.</td></tr>
+            <tr><td><code>mousePressed/Dragged/Released()</code></td><td>Search pieces from front to back, preserve grab offset, move in logical coordinates, then snap only a matching renewable piece within its slot radius.</td></tr>
+            <tr><td><code>OrbitPiece.hitTest()</code>, <code>pointInPolygon()</code></td><td>Transform local vertices into scene coordinates and use ray casting. Hit regions match irregular visible polygons, not rectangular boxes.</td></tr>
+            <tr><td><code>EarthPuzzle.draw()</code></td><td>Draw the planet, empty silhouettes, then clip placed renewable artwork to the circular Earth boundary.</td></tr>
+            <tr><td><code>drawSolarIcon()</code>, <code>drawTurbineIcon()</code>, <code>drawWaterIcon()</code></td><td>Construct clean-energy symbols entirely from p5 primitives; separate icon functions do the same for six trash types.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="grid-4" style="margin-top:2rem">
+          <article class="card"><span class="file-label">liven/index.html</span><p>Loads p5, font and the puzzle mount.</p></article>
+          <article class="card"><span class="file-label">liven/style.css</span><p>Fullscreen white frame and canvas reset.</p></article>
+          <article class="card"><span class="file-label">liven/sketch.js</span><p>400 source lines; compact class-oriented puzzle logic.</p></article>
+          <article class="card"><span class="file-label">liven/p5.min.js</span><p>Minified p5.js 1.11.13 runtime; third-party LGPL code.</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="integration">
+        <div class="section__head">
+          <p class="kicker">10 / INTEGRATION</p>
+          <h2>Isolation without visual separation.</h2>
+        </div>
+
+        <div class="grid-2">
+          <article class="card"><h3>Why iframes?</h3><p>Every p5 package defines global callbacks named <code>setup</code>, <code>draw</code>, <code>keyPressed</code> and <code>windowResized</code>. Loading four sketches into the parent page would overwrite globals. Separate documents provide separate JavaScript realms and CSS scope.</p></article>
+          <article class="card"><h3>Why same-origin?</h3><p>All artwork assets live inside the repository. Relative URLs remain portable, no third-party network is required, and browser security does not block the parent page from loading the frames.</p></article>
+          <article class="card"><h3>Shared typography</h3><p>Each artwork entry imports <code>../../css/fonts.css</code>; each sketch also calls <code>textFont('Stack Sans Notch')</code>. DOM labels and canvas text therefore use the same self-hosted variable font.</p></article>
+          <article class="card"><h3>Shared narrative</h3><p>The iframe never owns chapter headings or long instructions. Those stay in the parent page, where they remain selectable, responsive and accessible even though the primary visual is a canvas.</p></article>
+        </div>
+
+        <h3 style="margin-top:3rem">Accessibility mechanisms</h3>
+        <table class="function-table">
+          <thead><tr><th>Mechanism</th><th>Implementation</th></tr></thead>
+          <tbody>
+            <tr><td>Landmarks and titles</td><td>Every route has language, title, description, header/main/footer landmarks and one meaningful H1 after rendering.</td></tr>
+            <tr><td>Keyboard navigation</td><td>Visible focus styling, semantic links/buttons, Escape-to-close mobile menu and keyboard artwork shortcuts.</td></tr>
+            <tr><td>Artwork descriptions</td><td>Iframe titles plus hidden descriptions/instructions connect the visual experiences to explanatory text.</td></tr>
+            <tr><td>Loading feedback</td><td>The loader uses <code>role="status"</code>; HARM has an <code>aria-live="polite"</code> instruction/status element.</td></tr>
+            <tr><td>Reduced motion</td><td>CSS minimizes transitions/animations and JavaScript skips scroll-reveal observation.</td></tr>
+            <tr><td>Responsive access</td><td>Flexible type/spacing and aspect-ratio wrappers protect reading order and interaction surfaces across widths.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <strong>△</strong>
+          <p><b>Known boundary:</b> most p5 interactions are pointer-led and canvas pixels do not expose rich semantic object trees. The parent instructions and keyboard reset/tool shortcuts reduce this limitation, while EXHAUST additionally overlays a real accessible button.</p>
+        </div>
+      </section>
+
+      <section class="section section--grey" id="deployment">
+        <div class="section__head">
+          <p class="kicker">11 / DEPLOYMENT</p>
+          <h2>GitHub Pages receives the code folder.</h2>
+        </div>
+        <p class="lead">The workflow is intentionally short because there is nothing to compile. Every push to <code>main</code> checks out the repository, configures Pages, packages <code>./code</code> and deploys that artifact.</p>
+
+        <div class="code-block">
+          <div class="code-block__bar"><span>.github/workflows/deploy-pages.yml</span><button class="copy-code" type="button">COPY</button></div>
+          <pre><code>permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+steps:
+  - uses: actions/checkout@v6
+  - uses: actions/configure-pages@v5
+  - uses: actions/upload-pages-artifact@v4
+    with:
+      path: ./code
+  - uses: actions/deploy-pages@v4</code></pre>
+        </div>
+
+        <div class="grid-3" style="margin-top:2rem">
+          <article class="card"><h4>Permissions</h4><p>Repository content is read-only to the job; Pages and OIDC permissions allow the official deployment action to publish.</p></article>
+          <article class="card"><h4>Concurrency</h4><p>The <code>pages</code> group avoids overlapping deployments, while <code>cancel-in-progress: false</code> lets an active release finish safely.</p></article>
+          <article class="card"><h4>Manual recovery</h4><p><code>workflow_dispatch</code> exposes a Run workflow control when a deployment must be repeated without changing source.</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="inventory">
+        <div class="section__head">
+          <p class="kicker">12 / INVENTORY</p>
+          <h2>Every deployed file explained.</h2>
+        </div>
+        <p class="lead">“Project” means code maintained as part of HEAL. “Vendor” means a bundled dependency whose internal source is not authored by the project. “Documentation” covers licences and operational notes.</p>
+
+        <div class="inventory-tools">
+          <label for="file-filter">FILTER FILES</label>
+          <input id="file-filter" type="search" placeholder="Try: artwork, CSS, vendor, licence…" data-file-filter>
+          <span data-filter-count>43 files</span>
+        </div>
+
+        <table class="file-table" data-file-table>
+          <thead><tr><th>File</th><th>Owner</th><th>Kind</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td><code>.github/workflows/deploy-pages.yml</code></td><td class="owner-project">Project</td><td>YAML</td><td>Publishes the <code>code/</code> directory to GitHub Pages on pushes to main or manual dispatch.</td></tr>
+            <tr><td><code>code/index.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>Homepage metadata, shared mounts and module entry point.</td></tr>
+            <tr><td><code>code/about.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>About-page metadata, shared mounts and module entry point.</td></tr>
+            <tr><td><code>code/code-report.html</code></td><td class="owner-project">Project</td><td>HTML report</td><td>Complete technical explanation and searchable file register for the website.</td></tr>
+            <tr><td><code>code/website-components.html</code></td><td class="owner-project">Project</td><td>HTML report</td><td>Short pictorial guide to the nine primary interface components.</td></tr>
+            <tr><td><code>code/typography-report.html</code></td><td class="owner-project">Project</td><td>HTML report</td><td>Stack Sans Notch specimens, hierarchy, usage and group typography rules.</td></tr>
+            <tr><td><code>code/works/harm.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>HARM chapter shell; declares the <code>harm</code> context.</td></tr>
+            <tr><td><code>code/works/exhaust.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>EXHAUST chapter shell; declares the <code>exhaust</code> context.</td></tr>
+            <tr><td><code>code/works/adapt.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>ADAPT chapter shell; declares the <code>adapt</code> context.</td></tr>
+            <tr><td><code>code/works/liven.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>LIVEN chapter shell; declares the <code>liven</code> context.</td></tr>
+            <tr><td><code>code/js/content.js</code></td><td class="owner-project">Project</td><td>ES module</td><td>Canonical project/chapter data and chapter lookup helpers.</td></tr>
+            <tr><td><code>code/js/navigation.js</code></td><td class="owner-project">Project</td><td>ES module</td><td>Navigation/footer rendering and mobile-menu behaviour.</td></tr>
+            <tr><td><code>code/js/site.js</code></td><td class="owner-project">Project</td><td>ES module</td><td>Home, work and about renderers; iframe state; reveal behaviour.</td></tr>
+            <tr><td><code>code/css/fonts.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Registers the local Stack Sans Notch variable font.</td></tr>
+            <tr><td><code>code/css/variables.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Palette, spacing, layout and timing custom properties.</td></tr>
+            <tr><td><code>code/css/reset.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Global normalization, typography, focus, selection and reduced motion.</td></tr>
+            <tr><td><code>code/css/site.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Global page themes, header/footer and About page layouts.</td></tr>
+            <tr><td><code>code/css/home.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Homepage hero, type field, chapter panels and responsive states.</td></tr>
+            <tr><td><code>code/css/artwork.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Chapter masthead, progress, iframe stage, loader and next/previous nav.</td></tr>
+            <tr><td><code>code/artworks/harm/index.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>HARM canvas holder, live status and script loading.</td></tr>
+            <tr><td><code>code/artworks/harm/style.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>16:9 frame and instruction/status bar styling.</td></tr>
+            <tr><td><code>code/artworks/harm/sketch.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Coal, demand, power, emissions, spatial pollution, damage and rendering.</td></tr>
+            <tr><td><code>code/artworks/harm/p5.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local unmodified p5.js 1.9.0 runtime.</td></tr>
+            <tr><td><code>code/artworks/harm/perf_test.html</code></td><td class="owner-project">Project</td><td>Test HTML</td><td>Development-only performance observation harness.</td></tr>
+            <tr><td><code>code/artworks/harm/README.md</code></td><td class="owner-doc">Documentation</td><td>Markdown</td><td>HARM controls and implementation notes.</td></tr>
+            <tr><td><code>code/artworks/exhaust/index.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>EXHAUST landmark, font/style links and script loading.</td></tr>
+            <tr><td><code>code/artworks/exhaust/style.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Canvas reset and focus indication for the DOM control.</td></tr>
+            <tr><td><code>code/artworks/exhaust/sketch.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Rising pollution, natural-object stream, damage states and drawing.</td></tr>
+            <tr><td><code>code/artworks/exhaust/p5.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local unmodified p5.js 2.3.2 runtime.</td></tr>
+            <tr><td><code>code/artworks/adapt/index.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>ADAPT canvas mount, title/help overlay and script loading.</td></tr>
+            <tr><td><code>code/artworks/adapt/style.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Fullscreen app and informational overlay styling.</td></tr>
+            <tr><td><code>code/artworks/adapt/sketch.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Balanced sun/wind recovery field, smoke, modules and particles.</td></tr>
+            <tr><td><code>code/artworks/adapt/p5.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local unmodified p5.js 1.9.0 runtime.</td></tr>
+            <tr><td><code>code/artworks/adapt/README.md</code></td><td class="owner-doc">Documentation</td><td>Markdown</td><td>ADAPT package overview and controls.</td></tr>
+            <tr><td><code>code/artworks/liven/index.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>LIVEN canvas mount, font/style links and script loading.</td></tr>
+            <tr><td><code>code/artworks/liven/style.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Fullscreen puzzle frame and canvas reset.</td></tr>
+            <tr><td><code>code/artworks/liven/sketch.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Orbiting drag pieces, Earth slots, renewable progress and icons.</td></tr>
+            <tr><td><code>code/artworks/liven/p5.min.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local minified p5.js 1.11.13 runtime.</td></tr>
+            <tr><td><code>code/assets/fonts/stack-sans-notch-variable.woff2</code></td><td class="owner-vendor">Vendor</td><td>Font</td><td>Self-hosted Stack Sans Notch variable webfont, weights 200–700.</td></tr>
+            <tr><td><code>code/assets/fonts/OFL.txt</code></td><td class="owner-doc">Documentation</td><td>Licence</td><td>SIL Open Font License 1.1 governing the font.</td></tr>
+            <tr><td><code>code/README.md</code></td><td class="owner-doc">Documentation</td><td>Markdown</td><td>Project overview, controls, serving instructions and structure.</td></tr>
+            <tr><td><code>code/THIRD-PARTY-LICENSES.md</code></td><td class="owner-doc">Documentation</td><td>Markdown</td><td>p5 and Stack Sans versions, sources and licence notices.</td></tr>
+            <tr><td><code>code/LICENSE</code></td><td class="owner-doc">Documentation</td><td>Licence</td><td>GNU GPL version 3 text covering the HEAL site code.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section section--ink" id="maintenance">
+        <div class="section__head">
+          <p class="kicker">13 / MAINTENANCE</p>
+          <h2>Where future changes belong.</h2>
+        </div>
+
+        <div class="grid-2">
+          <article class="card"><h3>Change wording</h3><p>Edit <code>js/content.js</code>. Keep shared chapter titles, statements, descriptions and instructions out of individual HTML shells.</p></article>
+          <article class="card"><h3>Change site colours</h3><p>Edit palette tokens in <code>css/variables.css</code>, then verify chapter overrides in <code>css/site.css</code> and hard-coded artwork palettes separately.</p></article>
+          <article class="card"><h3>Change navigation</h3><p>Edit <code>js/navigation.js</code>. Preserve <code>aria-current</code>, Escape handling and root-relative routing.</p></article>
+          <article class="card"><h3>Change a simulation</h3><p>Edit only that artwork's <code>sketch.js</code>. Test it standalone and through its iframe because pointer coordinates and resize behaviour differ.</p></article>
+          <article class="card"><h3>Add final credits</h3><p>Populate the intentionally empty fields in <code>siteContent.project</code> and each chapter's <code>credit</code>. Conditional rendering will expose them automatically.</p></article>
+          <article class="card"><h3>Release changes</h3><p>Serve <code>code/</code> over HTTP, test all routes and artworks, commit, then push to <code>main</code>. GitHub Pages deploys the same folder.</p></article>
+        </div>
+
+        <div class="callout">
+          <strong>✓</strong>
+          <p><b>Recommended verification:</b> check browser console errors, keyboard focus, mobile menu, iframe load/error states, every artwork's reset control, all relative asset URLs, and reduced-motion mode before submission.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <span>HEAL / CODE REPORT / GENERATED FROM THE DEPLOYED PROJECT SOURCE</span>
+    <span>HARM → EXHAUST → ADAPT → LIVEN</span>
+  </footer>
+
+  <script>
+    const progress = document.querySelector('[data-progress]');
+    const tocLinks = [...document.querySelectorAll('.toc a')];
+    const sections = tocLinks
+      .map((link) => document.querySelector(link.getAttribute('href')))
+      .filter(Boolean);
+
+    function updateReadingState() {
+      const available = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = available > 0 ? window.scrollY / available : 0;
+      progress.style.width = `${Math.min(100, Math.max(0, ratio * 100))}%`;
+
+      let active = sections[0];
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= 150) active = section;
+      }
+      tocLinks.forEach((link) => {
+        link.classList.toggle('is-active', link.getAttribute('href') === `#${active?.id}`);
+      });
+    }
+
+    window.addEventListener('scroll', updateReadingState, { passive: true });
+    window.addEventListener('resize', updateReadingState);
+    updateReadingState();
+
+    document.querySelectorAll('.copy-code').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const code = button.closest('.code-block').querySelector('code').textContent;
+        try {
+          await navigator.clipboard.writeText(code);
+          button.textContent = 'COPIED';
+          window.setTimeout(() => { button.textContent = 'COPY'; }, 1400);
+        } catch {
+          button.textContent = 'SELECT TEXT';
+        }
+      });
+    });
+
+    const filter = document.querySelector('[data-file-filter]');
+    const rows = [...document.querySelectorAll('[data-file-table] tbody tr')];
+    const count = document.querySelector('[data-filter-count]');
+    filter.addEventListener('input', () => {
+      const query = filter.value.trim().toLowerCase();
+      let visible = 0;
+      rows.forEach((row) => {
+        const match = !query || row.textContent.toLowerCase().includes(query);
+        row.hidden = !match;
+        if (match) visible += 1;
+      });
+      count.textContent = `${visible} ${visible === 1 ? 'file' : 'files'}`;
+    });
+  </script>
+</body>
+</html>

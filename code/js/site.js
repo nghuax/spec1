@@ -354,6 +354,44 @@ function renderAbout() {
       </div>
     </section>
 
+    <section class="system-documentation" aria-labelledby="documentation-title">
+      <div class="system-documentation__heading">
+        <p class="section-label">SYSTEM DOCUMENTATION</p>
+        <h2 id="documentation-title">THE COMPONENTS AND TYPE THAT HOLD HEAL TOGETHER.</h2>
+        <p>Two short visual reports explain how the shared interface is assembled and how Stack Sans Notch creates one voice across the four environmental states.</p>
+      </div>
+
+      <div class="documentation-grid">
+        <article class="documentation-card documentation-card--components">
+          <div class="documentation-card__visual documentation-components" aria-hidden="true">
+            <div class="documentation-components__nav"><b>HEAL</b><span>H</span><span>E</span><span>A</span><span>L</span><i>ABOUT</i></div>
+            <div class="documentation-components__panels"><i>H</i><i>E</i><i>A</i><i>L</i></div>
+            <div class="documentation-components__frame"><span>INTERACTIVE ARTWORK</span><b>16:9</b></div>
+          </div>
+          <div class="documentation-card__copy">
+            <span>REPORT 01 / WEBSITE SYSTEM</span>
+            <h3>WEBSITE COMPONENTS</h3>
+            <p>A pictorial guide to navigation, hero, chapter panels, progress, artwork frame, instructions, About sections and their source files.</p>
+            <a class="text-link" href="${route(root, 'website-components.html')}">VIEW COMPONENT REPORT <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+
+        <article class="documentation-card documentation-card--type">
+          <div class="documentation-card__visual documentation-type" aria-hidden="true">
+            <span>STACK SANS NOTCH / 200—700</span>
+            <b>HEAL</b>
+            <div><i>HARM</i><i>EXHAUST</i><i>ADAPT</i><i>LIVEN</i></div>
+          </div>
+          <div class="documentation-card__copy">
+            <span>REPORT 02 / VISUAL IDENTITY</span>
+            <h3>TYPOGRAPHY SYSTEM</h3>
+            <p>The project typeface, hierarchy, responsive scale, tracking, weights, chapter treatments, accessibility and group consistency rules.</p>
+            <a class="text-link" href="${route(root, 'typography-report.html')}">VIEW TYPOGRAPHY REPORT <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <section class="credits" id="credits" aria-labelledby="credits-title">
       <p class="section-label">OPEN-SOURCE CODE / LICENCES</p>
       <div>

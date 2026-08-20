@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Typography report for the HEAL group website.">
+  <title>HEAL — Typography Report</title>
+  <style>
+    @font-face {
+      font-family: 'Stack Sans Notch';
+      src: url('assets/fonts/stack-sans-notch-variable.woff2') format('woff2');
+      font-style: normal;
+      font-weight: 200 700;
+      font-display: swap;
+    }
+
+    :root {
+      --ink: #141414;
+      --white: #ffffff;
+      --grey: #9ea2a3;
+      --fog: #e8e9e7;
+      --blue: #2033ff;
+      --purple: #6952eb;
+      --orange: #fe7d21;
+      --lime: #b3ff3b;
+      --paper: #f5f3ee;
+      --gutter: clamp(1rem, 4vw, 4rem);
+      --rule: 1px solid var(--ink);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: 'Stack Sans Notch', Arial, Helvetica, sans-serif;
+      font-size: clamp(1rem, 1.15vw, 1.25rem);
+      line-height: 1.35;
+    }
+    button, input { font: inherit; }
+    a { color: inherit; text-underline-offset: .18em; }
+    code, pre { font-family: Consolas, monospace; }
+    :focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+    ::selection { color: var(--white); background: var(--blue); }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      min-height: 4rem;
+      padding: .75rem var(--gutter);
+      color: var(--white);
+      background: rgba(20,20,20,.96);
+      border-bottom: 1px solid rgba(255,255,255,.3);
+      backdrop-filter: blur(12px);
+    }
+    .topbar strong { font-size: 1.15rem; letter-spacing: -.04em; }
+    .topbar span { color: var(--grey); font-size: .65rem; letter-spacing: .12em; text-align: center; }
+    .topbar nav { display: flex; gap: .9rem; font-size: .65rem; letter-spacing: .08em; }
+
+    .hero {
+      min-height: calc(100svh - 4rem);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: var(--gutter);
+      color: var(--white);
+      background: var(--blue);
+      border-bottom: var(--rule);
+      overflow: hidden;
+    }
+    .eyebrow { margin: 0; font-size: .7rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
+    .hero h1 {
+      align-self: center;
+      margin: 2rem 0;
+      font-size: clamp(6rem, 23vw, 24rem);
+      font-weight: 700;
+      letter-spacing: -.12em;
+      line-height: .65;
+      white-space: nowrap;
+    }
+    .hero h1 span:nth-child(1) { color: var(--orange); }
+    .hero h1 span:nth-child(2) { color: var(--lime); }
+    .hero__bottom {
+      display: grid;
+      grid-template-columns: 1fr minmax(16rem, 38rem);
+      gap: 2rem;
+      align-items: end;
+    }
+    .hero__bottom p { max-width: 48ch; margin: 0; font-size: clamp(1.1rem, 2vw, 1.7rem); font-weight: 700; line-height: 1.05; }
+    .hero__meta { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid currentColor; }
+    .hero__meta div { padding: .75rem; border-right: 1px solid currentColor; }
+    .hero__meta div:last-child { border-right: 0; }
+    .hero__meta strong { display: block; font-size: 1.6rem; line-height: 1; }
+    .hero__meta span { display: block; margin-top: .55rem; font-size: .55rem; letter-spacing: .09em; }
+
+    .section { padding: clamp(3.5rem, 8vw, 8rem) var(--gutter); border-bottom: var(--rule); }
+    .section--ink { color: var(--white); background: var(--ink); }
+    .section--grey { background: var(--fog); }
+    .section--lime { background: var(--lime); }
+    .section__head {
+      display: grid;
+      grid-template-columns: 8rem minmax(0, 1fr);
+      gap: 1rem;
+      margin-bottom: clamp(2.5rem, 6vw, 5rem);
+    }
+    .section__head p { margin: .2rem 0 0; font-size: .65rem; font-weight: 700; letter-spacing: .11em; }
+    h2 {
+      max-width: 16ch;
+      margin: 0;
+      font-size: clamp(2.8rem, 7vw, 7.5rem);
+      font-weight: 700;
+      letter-spacing: -.075em;
+      line-height: .82;
+      text-transform: uppercase;
+    }
+    h3 { margin: 0 0 .75rem; font-size: clamp(1.4rem, 3vw, 2.6rem); letter-spacing: -.04em; line-height: .95; }
+    p { max-width: 68ch; }
+
+    .grid-2, .grid-3, .grid-4 {
+      display: grid;
+      gap: 1px;
+      background: var(--ink);
+      border: var(--rule);
+    }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card { min-width: 0; padding: clamp(1rem, 2.5vw, 2rem); background: var(--paper); }
+    .section--ink .card { color: var(--ink); background: var(--white); }
+    .card p { margin: .65rem 0 0; }
+    .label { display: block; margin-bottom: 1.6rem; color: var(--blue); font-size: .62rem; font-weight: 700; letter-spacing: .1em; }
+    .file { display: block; margin-top: 1rem; color: var(--purple); font: .68rem/1.4 Consolas, monospace; overflow-wrap: anywhere; }
+
+    .weight-lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 18rem;
+      gap: 2rem;
+      align-items: end;
+      padding: clamp(1rem, 3vw, 2.5rem);
+      color: var(--white);
+      background: var(--purple);
+      border: 1px solid var(--ink);
+    }
+    .weight-sample {
+      min-width: 0;
+      font-size: clamp(4rem, 12vw, 12rem);
+      font-weight: 500;
+      letter-spacing: -.09em;
+      line-height: .68;
+      overflow-wrap: anywhere;
+    }
+    .weight-control label { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: .7rem; font-size: .68rem; letter-spacing: .08em; }
+    .weight-control input { width: 100%; accent-color: var(--lime); }
+    .weight-control p { margin: .8rem 0 0; font-size: .7rem; }
+
+    .alphabet {
+      padding: clamp(1rem, 3vw, 2.5rem);
+      color: var(--ink);
+      background: var(--orange);
+      border: var(--rule);
+    }
+    .alphabet strong { display: block; font-size: clamp(2.5rem, 8vw, 8rem); font-weight: 700; letter-spacing: -.06em; line-height: .86; overflow-wrap: anywhere; }
+    .alphabet span { display: block; margin-top: 1rem; font-size: clamp(1rem, 2.5vw, 2rem); letter-spacing: .06em; overflow-wrap: anywhere; }
+
+    .scale-list { border: var(--rule); }
+    .scale-row {
+      display: grid;
+      grid-template-columns: 9rem minmax(0, 1fr) 10rem;
+      gap: 1rem;
+      align-items: baseline;
+      padding: 1.2rem;
+      border-bottom: var(--rule);
+      overflow: hidden;
+    }
+    .scale-row:last-child { border-bottom: 0; }
+    .scale-row > span:first-child, .scale-row code { font: .65rem/1.4 Consolas, monospace; }
+    .scale-row code { text-align: right; }
+    .sample-display { font-size: clamp(4rem, 10vw, 10rem); font-weight: 700; letter-spacing: -.12em; line-height: .65; }
+    .sample-heading { font-size: clamp(2.8rem, 6vw, 6rem); font-weight: 700; letter-spacing: -.075em; line-height: .83; }
+    .sample-subheading { font-size: clamp(1.25rem, 2.4vw, 2.3rem); font-weight: 700; line-height: 1.02; }
+    .sample-body { font-size: clamp(1rem, 1.6vw, 1.4rem); line-height: 1.35; }
+    .sample-label { font-size: clamp(.69rem, .75vw, .82rem); font-weight: 700; letter-spacing: .11em; line-height: 1; text-transform: uppercase; }
+
+    .poster-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: var(--rule); }
+    .poster {
+      position: relative;
+      min-height: 26rem;
+      padding: 1rem;
+      overflow: hidden;
+      border-right: var(--rule);
+    }
+    .poster:last-child { border-right: 0; }
+    .poster:nth-child(1) { color: var(--white); background: var(--ink); }
+    .poster:nth-child(2) { color: var(--white); background: #643f28; }
+    .poster:nth-child(3) { color: var(--white); background: var(--blue); }
+    .poster:nth-child(4) { background: var(--lime); }
+    .poster small { font-size: .58rem; font-weight: 700; letter-spacing: .09em; }
+    .poster b { position: absolute; left: -.07em; bottom: -.07em; font-size: clamp(10rem, 24vw, 24rem); font-weight: 700; letter-spacing: -.14em; line-height: .62; }
+    .poster h3 { position: relative; z-index: 1; margin-top: 1rem; font-size: clamp(1.5rem, 3vw, 3rem); }
+
+    .rules { margin: 0; padding: 0; list-style: none; border: var(--rule); }
+    .rules li { display: grid; grid-template-columns: 3rem 1fr; gap: 1rem; padding: 1rem; border-bottom: var(--rule); }
+    .rules li:last-child { border-bottom: 0; }
+    .rules b { color: var(--blue); font-size: 1.6rem; line-height: 1; }
+    .rules p { margin: 0; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .85rem; text-align: left; vertical-align: top; border: var(--rule); }
+    th { font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; }
+    td code { color: var(--blue); font-size: .7rem; overflow-wrap: anywhere; }
+
+    .code-block { color: #e8e8e4; background: #0d0d0d; border: 1px solid #4c4c4c; }
+    .code-block span { display: block; padding: .6rem .8rem; color: var(--grey); border-bottom: 1px solid #3a3a3a; font: .66rem/1.4 Consolas, monospace; }
+    pre { margin: 0; padding: 1rem; overflow: auto; font-size: .72rem; line-height: 1.6; }
+
+    .note {
+      display: grid;
+      grid-template-columns: 4rem 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding: 1rem;
+      color: var(--white);
+      background: var(--blue);
+    }
+    .note strong { font-size: 2.7rem; line-height: 1; }
+    .note p { margin: 0; }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.5rem var(--gutter);
+      color: var(--white);
+      background: var(--ink);
+      font-size: .68rem;
+      letter-spacing: .08em;
+    }
+
+    @media (max-width: 900px) {
+      .hero__bottom, .weight-lab { grid-template-columns: 1fr; }
+      .grid-4, .poster-grid { grid-template-columns: repeat(2, 1fr); }
+      .poster:nth-child(2) { border-right: 0; }
+      .poster:nth-child(-n+2) { border-bottom: var(--rule); }
+      .scale-row { grid-template-columns: 7rem minmax(0, 1fr); }
+      .scale-row code { grid-column: 2; text-align: left; }
+    }
+
+    @media (max-width: 650px) {
+      .topbar { grid-template-columns: 1fr auto; }
+      .topbar > span, .topbar nav a:first-child { display: none; }
+      .section__head, .grid-2, .grid-3, .grid-4, .poster-grid { grid-template-columns: 1fr; }
+      .hero h1 { white-space: normal; }
+      .hero__meta { grid-template-columns: 1fr; }
+      .hero__meta div { border-right: 0; border-bottom: 1px solid currentColor; }
+      .hero__meta div:last-child { border-bottom: 0; }
+      .poster { min-height: 18rem; border-right: 0; border-bottom: var(--rule); }
+      .poster:last-child { border-bottom: 0; }
+      .scale-row { grid-template-columns: 1fr; }
+      .scale-row code { grid-column: auto; }
+      footer { flex-direction: column; }
+    }
+
+    @media print {
+      .topbar { display: none; }
+      .hero { min-height: 0; }
+      .section { break-inside: avoid; }
+    }
+
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <strong>HEAL</strong>
+    <span>GROUP PROJECT / TYPOGRAPHY SYSTEM</span>
+    <nav aria-label="Document links">
+      <a href="website-components.html">COMPONENTS</a>
+      <a href="code-report.html">CODE REPORT</a>
+      <a href="index.html">WEBSITE</a>
+    </nav>
+  </header>
+
+  <section class="hero" aria-labelledby="report-title">
+    <p class="eyebrow">TYPOGRAPHY REPORT / HEAL GROUP WEBSITE</p>
+    <h1 id="report-title"><span>TYPE</span><span>SYSTEM</span></h1>
+    <div class="hero__bottom">
+      <p>Stack Sans Notch gives HEAL one voice across damage, pollution, transition and recovery.</p>
+      <div class="hero__meta">
+        <div><strong>01</strong><span>TYPEFACE</span></div>
+        <div><strong>200–700</strong><span>DECLARED WEIGHT RANGE</span></div>
+        <div><strong>4</strong><span>NARRATIVE STATES</span></div>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section class="section">
+      <div class="section__head">
+        <p>01 / FOUNDATION</p>
+        <h2>One font across the entire system.</h2>
+      </div>
+      <div class="grid-3">
+        <article class="card">
+          <span class="label">PRIMARY TYPEFACE</span>
+          <h3>Stack Sans Notch</h3>
+          <p>A condensed display-oriented sans serif with cut details and strong geometric rhythm. It supports HEAL's editorial, campaign-like visual identity.</p>
+          <span class="file">assets/fonts/stack-sans-notch-variable.woff2</span>
+        </article>
+        <article class="card">
+          <span class="label">DELIVERY</span>
+          <h3>Self-hosted</h3>
+          <p>The browser downloads the local WOFF2 from the same site. No Google Fonts request, external account or internet font dependency is required.</p>
+          <span class="file">css/fonts.css</span>
+        </article>
+        <article class="card">
+          <span class="label">LICENCE</span>
+          <h3>OFL 1.1</h3>
+          <p>The font is redistributed under the SIL Open Font License. Its licence remains separate from the project's GPL-3.0 code licence.</p>
+          <span class="file">assets/fonts/OFL.txt</span>
+        </article>
+      </div>
+
+      <div class="alphabet" style="margin-top:2rem">
+        <strong>ABCDEFGHIJKLMNOPQRSTUVWXYZ</strong>
+        <span>abcdefghijklmnopqrstuvwxyz · 0123456789 · HARM → EXHAUST → ADAPT → LIVEN</span>
+      </div>
+
+      <div class="code-block" style="margin-top:2rem">
+        <span>css/fonts.css — shared font registration</span>
+        <pre><code>@font-face {
+  font-family: 'Stack Sans Notch';
+  src: url('../assets/fonts/stack-sans-notch-variable.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 200 700;
+  font-display: swap;
+}</code></pre>
+      </div>
+    </section>
+
+    <section class="section section--ink">
+      <div class="section__head">
+        <p>02 / WEIGHT</p>
+        <h2>The variable range controls emphasis.</h2>
+      </div>
+      <div class="weight-lab">
+        <div class="weight-sample" data-weight-sample>HEAL</div>
+        <div class="weight-control">
+          <label for="weight"><span>FONT WEIGHT</span><output for="weight" data-weight-output>500</output></label>
+          <input id="weight" type="range" min="200" max="700" step="10" value="500" data-weight-control>
+          <p>Drag to test the actual self-hosted variable font.</p>
+        </div>
+      </div>
+
+      <div class="grid-4" style="margin-top:2rem">
+        <article class="card"><span class="label">200 / LIGHT</span><h3 style="font-weight:200">Environmental field</h3><p>Best reserved for very large decorative text.</p></article>
+        <article class="card"><span class="label">400 / REGULAR</span><h3 style="font-weight:400">Project narrative</h3><p>Body copy and longer explanatory passages.</p></article>
+        <article class="card"><span class="label">600 / SEMIBOLD</span><h3 style="font-weight:600">Interaction guide</h3><p>Secondary emphasis and compact interface text.</p></article>
+        <article class="card"><span class="label">700 / BOLD</span><h3 style="font-weight:700">HEAL system</h3><p>Headings, chapter identity, navigation and calls to action.</p></article>
+      </div>
+
+      <div class="note">
+        <strong>!</strong>
+        <p><b>Implementation note:</b> several production selectors request <code>font-weight: 800</code>, while <code>@font-face</code> declares a maximum of 700. Browsers may synthesize or clamp that weight. For predictable output, use 700 consistently unless the font file's supported range is deliberately expanded.</p>
+      </div>
+    </section>
+
+    <section class="section section--grey">
+      <div class="section__head">
+        <p>03 / HIERARCHY</p>
+        <h2>Five levels organise every page.</h2>
+      </div>
+      <div class="scale-list">
+        <div class="scale-row"><span>DISPLAY</span><div class="sample-display">HEAL</div><code>clamp(7rem, 24.5vw, 29rem)</code></div>
+        <div class="scale-row"><span>SECTION HEADING</span><div class="sample-heading">FROM DAMAGE TO RECOVERY</div><code>clamp(2.6rem, 6.4vw, 7rem)</code></div>
+        <div class="scale-row"><span>SUBHEADING</span><div class="sample-subheading">Renewable energy offers a cleaner direction.</div><code>clamp(1.25rem, 2.4vw, 2.3rem)</code></div>
+        <div class="scale-row"><span>BODY</span><div class="sample-body">Four interactive artworks trace one connected environmental transformation.</div><code>1rem–1.45rem / 1.35</code></div>
+        <div class="scale-row"><span>LABEL</span><div class="sample-label">03 / 04 · Transition / Renewable systems</div><code>.69rem–.82rem / +.11em</code></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section__head">
+        <p>04 / CHAPTERS</p>
+        <h2>Typography connects four visual moods.</h2>
+      </div>
+      <div class="poster-grid" aria-label="HEAL chapter typography examples">
+        <article class="poster"><small>01 / DAMAGE</small><h3>HARM</h3><b>H</b></article>
+        <article class="poster"><small>02 / POLLUTION</small><h3>EXHAUST</h3><b>E</b></article>
+        <article class="poster"><small>03 / TRANSITION</small><h3>ADAPT</h3><b>A</b></article>
+        <article class="poster"><small>04 / RECOVERY</small><h3>LIVEN</h3><b>L</b></article>
+      </div>
+      <p>The palette changes by chapter, but the letter construction, condensed proportions, hard alignment and uppercase labels stay consistent. Typography is the strongest element holding the four artworks together.</p>
+    </section>
+
+    <section class="section section--lime">
+      <div class="section__head">
+        <p>05 / SPACING</p>
+        <h2>Tracking changes with scale.</h2>
+      </div>
+      <div class="grid-3">
+        <article class="card">
+          <span class="label">DISPLAY / TIGHT</span>
+          <h3 style="font-size:4.2rem;letter-spacing:-.12em;line-height:.68">HEAL</h3>
+          <p>Large words use −0.075em to −0.13em tracking and .64–.86 line-height. Tight spacing turns letters into one graphic mass.</p>
+        </article>
+        <article class="card">
+          <span class="label">BODY / NEUTRAL</span>
+          <h3 style="font-size:1.45rem;letter-spacing:0;line-height:1.2">One connected journey from damage to recovery.</h3>
+          <p>Reading text keeps normal tracking and more vertical space. This prevents the display treatment from reducing readability.</p>
+        </article>
+        <article class="card">
+          <span class="label">LABEL / OPEN</span>
+          <h3 style="font-size:.8rem;letter-spacing:.11em;line-height:1.2;text-transform:uppercase">Interactive artwork / 16:9</h3>
+          <p>Small uppercase labels use +0.07em to +0.11em tracking so condensed letterforms remain distinct at small sizes.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section__head">
+        <p>06 / COMPONENT USE</p>
+        <h2>Where each style appears.</h2>
+      </div>
+      <table>
+        <thead><tr><th>Component</th><th>Typography treatment</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>Primary navigation</td><td>Compact bold uppercase; active chapter adds a large single-letter marker.</td><td><code>site.css · navigation.js</code></td></tr>
+          <tr><td>Homepage hero</td><td>Largest display word in the system; extremely tight tracking and compressed line-height.</td><td><code>home.css · renderHome()</code></td></tr>
+          <tr><td>Background type fields</td><td>Oversized repeated words with low opacity; marked <code>aria-hidden</code> because they are decorative.</td><td><code>home.css · artwork.css</code></td></tr>
+          <tr><td>Chapter masthead</td><td>Single giant letter, large chapter title, compact chapter label and readable statement.</td><td><code>artwork.css · chapterTypeField()</code></td></tr>
+          <tr><td>Progress navigation</td><td>Bold letters with smaller names; current step receives stronger contrast.</td><td><code>artwork.css · progressMarkup()</code></td></tr>
+          <tr><td>Instructions</td><td>Wide-tracked uppercase section label paired with sentence-case explanatory copy.</td><td><code>artwork.css · content.js</code></td></tr>
+          <tr><td>About page</td><td>Poster display type for identity, editorial headings for concepts, readable body for explanation.</td><td><code>site.css · renderAbout()</code></td></tr>
+          <tr><td>p5 artwork text</td><td>Each sketch calls <code>textFont('Stack Sans Notch')</code> so canvas HUDs share the website voice.</td><td><code>artworks/*/sketch.js</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section section--ink">
+      <div class="section__head">
+        <p>07 / RESPONSIVE</p>
+        <h2>Fluid type preserves the poster effect.</h2>
+      </div>
+      <div class="grid-3">
+        <article class="card"><span class="label">MINIMUM</span><h3>rem value</h3><p>The first <code>clamp()</code> value prevents important text from becoming unusably small.</p></article>
+        <article class="card"><span class="label">FLUID</span><h3>vw value</h3><p>The middle value scales typography continuously with viewport width instead of jumping at every breakpoint.</p></article>
+        <article class="card"><span class="label">MAXIMUM</span><h3>rem value</h3><p>The final value stops display text from overwhelming very large monitors.</p></article>
+      </div>
+      <div class="code-block" style="margin-top:2rem">
+        <span>Example — homepage identity</span>
+        <pre><code>.hero__title {
+  font-size: clamp(7rem, 24.5vw, 29rem);
+  font-weight: 700;
+  line-height: 0.69;
+  letter-spacing: -0.12em;
+}</code></pre>
+      </div>
+    </section>
+
+    <section class="section section--grey">
+      <div class="section__head">
+        <p>08 / GUIDELINES</p>
+        <h2>Rules for group consistency.</h2>
+      </div>
+      <ol class="rules">
+        <li><b>01</b><p>Use Stack Sans Notch for all website interface and artwork HUD text. Keep Arial/Helvetica only as fallbacks.</p></li>
+        <li><b>02</b><p>Use uppercase for navigation, labels, chapter identity and short calls to action—not for paragraph-length copy.</p></li>
+        <li><b>03</b><p>Reserve very tight negative tracking for large display words. Never apply −0.1em tracking to body text.</p></li>
+        <li><b>04</b><p>Use 700 for strong emphasis and 400 for sustained reading. Avoid undeclared 800 unless the font registration is updated.</p></li>
+        <li><b>05</b><p>Pair small uppercase labels with positive tracking of approximately .08em–.11em.</p></li>
+        <li><b>06</b><p>Keep body copy near 45–68 characters per line and at least 1.35 line-height.</p></li>
+        <li><b>07</b><p>Use ink on white/lime/orange and white on ink/blue/purple/brown to preserve strong contrast.</p></li>
+        <li><b>08</b><p>Mark repeated decorative type fields <code>aria-hidden="true"</code> so assistive technology reads the meaningful heading once.</p></li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    <span>HEAL / GROUP TYPOGRAPHY REPORT</span>
+    <span>STACK SANS NOTCH · SELF-HOSTED · OFL 1.1</span>
+  </footer>
+
+  <script>
+    const control = document.querySelector('[data-weight-control]');
+    const sample = document.querySelector('[data-weight-sample]');
+    const output = document.querySelector('[data-weight-output]');
+
+    control.addEventListener('input', () => {
+      sample.style.fontWeight = control.value;
+      output.value = control.value;
+    });
+  </script>
+</body>
+</html>
