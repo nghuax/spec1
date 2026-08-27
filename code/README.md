@@ -70,7 +70,9 @@ The website navigation is keyboard accessible with Tab, Shift+Tab, Enter and Spa
 
 ### E — EXHAUST
 
-- Press the central **POLLUTANT** control to raise the pollution line and damage natural forms.
+- Press the central **FOSSIL ENERGY** control to launch guided pollutant particles at the floating natural forms.
+- Select **!** or press `I` for project information; press Escape to close it.
+- Use **MUTE** to control the generative ambience.
 - `R` regenerates the artwork.
 
 ### A — ADAPT

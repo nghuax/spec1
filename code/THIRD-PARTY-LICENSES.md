@@ -11,10 +11,13 @@ Official licence text: <https://github.com/processing/p5.js/blob/main/license.tx
 |---|---:|---|---|
 | p5.js | 1.9.0 | `artworks/harm/p5.js` | HARM |
 | p5.js | 2.3.2 | `artworks/exhaust/p5.js` | EXHAUST |
+| p5.sound | 0.4.1 | `artworks/exhaust/p5.sound.min.js` | EXHAUST |
 | p5.js | 1.9.0 | `artworks/adapt/p5.js` | ADAPT |
 | p5.js | 1.11.13 | `artworks/liven/p5.min.js` | LIVEN |
 
 The p5.js library is not owned by the HEAL group. No ownership claim is made over it. The copies are kept local so that the artworks can run without a network connection and are not merged into the website JavaScript.
+
+The EXHAUST package also includes p5.sound 0.4.1. Its bundled Tone.js components identify Tone.js 15.0.2 and the MIT licence in the distributed source. No ownership claim is made over either dependency.
 
 ## Stack Sans Notch
 

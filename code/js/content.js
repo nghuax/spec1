@@ -39,9 +39,9 @@ export const siteContent = {
       artworkPath: 'artworks/exhaust/index.html',
       artworkTitle: 'EXHAUST interactive artwork',
       artworkDescription:
-        'Floating natural forms are progressively damaged as the user raises a dense pollution line through the environment.',
+        'Guided fossil-energy particles progressively strike, fracture and remove floating natural forms from the environment.',
       instructions:
-        'Press the central POLLUTANT control to raise the pollution line and damage the floating natural forms. R regenerates the artwork.',
+        'Press the central FOSSIL ENERGY control to launch pollutant particles. Select ! or press I for project information, use MUTE for the generative ambience, and press R to regenerate the artwork.',
       credit: ''
     },
     {

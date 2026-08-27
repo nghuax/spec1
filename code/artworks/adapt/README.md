@@ -1,34 +1,56 @@
-# ADAPT — Modular Clean-Energy Field
+# ADAPTS — Regeneration Field
 
-Stage 3 uses the selected modular p5.js primitive asset system while retaining the original SUN/WIND recovery interaction.
+Version 3.0 — 26 August 2026  
+Nguyen Gia Toan Phu Nghia — S4099019  
+COMM2754 Digital Media Specialisation 1 — Assignment 2, Week 8
 
-Current presentation:
+## Concept
 
-- 1920 × 1080 canvas with the exact Figma title badge, subtitle banner, and information control layered above the artwork
-- no background cross-grid and no central Earth/orb
-- open composition with 8–10 randomly selected modular habitats and no orbit rings
-- a freshly randomized damaged-habitat layout on every load and `R` reset, with minimum spacing and protected UI zones
-- a state-aware subtitle that appears after one second: the ADAPT clean-energy prompt in State 1 and the LIVEN recovery message in State 2
-- State 1 regenerates the silhouettes of its charcoal planes and nested polygons on every reset while keeping one fixed grey palette; the former cobalt lower-left wedge has been removed
-- depth-linked damaged assets: distant groups are darker and restrained, nearer groups are lighter and float more
-- State 1 converts the blue, orange and green interface accents into layered greys, then restores the approved interface colours in State 2
-- State 2 uses a darker fixed blue shade family with newly generated primitive silhouettes on every load or reset
-- damaged habitats now reshuffle their type/scale hierarchy and include additional free-falling ambient fragments plus 6–9 loose fragments per habitat
-- every reset retains all six habitat families, then adds randomized duplicates up to the selected 8–10 total
-- centre-based p5 primitive geometry keeps walls, roofs, panels, turbines, trees, wildlife and split platforms precisely assembled in State 2
-- flat, outline-free assets with no diagonal bands, corner wedges, grid, rings, or orb
-- exported Figma SVG assets are stored locally in `assets/figma-ui/` so the interface does not depend on expiring remote asset links
+ADAPTS is a 1920 × 1080 generative and animated p5.js artwork about SDG 7: Affordable and Clean Energy. Each run creates a new damaged field of floating habitat fragments. Solar and wind energy gradually reconnect the pieces, clear the grey atmosphere and reveal a vivid network of restored habitats. The artwork belongs to Stage 3 of the HEAL sequence: HARM → EXHAUST → ADAPT → LIVEN.
 
-The `!` control opens a compact information bubble with the Stage 3 message, SUN/WIND interaction guide, reset shortcut, and save shortcut. It closes through the `CLOSE` action, `Escape`, or a click outside the bubble.
+## Installation and execution
 
-Interaction remains available directly on the canvas:
+No build step, plug-in installation or internet connection is required.
 
-- press `1` for SUN
-- press `2` for WIND
-- drag with an equal 580-pixel SUN or WIND brush to restore the field; the transparent brush zone shows the active reach
-- balanced completion now unfolds as a staggered multi-second assembly instead of snapping directly to State 2
-- the p5 canvas targets 60fps at all motion-preference settings
-- press `R` to reset and generate a new falling-apart composition
-- press `S` to save a PNG
+1. Unzip the submission folder.
+2. Open a terminal in this `code` directory.
+3. Start a local web server, for example `python -m http.server 8000`.
+4. Open `http://localhost:8000/index.html` in a current desktop browser.
+5. Click or press a control once to enable the six local WAV sound cues.
 
-Sound is enabled by the first user gesture. The artwork uses six local 48 kHz WAV masters: three revised A1 sounds for confirmation and solar energy, plus three new original paper, water and keyboard recordings. Paper supports the WIND brush, keyboard typing begins with the dramatic assembly, and water marks the arrival of State 2.
+## Controls
+
+- Press `1` to select SUN.
+- Press `2` to select WIND.
+- Drag across the complete artwork with both tools to regenerate the field.
+- Press `R` to create a new randomized composition.
+- Press `S` to save the canvas as a PNG.
+- Select the `!` button for the on-screen guide.
+
+## Technical details
+
+- Logical canvas: 1920 × 1080 pixels, pixel density 1.
+- Presentation: proportionally scaled full-screen with protected 16:9 composition.
+- Animation: targeted at 60fps, exceeding the 30fps assessment requirement.
+- Generation: 8–10 readable habitat groups per reset; 11–13 independent habitat modules because four systems combine on the large shared land.
+- Visual media: original p5.js primitive geometry and original Figma-authored interface assets only.
+- Sound: three revised A1 recordings and three new original A2 recordings are loaded locally and played through the Web Audio API after the first user gesture. The new keyboard cue accompanies the multi-second assembly, while paper and water support wind and recovery. Matching 48 kHz masters, raw sources and untouched originals are supplied in the submission folders.
+
+## Runtime files
+
+- `index.html` — standalone browser entry point.
+- `style.css` and `fonts.css` — full-screen presentation, interface and local typography.
+- `sketch.js` — generation, animation, sample playback, state and optional interaction.
+- `ui.js` — subtitle timing and information popover.
+- `p5.js` — local p5.js library.
+- `assets/figma-ui/` — original interface vector exports.
+- `assets/audio/` — six local 48 kHz final WAV cues used by the artwork.
+- `assets/fonts/` — Stack Sans Notch and its SIL Open Font License.
+- `LICENSE` — GPL 3.0 licence for project code.
+- `THIRD-PARTY-LICENSES.md` — p5.js and font attribution.
+
+## Credits and licensing
+
+Concept, visual system, code adaptation, interface assets, original recordings and sound design: Nguyen Gia Toan Phu Nghia. Group identity developed with the HEAL project team. p5.js is used under the GNU Lesser General Public License; Stack Sans Notch is used under the SIL Open Font License. The student project code is released under GPL 3.0. See the included licence files for details.
+
+Contact: s4099019@rmit.edu.vn
