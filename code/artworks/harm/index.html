@@ -4,18 +4,87 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#08090D">
-  <meta name="description" content="HARM V32.7 — interactive p5.js artwork about coal combustion, industrial emissions and local air pollution for SDG 7.">
-  <title>HARM V32.7 — Larger Bottom Bar</title>
-  <link rel="stylesheet" href="../../css/fonts.css">
+  <meta name="description" content="HARM — Stage 1 interactive p5.js generative artwork about fossil energy, coal combustion, industrial emissions, and local air pollution for SDG 7.">
+  <title>HARM — Stage 1</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main id="app" aria-label="HARM interactive generative art about coal combustion and air pollution">
     <div id="canvas-holder">
       <div id="status-message" aria-live="polite"></div>
+
+      <section id="sound-control" class="sound-control" aria-label="Sound controls">
+        <div class="sound-control__row">
+          <button id="sound-toggle" class="sound-toggle" type="button" aria-pressed="false">
+            <span class="sound-toggle__dot" aria-hidden="true"></span>
+            <span id="sound-toggle-label">SOUND ON</span>
+          </button>
+          <button id="sound-settings-toggle" class="sound-settings-toggle" type="button" aria-expanded="false" aria-controls="sound-settings">MIX</button>
+        </div>
+
+        <div id="sound-settings" class="sound-settings" hidden>
+          <div class="sound-settings__head">
+            <span>SOUND MIX</span>
+            <span class="sound-settings__key">M · MUTE</span>
+          </div>
+
+          <p class="sound-settings__hint">ROLE <b>(RECOMMENDED)</b> · CURRENT LEVEL</p>
+
+          <div class="sound-mix-list" aria-label="Six individual sound levels">
+            <label class="sound-mix-row">
+              <span class="sound-mix-row__label">CLICK <b>(70%)</b></span>
+              <input data-sound-key="mouseclick" type="range" min="0" max="100" step="1" value="70" aria-label="Click sound level, recommended 70 percent">
+              <output data-sound-value="mouseclick">70%</output>
+            </label>
+
+            <label class="sound-mix-row">
+              <span class="sound-mix-row__label">MACHINE <b>(38%)</b></span>
+              <input data-sound-key="microwave" type="range" min="0" max="100" step="1" value="38" aria-label="Machine sound level, recommended 38 percent">
+              <output data-sound-value="microwave">38%</output>
+            </label>
+
+            <label class="sound-mix-row">
+              <span class="sound-mix-row__label">SMOKE <b>(8%)</b></span>
+              <input data-sound-key="water" type="range" min="0" max="100" step="1" value="8" aria-label="Smoke background level, recommended 8 percent">
+              <output data-sound-value="water">8%</output>
+            </label>
+
+            <label class="sound-mix-row">
+              <span class="sound-mix-row__label">CONSTRUCTION <b>(14%)</b></span>
+              <input data-sound-key="rice" type="range" min="0" max="100" step="1" value="14" aria-label="Construction background level, recommended 14 percent">
+              <output data-sound-value="rice">14%</output>
+            </label>
+
+            <label class="sound-mix-row">
+              <span class="sound-mix-row__label">FACTORY <b>(12%)</b></span>
+              <input data-sound-key="irrigator" type="range" min="0" max="100" step="1" value="12" aria-label="Factory mechanical background level, recommended 12 percent">
+              <output data-sound-value="irrigator">12%</output>
+            </label>
+
+            <label class="sound-mix-row">
+              <span class="sound-mix-row__label">DAMAGE <b>(26%)</b></span>
+              <input data-sound-key="plastic" type="range" min="0" max="100" step="1" value="26" aria-label="Environmental damage sound level, recommended 26 percent">
+              <output data-sound-value="plastic">26%</output>
+            </label>
+          </div>
+
+          <div class="sound-settings__foot">
+            <span>() = RECOMMENDED MIX</span>
+            <button id="sound-reset-recommended" class="sound-reset" type="button">USE RECOMMENDED</button>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
   <script src="p5.js"></script>
+  <script src="sound.js"></script>
+
+  <!-- HARM sketch: compact classic-script bundles, kept in the original
+       execution order so shared p5 global-mode behavior remains unchanged. -->
   <script src="sketch.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/systems.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/interface.js"></script>
 </body>
 </html>

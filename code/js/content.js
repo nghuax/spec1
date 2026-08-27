@@ -24,9 +24,9 @@ export const siteContent = {
       artworkPath: 'artworks/harm/index.html',
       artworkTitle: 'HARM interactive artwork',
       artworkDescription:
-        'An interactive industrial energy landscape where burning coal constructs buildings while increasing emissions, debris and local air pollution.',
+        'An interactive industrial energy landscape where burning coal constructs buildings while increasing emissions, debris, synchronized damage and local air pollution.',
       instructions:
-        'Click a coal piece to burn it, or drag it into the hopper. Hover over a formed house or factory to create demand. Move the pointer to influence the air field. R resets; S saves a PNG.',
+        'Click a coal piece to burn it, or drag it into the hopper. Hover over a formed house or factory to create demand. Move the pointer to influence the air field. Open MIX for individual sound levels; M mutes, R resets and S saves a PNG.',
       credit: ''
     },
     {
@@ -49,14 +49,26 @@ export const siteContent = {
       number: '03',
       letter: 'A',
       title: 'ADAPT',
-      statement: 'Renewable energy offers a cleaner direction',
-      mood: 'TRANSITION / RENEWABLE SYSTEMS',
+      statement: 'Balance clean energy to clear pollution and restore life',
+      mood: 'SDG 7 / CLEAN ENERGY TRANSITION',
       artworkPath: 'artworks/adapt/index.html',
       artworkTitle: 'ADAPT interactive artwork',
       artworkDescription:
-        'An abstract regeneration field where sun and wind interactions gradually clear pollution and restore an environmental system.',
+        'A regeneration field where the user combines solar and wind energy to clear pollution and restore homes, plants and shared spaces.',
       instructions:
-        'Choose SUN or WIND on the artwork, or press 1 / 2. Drag across the field to apply energy. R resets; S saves a PNG.',
+        'Select SUN or WIND, then drag over the field. Use both energy sources until recovery reaches 100%. Press 1 / 2 to switch, R to reset and S to save. Sound is optional.',
+      goal: {
+        title: 'Restore the field with a balanced clean-energy mix.',
+        steps: ['Apply sunlight to rebuild', 'Use wind to clear pollution', 'Reach 100% recovery']
+      },
+      context: {
+        eyebrow: 'SDG 7 / WHY THIS MATTERS',
+        title: 'A clean-energy transition works as a connected system.',
+        body:
+          'Solar and wind do different jobs in this field, but recovery only happens when they work together. Stage 3 connects that balance to SDG 7: expanding access to affordable, reliable and cleaner energy.',
+        action:
+          'Choose cleaner energy where it is available, and support the systems that make renewable power accessible and reliable.'
+      },
       credit: ''
     },
     {

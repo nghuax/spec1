@@ -18,7 +18,7 @@ No stock media, externally hosted fonts, analytics, framework, backend, database
 ## Website structure
 
 - `index.html` — HEAL introduction and chapter sequence
-- `works/harm.html` — HARM chapter and BURN artwork
+- `works/harm.html` — HARM chapter and industrial-energy artwork
 - `works/exhaust.html` — EXHAUST chapter and pollution artwork
 - `works/adapt.html` — ADAPT chapter and ADAPTS artwork
 - `works/liven.html` — LIVEN chapter and renewable-energy puzzle
@@ -63,6 +63,8 @@ The website navigation is keyboard accessible with Tab, Shift+Tab, Enter and Spa
 - Drag coal into the hopper to burn it.
 - Hover over a formed house or factory to create demand.
 - Move the pointer to influence the shared air field.
+- Use **MIX** to adjust the six semantic sound channels.
+- `M` mutes or unmutes the artwork.
 - `R` resets the artwork.
 - `S` saves a PNG.
 
@@ -74,7 +76,8 @@ The website navigation is keyboard accessible with Tab, Shift+Tab, Enter and Spa
 ### A — ADAPT
 
 - Select **SUN** or **WIND** on the artwork, or press `1` / `2`.
-- Drag across the field to apply the selected energy.
+- Drag across the field and use both sources until recovery reaches 100%.
+- Use the optional **SOUND** control for interaction and completion cues.
 - `R` resets the artwork.
 - `S` saves a PNG.
 

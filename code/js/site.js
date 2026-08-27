@@ -165,6 +165,28 @@ function renderArtworkPage() {
   const credit = chapter.credit
     ? `<p class="artwork-credit"><span>PROJECT CREDIT</span>${chapter.credit}</p>`
     : '';
+  const goal = chapter.goal
+    ? `<aside class="artwork-goal" aria-labelledby="artwork-goal-title">
+        <div>
+          <p class="section-label">YOUR GOAL</p>
+          <h3 id="artwork-goal-title">${chapter.goal.title}</h3>
+        </div>
+        <ol>${chapter.goal.steps.map((step, stepIndex) => `<li><span>0${stepIndex + 1}</span>${step}</li>`).join('')}</ol>
+      </aside>`
+    : '';
+  const context = chapter.context
+    ? `<section class="artwork-context" aria-labelledby="artwork-context-title">
+        <p class="section-label">${chapter.context.eyebrow}</p>
+        <div>
+          <h3 id="artwork-context-title">${chapter.context.title}</h3>
+          <p>${chapter.context.body}</p>
+          <div class="artwork-action">
+            <p><span>TAKE ACTION</span>${chapter.context.action}</p>
+            ${next ? `<a href="${chapterHref(root, next)}">CONTINUE TO ${next.title}<span aria-hidden="true"> →</span></a>` : ''}
+          </div>
+        </div>
+      </section>`
+    : '';
 
   host.innerHTML = `
     <section class="chapter-masthead" aria-labelledby="chapter-title">
@@ -187,11 +209,12 @@ function renderArtworkPage() {
       <ol>${progressMarkup(root, index)}</ol>
     </nav>
 
-    <section class="artwork-stage" aria-labelledby="artwork-heading">
+    <section class="artwork-stage artwork-stage--${chapter.id}" aria-labelledby="artwork-heading">
       <div class="artwork-stage__topline">
         <h2 id="artwork-heading">INTERACTIVE ARTWORK</h2>
-        <span>16:9 / FULL COMPOSITION</span>
+        <span>${chapter.id === 'adapt' ? 'RESPONSIVE / FULL COMPOSITION' : '16:9 / FULL COMPOSITION'}</span>
       </div>
+      ${goal}
       <div class="artwork-frame" data-artwork-frame>
         <div class="artwork-loader" data-artwork-loader role="status">
           <span>LOADING ${chapter.title}</span>
@@ -215,6 +238,7 @@ function renderArtworkPage() {
         <p class="section-label">HOW TO INTERACT</p>
         <p>${chapter.instructions}</p>
       </div>
+      ${context}
       ${credit}
     </section>
 

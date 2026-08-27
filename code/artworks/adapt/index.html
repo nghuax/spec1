@@ -3,26 +3,70 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ADAPTS — Balanced Ecology</title>
+  <title>ADAPTS</title>
+  <link rel="icon" href="assets/figma-ui/info-button-shape.svg" type="image/svg+xml" />
   <meta name="description" content="Abstract SDG7 regeneration artwork with a cleaner layout, balanced full-frame composition, SUN and WIND interaction, and a calmer environmental motion system." />
   <link rel="stylesheet" href="../../css/fonts.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="app">
-    <div id="overlay">
-      <div class="title">ADAPTS</div>
-      <div class="subtitle">REGENERATION FIELD / SDG 07</div>
-      <div class="help">
-        <span>1 SUN</span>
-        <span>2 WIND</span>
-        <span>Drag to interact</span>
-        <span>R reset</span>
-        <span>S save</span>
+    <div class="figma-ui" aria-label="Stage 3 artwork interface">
+      <div class="badge-layer badge-layer-back" aria-hidden="true">
+        <img src="assets/figma-ui/title-layer-back.svg" alt="" draggable="false" />
       </div>
+      <div class="badge-layer badge-layer-middle" aria-hidden="true">
+        <img src="assets/figma-ui/title-layer-middle.svg" alt="" draggable="false" />
+      </div>
+      <div class="badge-layer badge-layer-front" aria-hidden="true">
+        <img src="assets/figma-ui/title-layer-front.svg" alt="" draggable="false" />
+      </div>
+      <div class="badge-title">ADAPT</div>
+      <div class="badge-stage">STAGE 3</div>
+
+      <div
+        class="figma-subtitle"
+        id="state-subtitle"
+        aria-label="Balance clean energy to clear pollution and restore life"
+        aria-hidden="true"
+        data-state="1"
+      >
+        <img class="subtitle-shadow" src="assets/figma-ui/subtitle-shadow.svg" alt="" draggable="false" />
+        <img class="subtitle-frame" src="assets/figma-ui/subtitle-frame.svg" alt="" draggable="false" />
+        <img class="subtitle-panel" src="assets/figma-ui/subtitle-panel.svg" alt="" draggable="false" />
+        <p id="state-subtitle-text">Balance clean energy to clear pollution and restore life</p>
+      </div>
+
+      <button
+        class="figma-info-button"
+        id="info-button"
+        type="button"
+        aria-label="Open information and interaction guide"
+        aria-controls="info-popover"
+        aria-expanded="false"
+      >
+        <img src="assets/figma-ui/info-button-shape.svg" alt="" draggable="false" />
+        <span aria-hidden="true">!</span>
+      </button>
+
+      <aside class="info-popover" id="info-popover" role="dialog" aria-labelledby="info-title" hidden>
+        <div class="info-popover-header">
+          <h2 id="info-title">ABOUT ADAPT</h2>
+          <button class="info-close" id="info-close" type="button" aria-label="Close information">CLOSE</button>
+        </div>
+        <p class="info-intro">Stage 3 explores how damaged habitats can reconnect through balanced solar and wind energy.</p>
+        <h3>HOW TO INTERACT</h3>
+        <ol>
+          <li><strong>Press 1</strong> for SUN or <strong>press 2</strong> for WIND.</li>
+          <li><strong>Drag across the habitats</strong> to supply both energy sources.</li>
+          <li>Balance every habitat to reveal the restored State 2.</li>
+        </ol>
+        <p class="info-shortcuts"><strong>R</strong> reset&nbsp;&nbsp;·&nbsp;&nbsp;<strong>S</strong> save artwork</p>
+      </aside>
     </div>
   </div>
   <script src="p5.js"></script>
   <script src="sketch.js"></script>
+  <script src="ui.js"></script>
 </body>
 </html>
