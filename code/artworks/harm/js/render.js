@@ -1,6 +1,74 @@
 // BACKGROUND / ATMOSPHERE
 // ------------------------------------------------------------
 
+// Reset-driven graphic-field variation. These are curated compositions rather
+// than fully free random coordinates, so every reset feels different while the
+// background remains balanced and never interferes with the main scene/UI.
+const GRAPHIC_FIELD_LAYOUTS = [
+  {
+    blueA: [[-.03,-.02],[.30,-.02],[.23,.22],[-.03,.34]],
+    darkA: [[.15,.06],[.58,.08],[.75,.39],[.31,.49]],
+    blueB: [[.76,.55],[1.03,.46],[1.03,.78],[.86,.84]],
+    darkB: [[.00,.60],[.23,.55],[.36,.92],[.08,1.02]]
+  },
+  {
+    blueA: [[-.04,.08],[.22,-.03],[.34,.17],[.08,.39]],
+    darkA: [[.38,-.04],[.78,.00],[.66,.30],[.29,.34]],
+    blueB: [[.66,.68],[.96,.57],[1.03,.88],[.78,1.02]],
+    darkB: [[-.02,.48],[.17,.40],[.31,.68],[.05,.82]]
+  },
+  {
+    blueA: [[.08,-.03],[.43,-.02],[.35,.22],[-.02,.30]],
+    darkA: [[.54,.03],[.92,.10],[.78,.42],[.43,.34]],
+    blueB: [[-.03,.71],[.23,.62],[.35,.92],[.04,1.02]],
+    darkB: [[.64,.58],[1.03,.50],[1.03,.83],[.80,.92]]
+  },
+  {
+    blueA: [[-.04,.00],[.20,-.02],[.31,.20],[.02,.31]],
+    darkA: [[.20,.15],[.61,.04],[.71,.32],[.35,.47]],
+    blueB: [[.73,.00],[1.03,-.02],[1.03,.26],[.85,.20]],
+    darkB: [[.43,.65],[.74,.54],[.86,.84],[.55,.97]]
+  },
+  {
+    blueA: [[.00,-.03],[.34,.00],[.22,.27],[-.03,.38]],
+    darkA: [[.47,-.03],[.81,.12],[.67,.43],[.31,.31]],
+    blueB: [[.78,.61],[1.03,.54],[1.03,.90],[.89,1.01]],
+    darkB: [[-.03,.67],[.28,.57],[.42,.89],[.12,1.03]]
+  }
+];
+
+let graphicFieldVariant = -1;
+let graphicFieldLayout = null;
+
+function randomizeGraphicField() {
+  const count = GRAPHIC_FIELD_LAYOUTS.length;
+  let next = floor(random(count));
+  if (count > 1 && next === graphicFieldVariant) next = (next + 1 + floor(random(count - 1))) % count;
+  graphicFieldVariant = next;
+
+  // A small reset-only jitter prevents exact repetition while preserving the
+  // proportions of the curated base layout.
+  const src = GRAPHIC_FIELD_LAYOUTS[next];
+  const jitter = (points, amountX = .014, amountY = .014) => points.map(([x, y], i) => {
+    const edgeX = (x <= 0 || x >= 1) ? 0 : random(-amountX, amountX);
+    const edgeY = (y <= 0 || y >= 1) ? 0 : random(-amountY, amountY);
+    return [x + edgeX, y + edgeY];
+  });
+
+  graphicFieldLayout = {
+    blueA: jitter(src.blueA, .015, .014),
+    darkA: jitter(src.darkA, .014, .016),
+    blueB: jitter(src.blueB, .012, .014),
+    darkB: jitter(src.darkB, .014, .012),
+    tilt: random(-.010, .010),
+    alphaShift: random(-2.0, 2.0)
+  };
+}
+
+function drawFieldPolygon(points, driftX = 0, driftY = 0) {
+  polygon(points.map(([x, y]) => [x * W + driftX, y * H + driftY]));
+}
+
 function drawBackdrop() {
   const p = pollutionN();
   const clean = color(C.skyClean);
@@ -17,30 +85,49 @@ function drawGraphicField() {
   const p = pollutionN();
   noStroke();
 
+  // Fallback protects unusual load orders; normal builds initialize this in resetScene().
+  if (!graphicFieldLayout) randomizeGraphicField();
+
   const fade = 1 - p * .58;
   const drift = p * 20;
+  const aShift = graphicFieldLayout.alphaShift || 0;
   const blueField = lerpColor(color(43, 62, 255), color(57, 68, 128), p * .68);
+  const deepBlueField = lerpColor(color(16, 28, 72), color(39, 42, 63), p * .70);
+  const inkField = lerpColor(color(5, 8, 17), color(35, 31, 36), p * .62);
   const violetField = lerpColor(color(110, 90, 236), color(77, 69, 108), p * .72);
   const limeField = lerpColor(color(195, 245, 43), color(138, 120, 58), p * .92);
   const orangeField = lerpColor(color(255, 123, 31), color(172, 86, 36), p * .62);
   const paperField = lerpColor(color(244, 241, 236), color(192, 184, 170), p * .54);
 
-  fill(red(blueField), green(blueField), blue(blueField), 28 * fade);
-  polygon([[0, 0], [548 - drift, 0], [430 + drift * .22, 212 + drift * .25], [0, 344]]);
+  // Main blue + black/navy planes. Only these larger background planes change
+  // layout on reset, keeping the interaction field and object positions stable.
+  fill(red(blueField), green(blueField), blue(blueField), max(8, 29 * fade + aShift));
+  drawFieldPolygon(graphicFieldLayout.blueA, -drift * .22, drift * .06);
 
-  fill(red(violetField), green(violetField), blue(violetField), 18 * (fade + p * .12));
+  fill(red(inkField), green(inkField), blue(inkField), 48 + p * 8 + aShift);
+  drawFieldPolygon(graphicFieldLayout.darkA, drift * .10, -drift * .05);
+
+  fill(red(deepBlueField), green(deepBlueField), blue(deepBlueField), max(9, 24 * (fade + .12) - aShift * .3));
+  drawFieldPolygon(graphicFieldLayout.blueB, -drift * .10, drift * .12);
+
+  fill(red(inkField), green(inkField), blue(inkField), 38 + p * 9 - aShift * .35);
+  drawFieldPolygon(graphicFieldLayout.darkB, drift * .08, -drift * .08);
+
+  // Secondary accents stay in approximately the same regions so the visual
+  // identity remains recognisable across all reset variants.
+  fill(red(violetField), green(violetField), blue(violetField), 14 * (fade + p * .12));
   polygon([[W * .70 - drift * .22, H], [W, H], [W, H * .70 + drift], [W * .83 + drift * .15, H * .84]]);
 
-  fill(red(blueField), green(blueField), blue(blueField), 10 * (fade + .16));
+  fill(red(blueField), green(blueField), blue(blueField), 8 * (fade + .16));
   polygon([[W * .20, H * .10], [W * .61, H * .12], [W * .74, H * .36], [W * .28, H * .46]]);
 
-  fill(red(limeField), green(limeField), blue(limeField), 9 * max(.08, fade));
+  fill(red(limeField), green(limeField), blue(limeField), 8 * max(.08, fade));
   polygon([[W * .39, H * .73], [W * .55, H * .67], [W * .62, H * .83], [W * .45, H * .89]]);
 
-  fill(red(orangeField), green(orangeField), blue(orangeField), 11 + p * 6);
+  fill(red(orangeField), green(orangeField), blue(orangeField), 9 + p * 5);
   polygon([[W * .86, 0], [W, 0], [W, H * .18 + drift * .45], [W * .91 - drift * .08, H * .12]]);
 
-  fill(red(paperField), green(paperField), blue(paperField), 4 + fade * 5);
+  fill(red(paperField), green(paperField), blue(paperField), 3 + fade * 4);
   polygon([[W * .04, H * .78], [W * .16, H * .74], [W * .22, H * .90], [W * .08, H * .96]]);
 
   for (let i = 0; i < ambientFragments.length; i++) {
@@ -58,7 +145,6 @@ function drawGraphicField() {
     pop();
   }
 }
-
 
 function drawSmokeCeiling() {
   const p = pollutionN();

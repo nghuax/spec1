@@ -6,85 +6,181 @@
   <meta name="theme-color" content="#08090D">
   <meta name="description" content="HARM — Stage 1 interactive p5.js generative artwork about fossil energy, coal combustion, industrial emissions, and local air pollution for SDG 7.">
   <title>HARM — Stage 1</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main id="app" aria-label="HARM interactive generative art about coal combustion and air pollution">
     <div id="canvas-holder">
-      <div id="status-message" aria-live="polite"></div>
+      <div id="sample-ui" class="stage2-figma-ui" aria-label="HARM Stage 1 interface">
+        <div class="stage2-badge-layer stage2-badge-back" aria-hidden="true">
+          <svg viewBox="0 0 528.427 224.586" preserveAspectRatio="none">
+            <path d="M18.0439 56.19L522.987 0L528.427 224.586L0 181.073L18.0439 56.19Z" fill="white" />
+          </svg>
+        </div>
 
-      <section id="sound-control" class="sound-control" aria-label="Sound controls">
-        <div class="sound-control__row">
-          <button id="sound-toggle" class="sound-toggle" type="button" aria-pressed="false">
-            <span class="sound-toggle__dot" aria-hidden="true"></span>
-            <span id="sound-toggle-label">SOUND ON</span>
+        <div class="stage2-badge-layer stage2-badge-middle" aria-hidden="true">
+          <svg viewBox="0 0 576.914 170.512" preserveAspectRatio="none">
+            <path d="M0 0H566.157L576.914 141.997L0 170.512V0Z" fill="black" />
+          </svg>
+        </div>
+
+        <div class="stage2-badge-layer stage2-badge-front" aria-hidden="true">
+          <svg viewBox="0 0 561.965 230.853" preserveAspectRatio="none">
+            <path d="M12.1674 0L561.965 59.7359L524.092 206.036L0 230.853L12.1674 0Z" fill="#1D39B7" />
+          </svg>
+        </div>
+
+        <div class="stage2-badge-title">HARM</div>
+        <div class="stage2-badge-stage">STAGE 1</div>
+
+        <aside id="air-load-hud" class="air-load-hud" aria-label="Atmospheric pressure">
+          <div class="air-load-hud__head">
+            <span class="air-load-hud__label">AIR LOAD</span>
+            <output id="air-load-value" class="air-load-hud__value" aria-label="Air load percentage">0%</output>
+          </div>
+          <div class="air-load-hud__track" aria-hidden="true">
+            <span id="air-load-fill" class="air-load-hud__fill"></span>
+          </div>
+          <p class="air-load-hud__caption">Atmospheric pressure</p>
+        </aside>
+
+        <div class="stage2-subtitle is-visible" aria-live="polite">
+          <svg class="stage2-subtitle-shadow" viewBox="0 0 1285 112" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M34.5 0H1267.5L1285 112H0L34.5 0Z" fill="#8CFF00" />
+          </svg>
+          <svg class="stage2-subtitle-frame" viewBox="0 0 1298 96" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 0H1298L1269.49 96H36.0139L0 0Z" fill="#FF6600" />
+          </svg>
+          <svg class="stage2-subtitle-panel" viewBox="0 0 1236 84" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 0H1236V84H0V0Z" fill="#E0E5E8" />
+          </svg>
+          <p id="status-message" class="stage2-subtitle-text"></p>
+        </div>
+
+        <section id="sound-control" class="sound-control" aria-label="Sound controls">
+          <button id="sound-button" class="figma-control ambience-trigger" type="button" aria-expanded="false" aria-controls="sound-settings" data-tooltip="Sound mix">
+            <svg class="figma-control-shell" viewBox="0 0 169 159.523" aria-hidden="true">
+              <path d="M42.6449 33.1682L169 0V159.523H42.6449V33.1682Z" fill="white" />
+              <path d="M36.9589 28.7458H163.314V155.101H7.26542L36.9589 28.7458Z" fill="black" />
+              <path d="M0 19.585H152.258L141.5 132L28.7221 145.624L0 19.585Z" fill="currentColor" />
+            </svg>
+            <svg class="figma-control-icon" viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M3 12h6l7-7v22l-7-7H3Z" fill="currentColor" stroke="none" />
+              <path d="M21 10c4 3 4 9 0 12m5-17c7 6 7 16 0 22" />
+            </svg>
+            <span class="figma-control-mute-cross" aria-hidden="true"></span>
           </button>
-          <button id="sound-settings-toggle" class="sound-settings-toggle" type="button" aria-expanded="false" aria-controls="sound-settings">MIX</button>
-        </div>
 
-        <div id="sound-settings" class="sound-settings" hidden>
-          <div class="sound-settings__head">
-            <span>SOUND MIX</span>
-            <span class="sound-settings__key">M · MUTE</span>
+          <div id="sound-settings" class="sound-settings" hidden>
+            <div class="sound-settings__head">
+              <span>SOUND MIX</span>
+              <button id="sound-settings-close" class="sound-settings__close" type="button" aria-label="Close sound mix">×</button>
+            </div>
+            <p class="sound-settings__hint">ROLE <b>(RECOMMENDED)</b> · CURRENT LEVEL</p>
+
+            <div class="sound-mix-list" aria-label="Six individual sound levels">
+              <label class="sound-mix-row">
+                <span class="sound-mix-row__label">CLICK <b>(70%)</b></span>
+                <input data-sound-key="mouseclick" type="range" min="0" max="100" step="1" value="70" aria-label="Click sound level, recommended 70 percent">
+                <output data-sound-value="mouseclick">70%</output>
+              </label>
+              <label class="sound-mix-row">
+                <span class="sound-mix-row__label">MACHINE <b>(38%)</b></span>
+                <input data-sound-key="microwave" type="range" min="0" max="100" step="1" value="38" aria-label="Machine sound level, recommended 38 percent">
+                <output data-sound-value="microwave">38%</output>
+              </label>
+              <label class="sound-mix-row">
+                <span class="sound-mix-row__label">SMOKE <b>(8%)</b></span>
+                <input data-sound-key="water" type="range" min="0" max="100" step="1" value="8" aria-label="Smoke background level, recommended 8 percent">
+                <output data-sound-value="water">8%</output>
+              </label>
+              <label class="sound-mix-row">
+                <span class="sound-mix-row__label">CONSTRUCTION <b>(14%)</b></span>
+                <input data-sound-key="rice" type="range" min="0" max="100" step="1" value="14" aria-label="Construction background level, recommended 14 percent">
+                <output data-sound-value="rice">14%</output>
+              </label>
+              <label class="sound-mix-row">
+                <span class="sound-mix-row__label">FACTORY <b>(12%)</b></span>
+                <input data-sound-key="irrigator" type="range" min="0" max="100" step="1" value="12" aria-label="Factory mechanical background level, recommended 12 percent">
+                <output data-sound-value="irrigator">12%</output>
+              </label>
+              <label class="sound-mix-row">
+                <span class="sound-mix-row__label">DAMAGE <b>(26%)</b></span>
+                <input data-sound-key="plastic" type="range" min="0" max="100" step="1" value="26" aria-label="Environmental damage sound level, recommended 26 percent">
+                <output data-sound-value="plastic">26%</output>
+              </label>
+            </div>
+
+            <div class="sound-settings__foot">
+              <span>() = RECOMMENDED MIX</span>
+              <div class="sound-settings__actions">
+                <button id="sound-mute-toggle" class="sound-mute" type="button" aria-pressed="false">
+                  <svg class="sound-mute__icon" viewBox="0 0 32 32" aria-hidden="true">
+                    <path d="M3 12h6l7-7v22l-7-7H3Z" fill="currentColor" stroke="none" />
+                    <path class="sound-mute__waves" d="M21 10c4 3 4 9 0 12m5-17c7 6 7 16 0 22" />
+                    <path class="sound-mute__cross" d="M22 12l7 7m0-7l-7 7" />
+                  </svg>
+                  <span class="sound-mute__label">MUTE</span>
+                </button>
+                <button id="sound-reset-recommended" class="sound-reset" type="button">USE RECOMMENDED</button>
+              </div>
+            </div>
           </div>
+        </section>
 
-          <p class="sound-settings__hint">ROLE <b>(RECOMMENDED)</b> · CURRENT LEVEL</p>
+        <button id="reset-ui" class="figma-control reset-trigger" type="button" aria-label="Reset artwork" data-tooltip="Reset artwork · R">
+          <svg class="figma-control-shell" viewBox="0 0 169 159.523" aria-hidden="true">
+            <path d="M42.6449 33.1682L169 0V159.523H42.6449V33.1682Z" fill="white" />
+            <path d="M36.9589 28.7458H163.314V155.101H7.26542L36.9589 28.7458Z" fill="black" />
+            <path d="M0 19.585H152.258L141.5 132L28.7221 145.624L0 19.585Z" fill="currentColor" />
+          </svg>
+          <svg class="figma-control-icon" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M6 12a11 11 0 1 1 0 9M6 4v8h8" />
+          </svg>
+        </button>
 
-          <div class="sound-mix-list" aria-label="Six individual sound levels">
-            <label class="sound-mix-row">
-              <span class="sound-mix-row__label">CLICK <b>(70%)</b></span>
-              <input data-sound-key="mouseclick" type="range" min="0" max="100" step="1" value="70" aria-label="Click sound level, recommended 70 percent">
-              <output data-sound-value="mouseclick">70%</output>
-            </label>
-
-            <label class="sound-mix-row">
-              <span class="sound-mix-row__label">MACHINE <b>(38%)</b></span>
-              <input data-sound-key="microwave" type="range" min="0" max="100" step="1" value="38" aria-label="Machine sound level, recommended 38 percent">
-              <output data-sound-value="microwave">38%</output>
-            </label>
-
-            <label class="sound-mix-row">
-              <span class="sound-mix-row__label">SMOKE <b>(8%)</b></span>
-              <input data-sound-key="water" type="range" min="0" max="100" step="1" value="8" aria-label="Smoke background level, recommended 8 percent">
-              <output data-sound-value="water">8%</output>
-            </label>
-
-            <label class="sound-mix-row">
-              <span class="sound-mix-row__label">CONSTRUCTION <b>(14%)</b></span>
-              <input data-sound-key="rice" type="range" min="0" max="100" step="1" value="14" aria-label="Construction background level, recommended 14 percent">
-              <output data-sound-value="rice">14%</output>
-            </label>
-
-            <label class="sound-mix-row">
-              <span class="sound-mix-row__label">FACTORY <b>(12%)</b></span>
-              <input data-sound-key="irrigator" type="range" min="0" max="100" step="1" value="12" aria-label="Factory mechanical background level, recommended 12 percent">
-              <output data-sound-value="irrigator">12%</output>
-            </label>
-
-            <label class="sound-mix-row">
-              <span class="sound-mix-row__label">DAMAGE <b>(26%)</b></span>
-              <input data-sound-key="plastic" type="range" min="0" max="100" step="1" value="26" aria-label="Environmental damage sound level, recommended 26 percent">
-              <output data-sound-value="plastic">26%</output>
-            </label>
-          </div>
-
-          <div class="sound-settings__foot">
-            <span>() = RECOMMENDED MIX</span>
-            <button id="sound-reset-recommended" class="sound-reset" type="button">USE RECOMMENDED</button>
-          </div>
-        </div>
-      </section>
+        <button id="info-ui" class="figma-control information-trigger" type="button" aria-label="Open project information" data-tooltip="Interaction guide · I">
+          <svg class="figma-control-shell" viewBox="0 0 169 159.523" aria-hidden="true">
+            <path d="M42.6449 33.1682L169 0V159.523H42.6449V33.1682Z" fill="white" />
+            <path d="M36.9589 28.7458H163.314V155.101H7.26542L36.9589 28.7458Z" fill="black" />
+            <path d="M0 19.585H152.258L141.5 132L28.7221 145.624L0 19.585Z" fill="currentColor" />
+          </svg>
+          <svg class="figma-info-icon" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M13 3h6l-1 18h-4Z M13 25h6v6h-6Z" fill="currentColor" />
+          </svg>
+        </button>
+      </div>
     </div>
   </main>
+
   <script src="p5.js"></script>
   <script src="sound.js"></script>
-
-  <!-- HARM sketch: compact classic-script bundles, kept in the original
-       execution order so shared p5 global-mode behavior remains unchanged. -->
   <script src="sketch.js"></script>
   <script src="js/scene.js"></script>
   <script src="js/systems.js"></script>
   <script src="js/render.js"></script>
   <script src="js/interface.js"></script>
+  <script>
+    (() => {
+      const resetButton = document.getElementById('reset-ui');
+      const infoButton = document.getElementById('info-ui');
+
+      resetButton?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (window.HarmSound) window.HarmSound.cues.uiClick(0.85);
+        if (typeof resetScene === 'function') resetScene();
+      });
+
+      infoButton?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (window.HarmSound) window.HarmSound.cues.uiClick(0.85);
+        infoOpen = !infoOpen;
+        infoButton.setAttribute('aria-expanded', String(infoOpen));
+      });
+    })();
+  </script>
 </body>
 </html>

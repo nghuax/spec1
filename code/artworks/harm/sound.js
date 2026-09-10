@@ -84,9 +84,7 @@
     atmosphereTimer: null,
 
     pollutionLevel: 0,
-    damageMilestones: [false, false, false],
-    failedFiles: new Set(),
-    audioUnavailable: false
+    damageMilestones: [false, false, false]
   };
 
   const storage = {
@@ -115,15 +113,6 @@
           state.machinePlaying = false;
         }
       });
-      audio.addEventListener('error', () => {
-        state.failedFiles.add(key);
-        if (state.failedFiles.size === Object.keys(FILES).length) {
-          state.audioUnavailable = true;
-          state.muted = true;
-          state.settingsOpen = false;
-          updateUI();
-        }
-      }, { once: true });
       state.clips[key] = audio;
     });
 
@@ -516,7 +505,10 @@
   }
 
   function restoreSettings() {
-    state.muted = storage.get('harmSoundV8Muted') === '1';
+    // The old MUTE control was removed from the UI. Always start audible so a
+    // previously-saved muted state cannot leave the new single SOUND button silent.
+    state.muted = false;
+    storage.set('harmSoundV8Muted', '0');
     try {
       const saved = JSON.parse(storage.get('harmSoundV8Levels') || '{}');
       Object.keys(RECOMMENDED).forEach(key => {
@@ -529,33 +521,30 @@
   // UI
   // ----------------------------------------------------------
   function updateUI() {
-    const toggle = document.getElementById('sound-toggle');
-    const label = document.getElementById('sound-toggle-label');
     const settings = document.getElementById('sound-settings');
-    const settingsButton = document.getElementById('sound-settings-toggle');
+    const soundButton = document.getElementById('sound-button');
+    const muteButton = document.getElementById('sound-mute-toggle');
+    const muteLabel = muteButton ? muteButton.querySelector('.sound-mute__label') : null;
 
-    if (toggle) {
-      toggle.classList.toggle('is-muted', state.muted);
-      toggle.setAttribute('aria-pressed', state.muted ? 'true' : 'false');
-      toggle.disabled = state.audioUnavailable;
-    }
-    if (label) {
-      label.textContent = state.audioUnavailable
-        ? 'SOUND FILES NEEDED'
-        : state.muted ? 'MUTED' : 'SOUND ON';
-    }
     if (settings) settings.hidden = !state.settingsOpen;
-    if (settingsButton) {
-      settingsButton.setAttribute('aria-expanded', state.settingsOpen ? 'true' : 'false');
-      settingsButton.classList.toggle('is-open', state.settingsOpen);
-      settingsButton.disabled = state.audioUnavailable;
+    if (soundButton) {
+      soundButton.setAttribute('aria-expanded', state.settingsOpen ? 'true' : 'false');
+      soundButton.setAttribute('data-tooltip', state.muted
+        ? (state.settingsOpen ? 'Muted · close sound mix' : 'Muted · open sound mix')
+        : (state.settingsOpen ? 'Close sound mix' : 'Sound mix'));
+      soundButton.classList.toggle('is-muted', state.muted);
+    }
+    if (muteButton) {
+      if (muteLabel) muteLabel.textContent = state.muted ? 'UNMUTE' : 'MUTE';
+      muteButton.setAttribute('aria-pressed', state.muted ? 'true' : 'false');
+      muteButton.setAttribute('aria-label', state.muted ? 'Unmute sound' : 'Mute sound');
+      muteButton.classList.toggle('is-muted', state.muted);
     }
 
     document.querySelectorAll('[data-sound-key]').forEach(input => {
       const key = input.dataset.soundKey;
       if (!(key in state.levels)) return;
       input.value = String(Math.round(state.levels[key] * 100));
-      input.disabled = state.audioUnavailable;
       const output = document.querySelector(`[data-sound-value="${key}"]`);
       if (output) output.textContent = `${Math.round(state.levels[key] * 100)}%`;
     });
@@ -563,35 +552,49 @@
 
   function bindUI() {
     const control = document.getElementById('sound-control');
-    const toggle = document.getElementById('sound-toggle');
-    const settingsButton = document.getElementById('sound-settings-toggle');
+    const soundButton = document.getElementById('sound-button');
+    const muteButton = document.getElementById('sound-mute-toggle');
     const resetButton = document.getElementById('sound-reset-recommended');
+    const closeButton = document.getElementById('sound-settings-close');
 
     if (control) {
       ['pointerdown', 'pointerup', 'click', 'mousedown', 'mouseup', 'touchstart', 'touchend']
         .forEach(type => control.addEventListener(type, event => event.stopPropagation()));
     }
 
-    if (toggle) toggle.addEventListener('click', toggleMute);
-    if (settingsButton) {
-      settingsButton.addEventListener('click', () => {
+    if (soundButton) {
+      soundButton.addEventListener('click', () => {
         state.settingsOpen = !state.settingsOpen;
+        if (window.HarmSound) window.HarmSound.cues.uiClick(0.82);
         updateUI();
       });
     }
-    if (resetButton) resetButton.addEventListener('click', resetRecommended);
+    if (muteButton) {
+      muteButton.addEventListener('click', () => {
+        const isMuted = toggleMute();
+        if (!isMuted && window.HarmSound) window.HarmSound.cues.uiClick(0.72);
+      });
+    }
+    if (resetButton) {
+      resetButton.addEventListener('click', () => {
+        resetRecommended();
+        if (window.HarmSound) window.HarmSound.cues.uiClick(0.72);
+      });
+    }
+    if (closeButton) {
+      ['pointerdown', 'pointerup', 'click', 'mousedown', 'mouseup', 'touchstart', 'touchend']
+        .forEach(type => closeButton.addEventListener(type, event => event.stopPropagation()));
+      closeButton.addEventListener('click', () => {
+        state.settingsOpen = false;
+        if (window.HarmSound) window.HarmSound.cues.uiClick(0.76);
+        updateUI();
+      });
+    }
 
     document.querySelectorAll('[data-sound-key]').forEach(input => {
       input.addEventListener('input', event => {
         setLevel(event.target.dataset.soundKey, Number(event.target.value) / 100);
       });
-    });
-
-    window.addEventListener('keydown', event => {
-      if (event.repeat) return;
-      const tag = document.activeElement && document.activeElement.tagName;
-      if (tag === 'INPUT' || tag === 'BUTTON') return;
-      if (event.key === 'm' || event.key === 'M') toggleMute();
     });
   }
 

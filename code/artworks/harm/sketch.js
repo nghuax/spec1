@@ -6,6 +6,7 @@
 
 const W = 1920;
 const H = 1080;
+const RENDER_DENSITY = Math.min((window.devicePixelRatio || 1), 2);
 
 const C = {
   ink: '#06070C',
@@ -140,7 +141,7 @@ const TREE_PLATE_POINTS = [
   [[-.50,-.12],[-.29,-.50],[.15,-.52],[.50,-.20],[.43,.24],[.05,.49],[-.40,.34]]
 ];
 
-const MACHINE = { x: 470, y: 804, scale: 0.70 };
+const MACHINE = { x: 470, y: 702, scale: 0.70 };
 // The machine indicator is visually full at 20 burns (8 illuminated cells).
 // Sound uses the same threshold, so the Microwave bell is reserved for true 100%.
 const MACHINE_SOUND_COMPLETE_BURNS = 20;
@@ -179,6 +180,7 @@ let grainLayer = null;
 let statusEl = null;
 let lastStatus = '';
 let statusUntil = 0;
+let statusPriority = 0;
 
 let houses = [];
 let trees = [];
@@ -233,13 +235,14 @@ let smokeWindMouse = 0;
 function setup() {
   const cnv = createCanvas(W, H);
   cnv.parent('canvas-holder');
-  pixelDensity(1);
+  pixelDensity(RENDER_DENSITY);
   frameRate(60);
   rectMode(CENTER);
   ellipseMode(CENTER);
   strokeJoin(MITER);
   strokeCap(SQUARE);
   textFont('Arial');
+  drawingContext.imageSmoothingEnabled = true;
 
   statusEl = document.getElementById('status-message');
   buildGrain();
@@ -248,7 +251,7 @@ function setup() {
 
 function buildGrain() {
   grainLayer = createGraphics(W, H);
-  grainLayer.pixelDensity(1);
+  grainLayer.pixelDensity(RENDER_DENSITY);
   grainLayer.clear();
   grainLayer.noStroke();
   for (let i = 0; i < 5200; i++) {
@@ -266,6 +269,7 @@ function resetScene() {
   sceneSeed = ((Date.now() & 0xffffffff) ^ floor(Math.random() * 0x7fffffff)) >>> 0;
   randomSeed(sceneSeed);
   noiseSeed(sceneSeed ^ 0x6245f10d);
+  if (typeof randomizeGraphicField === 'function') randomizeGraphicField();
 
   sceneTime = 0;
   burnCount = 0;
@@ -302,10 +306,16 @@ function resetScene() {
   hoveredNode = null;
   hoverStarted = 0;
   infoOpen = false;
+  lastStatus = '';
+  statusUntil = 0;
+  statusPriority = 0;
+  lastHudPercent = -1;
+  lastHudWarning = false;
 
   buildWorld();
   buildAmbientFragments();
   for (let i = 0; i < MAX_COAL; i++) coal.push(spawnCoal(true, i));
 
-  setStatus('CLICK OR DRAG COAL · POWER ARRIVES FAST, BUT HARM BUILDS SLOWLY', 6.0);
+  setStatus('DRAG COAL INTO THE MACHINE · EACH BURN POWERS THE GRID, BUT AIR LOAD KEEPS RISING', 6.0, 2);
 }
+

@@ -1,6 +1,24 @@
 // HUD
 // ------------------------------------------------------------
 
+// UI font stack for information overlay and supporting UI text.
+const INFO_UI_FONT = 'Stack Sans Notch';
+const INFO_MODAL = Object.freeze({ x: 100, y: 142, w: 1718, h: 700, headerH: 108, pad: 46 });
+
+function infoCloseRect() {
+  return {
+    x: INFO_MODAL.x + INFO_MODAL.w - 90,
+    y: INFO_MODAL.y + 20,
+    w: 72,
+    h: 68
+  };
+}
+
+function isInfoCloseHit(px, py) {
+  const r = infoCloseRect();
+  return px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
+}
+
 function drawStageTitleCard() {
   push();
   translate(30, 32);
@@ -35,97 +53,47 @@ function drawStageTitleCard() {
   pop();
 }
 
+function syncSampleUIState() {
+  const sampleUI = document.getElementById('sample-ui');
+  const infoButton = document.getElementById('info-ui');
+  if (sampleUI) sampleUI.classList.toggle('is-info-open', Boolean(infoOpen));
+  if (infoButton) infoButton.setAttribute('aria-expanded', String(Boolean(infoOpen)));
+}
+
+let hudRootEl = null;
+let hudValueEl = null;
+let hudFillEl = null;
+let lastHudPercent = -1;
+let lastHudWarning = false;
+
 function drawHUD() {
-  const p = pollution / 100;
-  const hoverInfo = dist(mouseX, mouseY, INFO_UI.x, INFO_UI.y) < INFO_UI.r * 1.25;
+  syncSampleUIState();
 
-  push();
-  noStroke();
+  // Keep the information HUD in the DOM instead of drawing text into the p5 canvas.
+  // The canvas is scaled from a fixed 1920×1080 artboard; DOM text remains noticeably
+  // sharper and more stable on Retina screens and on browser windows below 1920 px wide.
+  if (!hudRootEl) {
+    hudRootEl = document.getElementById('air-load-hud');
+    hudValueEl = document.getElementById('air-load-value');
+    hudFillEl = document.getElementById('air-load-fill');
+  }
+  if (!hudRootEl || !hudValueEl || !hudFillEl) return;
 
-  // Stage title card: aligned with the group reference system.
-  drawStageTitleCard();
+  const p = constrain(pollution / 100, 0, 1);
+  const pct = round(p * 100);
+  const warning = p > .58;
 
-  textAlign(LEFT, TOP);
-  textStyle(BOLD);
-  textSize(10);
-  fill(240, 238, 232, 220);
-  text('P5.JS INTERACTIVE ARTWORK / SDG 07', 52, 214);
-
-  textStyle(NORMAL);
-  textSize(9);
-  fill(194, 196, 204, 220);
-  text('COAL → POWER → HARM', 52, 232);
-
-  const lockedArchitecture = houses.filter(h => h.locked).length + factories.filter(f => f.locked).length;
-  if (lockedArchitecture > 0 && burnCount < ARCHITECTURE_WAVES.length) {
-    text('CLICK COAL · POWER ARRIVES FIRST, HARM ARRIVES AFTER', 52, 248);
-  } else if (demandQueue.length > 0) text(`DEMAND WAITING ${demandQueue.length}`, 52, 248);
-  else text('HOVER A HOUSE / FACTORY TO CREATE DEMAND', 52, 248);
-  if (overdrive > .16) {
-    fill(C.orange);
-    text(`OVERDRIVE ${round(overdrive * 100)}%`, 52, 264);
+  if (pct !== lastHudPercent) {
+    hudValueEl.textContent = `${pct}%`;
+    hudValueEl.setAttribute('aria-label', `Air load ${pct} percent`);
+    hudFillEl.style.width = `${pct}%`;
+    lastHudPercent = pct;
   }
 
-  textAlign(RIGHT, TOP);
-  fill(210, 212, 218, 220);
-  textStyle(BOLD);
-  textSize(11);
-  text('AIR LOAD', 1864, 44);
-  textSize(18);
-  fill(p > .58 ? C.orange : C.paper);
-  text(`${round(pollution)}%`, 1864, 61);
-  textStyle(NORMAL);
-  textSize(9);
-  fill(188, 190, 194, 150);
-  text('ATMOSPHERIC PRESSURE', 1864, 87);
-
-  const barW = 152;
-  fill(243, 242, 240, 28);
-  rect(1864 - barW * .5, 110, barW, 4);
-  fill(p > .58 ? C.orange : C.blue);
-  rect(1864 - barW + (barW * p) * .5, 110, barW * p, 4);
-
-  // info node
-  push();
-  translate(INFO_UI.x, INFO_UI.y);
-  const hoverT = hoverInfo ? 1 : 0;
-  const pulse = 1 + sin(sceneTime * 2.6) * 0.02;
-  scale(pulse);
-
-  fill(red(color(C.orange)), green(color(C.orange)), blue(color(C.orange)), 190);
-  regularHex(8, 8, INFO_UI.r * 1.12);
-
-  fill(red(color(C.blue)), green(color(C.blue)), blue(color(C.blue)), hoverInfo ? 255 : 242);
-  regularHex(0, 0, INFO_UI.r * 1.05);
-
-  fill(hoverInfo ? color(35, 39, 58) : color(16, 18, 28));
-  regularHex(0, 0, INFO_UI.r * 0.76);
-
-  noFill();
-  stroke(hoverInfo ? color(C.lime) : color(244, 241, 236, 120));
-  strokeWeight(2.2);
-  regularHex(0, 0, INFO_UI.r * 0.76);
-  noStroke();
-
-  fill(255, 255, 255, 235);
-  textAlign(CENTER, CENTER);
-  textStyle(BOLD);
-  textSize(32);
-  text('i', 0, -3);
-  fill(hoverInfo ? color(C.lime) : color(244, 241, 236, 180));
-  textSize(32);
-  text('i', -1, -4);
-  pop();
-
-  if (hoverInfo) {
-    fill(C.lime);
-    textAlign(RIGHT, TOP);
-    textStyle(BOLD);
-    textSize(10);
-    text('PROJECT INFO', 1864, 178);
+  if (warning !== lastHudWarning) {
+    hudRootEl.classList.toggle('is-warning', warning);
+    lastHudWarning = warning;
   }
-
-  pop();
 }
 
 function regularHex(cx, cy, r) {
@@ -139,139 +107,182 @@ function regularHex(cx, cy, r) {
 
 function drawInformationOverlay() {
   push();
+  textFont(INFO_UI_FONT);
   rectMode(CORNER);
   noStroke();
-  fill(4, 4, 10, 232);
+
+  // Dim the artwork while keeping the scene visible, matching the sample modal.
+  fill(4, 6, 18, 218);
   rect(0, 0, W, H);
 
-  const x = 118, y = 62, w = 1660, h = 900;
-  fill(C.orange);
-  rect(x + 10, y + 10, w, h, 16);
-  fill(5, 6, 14);
-  rect(x, y, w, h, 16);
-  fill(C.blue);
-  rect(x, y, w, 10, 16, 16, 0, 0);
+  // Sample-inspired ABOUT modal: blue header, light body, orange top edge,
+  // lime bottom edge, two-column editorial layout.
+  const { x, y, w, h, headerH, pad } = INFO_MODAL;
+  const bodyY = y + headerH;
+  const bodyH = h - headerH;
 
+  // Thin orange cap above the blue header.
+  fill(255, 112, 24);
+  rect(x, y - 7, w, 7);
+
+  // Main body + header.
+  fill(226, 231, 234);
+  rect(x, bodyY, w, bodyH);
+  fill(35, 63, 184);
+  rect(x, y, w, headerH);
+
+  // Lime closing edge along the bottom.
   fill(C.lime);
-  rect(x + 38, y + 30, 92, 7);
-  fill(C.paper);
-  textAlign(LEFT, TOP);
+  rect(x, y + h - 10, w, 10);
+
+  // Header title.
+  fill(255);
+  textAlign(LEFT, CENTER);
   textStyle(BOLD);
-  textSize(42);
-  text('PROJECT INFORMATION', x + 38, y + 50);
+  textSize(44);
+  text('ABOUT HARM', x + 42, y + headerH * 0.54);
 
-  // left column
-  drawInfoCard(x + 34, y + 122, 660, 290, 'PROJECT DETAILS', C.lime);
-  fill(C.paper);
-  textStyle(NORMAL);
-  textSize(17);
-  textLeading(25);
-  text(`Name: Ngo Dac Phu
-Project: HARM — Stage 1
-Group: Ba Mien Bros
-Group members: Nguyen Tran Phuc Duong;
-Ngo Dac Phu; Luong Duc Hung;
-Nguyen Gia Toan Phu Nghia
-Course: COMM2754 - Digital Media Specialisation 1
-Course time: Thursday 11.30PM
-Affiliation: RMIT University Vietnam,
-Saigon South Campus, School of Communication and Design,
-Digital Media Program`, x + 56, y + 188, 612, 220);
+  // Close control — same stacked-paper language as the right-side buttons.
+  // The face stays blue; hover is communicated by lift, shadow, and a lime X.
+  const closeR = infoCloseRect();
+  const closeX = closeR.x + 7;
+  const closeY = closeR.y + 4;
+  const closeHover = isInfoCloseHit(mouseX, mouseY);
+  cursor(closeHover ? HAND : ARROW);
+  const lift = closeHover ? -4 : 0;
+  const twist = closeHover ? -0.035 : 0;
+  const scaleT = closeHover ? 1.045 : 1;
+  const cx = closeX + 28;
+  const cy = closeY + 29;
 
-  drawInfoCard(x + 34, y + 442, 660, 168, 'SUSTAINABLE DEVELOPMENT GOAL', C.orange);
-  fill(C.paper);
-  textSize(17);
-  textLeading(28);
-  text('Sustainable Development Goal 7: Ensure access to affordable, reliable, sustainable and modern energy for all.', x + 56, y + 512, 610, 84);
+  push();
+  translate(cx, cy + lift);
+  rotate(twist);
+  scale(scaleT);
+  translate(-cx, -cy);
 
-  // CTA follows the supplied reference: one generous lime card, black type,
-  // strong heading and a larger two-line action message.
-  fill(C.lime);
-  rect(x + 34, y + 638, 660, 184, 16);
-  fill(C.ink);
+  fill(255);
+  polygon([[closeX + 17, closeY + 4], [closeX + 56, closeY], [closeX + 56, closeY + 56], [closeX + 15, closeY + 60]]);
+
+  fill(0);
+  polygon([[closeX + 4, closeY + 17], [closeX + 51, closeY + 11], [closeX + 49, closeY + 59], [closeX, closeY + 64]]);
+
+  fill(35, 63, 184);
+  polygon([[closeX + 10, closeY + 7], [closeX + 49, closeY + 3], [closeX + 46, closeY + 49], [closeX + 8, closeY + 54]]);
+
+  stroke(closeHover ? color(C.lime) : color(255));
+  strokeWeight(closeHover ? 3.6 : 3.0);
+  line(closeX + 20, closeY + 17, closeX + 37, closeY + 34);
+  line(closeX + 37, closeY + 17, closeX + 20, closeY + 34);
+  noStroke();
+  pop();
+
+  // Body columns.
+  const leftX = x + pad;
+  const leftW = 720;
+  const gap = 50;
+  const rightX = leftX + leftW + gap;
+  const rightW = w - pad * 2 - leftW - gap;
+  const topY = bodyY + 34;
+
+  // LEFT — project statement.
+  fill(6, 10, 18);
   textAlign(LEFT, TOP);
+  textStyle(NORMAL);
+  textSize(24);
+  textLeading(35);
+  text(
+    'From fast coal-powered electricity to an atmosphere under pressure.\n' +
+    'HARM visualises how energy demand can be met immediately while pollution quietly accumulates across the same environment.',
+    leftX, topY, leftW - 20, 150
+  );
+
+  // SDG 7 inset card exactly follows the sample structure.
+  const sdgX = leftX;
+  const sdgY = topY + 158;
+  const sdgW = leftW - 14;
+  const sdgH = 232;
+  fill(207, 216, 230);
+  rect(sdgX, sdgY, sdgW, sdgH);
+  fill(C.orange);
+  rect(sdgX, sdgY, 5, sdgH);
+
+  fill(35, 63, 184);
   textStyle(BOLD);
   textSize(18);
-  text('CALL TO ACTION', x + 56, y + 660);
-  textSize(25);
-  textLeading(35);
-  text(`Help HEAL the planet by choosing cleaner energy & supporting a renewable future`, x + 56, y + 706, 612, 88);
+  text('SDG 7 · AFFORDABLE & CLEAN ENERGY', sdgX + 30, sdgY + 28);
 
-  // right column
-  drawInfoCard(x + 730, y + 122, 898, 164, 'QUOTE', '#F5B2D0');
-  fill(C.paper);
-  textStyle(BOLD);
-  textSize(19);
-  textLeading(30);
-  text('“Clean, renewable energy is the difference between life and death.”', x + 756, y + 172, 844, 64);
-  fill(180, 184, 196);
+  fill(10, 14, 22);
   textStyle(NORMAL);
-  textSize(15);
-  textLeading(22);
-  text('António Guterres, opening remarks to the High-level Dialogue on Energy, 24 September 2021.', x + 756, y + 246, 824, 36);
+  textSize(18);
+  textLeading(29);
+  text(
+    'Reliable, affordable and sustainable energy supports everyday life. HARM contrasts the speed and convenience of fossil-fuel power with the environmental cost that builds through smoke, carbon and atmospheric pressure.',
+    sdgX + 30, sdgY + 78, sdgW - 60, 138
+  );
 
-  drawInfoCard(x + 730, y + 314, 898, 326, 'PROJECT BRIEF', C.orange);
-  fill(C.paper);
-  textStyle(NORMAL);
-  textSize(17);
-  textLeading(28);
-  text('Sustainable Development Goal 7 promotes access to affordable, reliable, and sustainable energy for all. Through HARM, this project visualises the hidden cost of fossil-energy systems: electricity demand is supplied through coal burning, while smoke, carbon and atmospheric pressure accumulate across the environment. The artwork contrasts useful power with environmental damage, showing how energy choices shape both human activity and ecological wellbeing.', x + 756, y + 388, 836, 214);
-
-  drawInfoCard(x + 730, y + 676, 898, 118, 'HOW TO PLAY', C.lime);
-  drawHowTo(x + 756, y + 736, 840);
-
-  fill(C.lime);
-  textAlign(CENTER, TOP);
+  // RIGHT — interaction guide.
+  fill(35, 63, 184);
   textStyle(BOLD);
-  textSize(13);
-  text('PRESS I AGAIN TO ESCAPE', W / 2, y + h + 12);
+  textSize(18);
+  text('POWER THE FIELD', rightX, topY + 2);
+
+  fill(8, 12, 20);
+  textStyle(NORMAL);
+  textSize(18);
+  textLeading(29);
+
+  drawAboutStep(rightX + 10, topY + 50, '1.', 'Click or drag coal', 'into the machine. Power arrives quickly and the grid begins to activate.', rightW - 20);
+  drawAboutStep(rightX + 10, topY + 139, '2.', 'Hover houses or factories', 'to create electricity demand and watch energy move across the island system.', rightW - 20);
+  drawAboutStep(rightX + 10, topY + 228, '3.', 'Watch AIR LOAD rise', 'as smoke and atmospheric pressure accumulate overhead and HARM spreads.', rightW - 20);
+
+  fill(8, 12, 20);
+  textStyle(NORMAL);
+  textSize(18);
+  textLeading(29);
+  text(
+    'The circular arrow resets and replays the system. The speaker opens the six-track sound mix. The ! button opens this project guide again.',
+    rightX, topY + 326, rightW - 12, 88
+  );
+
+  // Footer divider and compact project metadata.
+  const dividerY = y + h - 142;
+  fill(160, 166, 176, 120);
+  rect(x + pad, dividerY, w - pad * 2, 2);
+
+  fill(42, 47, 64);
+  textAlign(LEFT, TOP);
+  textStyle(BOLD);
+  textSize(16);
+  text('HARM — STAGE 1    ·    COMM2754    ·    SDG 7    ·    R reset & replay    ·    speaker sound mix    ·    ! guide', x + pad, dividerY + 26);
+
+  textStyle(BOLD);
+  textSize(20);
+  fill(236, 82, 8);
+  text('NGO DAC PHU', x + pad, dividerY + 66);
+  text('SID: S3936790', x + pad + 330, dividerY + 66);
+
   rectMode(CENTER);
   pop();
 }
 
-function drawInfoCard(x, y, w, h, label, accent) {
-  noStroke();
-  fill(18, 18, 46, 184);
-  rect(x, y, w, h, 12);
-  fill(accent);
-  rect(x, y, w, 7, 12, 12, 0, 0);
-  fill(accent);
+function drawAboutStep(x, y, number, boldLead, rest, w) {
+  textFont(INFO_UI_FONT);
+  fill(12, 16, 27);
   textAlign(LEFT, TOP);
+  textStyle(NORMAL);
+  textSize(18);
+  textLeading(29);
+  text(number, x, y);
+
   textStyle(BOLD);
-  textSize(16);
-  text(label, x + 22, y + 18);
+  text(boldLead, x + 30, y);
+
+  // Start the continuation on a clean second line to mirror the reference layout.
+  textStyle(NORMAL);
+  text(rest, x + 30, y + 29, w - 30, 54);
 }
 
-
-function drawHowTo(x, y, w) {
-  const items = [
-    ['1', 'CLICK / DRAG COAL', 'Feed coal into the furnace to generate power.', C.orange],
-    ['2', 'HOVER HOUSES OR FACTORIES', 'Create electricity demand across the island system.', '#F5B2D0'],
-    ['3', 'WATCH AIR LOAD RISE', 'Smoke and pressure accumulate overhead as HARM spreads.', C.lime]
-  ];
-  const cw = w / 3;
-  for (let i = 0; i < items.length; i++) {
-    const [n, title, body, cc] = items[i];
-    const ox = x + i * cw;
-    fill(cc);
-    circle(ox + 13, y + 10, 28);
-    fill(C.ink);
-    textAlign(CENTER, CENTER);
-    textStyle(BOLD);
-    textSize(11);
-    text(n, ox + 13, y + 10);
-    fill(C.paper);
-    textAlign(LEFT, TOP);
-    textStyle(BOLD);
-    textSize(14);
-    text(title, ox + 34, y - 3);
-    fill(225, 227, 233);
-    textStyle(NORMAL);
-    textSize(12);
-    textLeading(17);
-    text(body, ox + 34, y + 17, cw - 46, 40);
-  }
-}
 
 // ------------------------------------------------------------
 // INPUT
@@ -284,12 +295,10 @@ function mousePressed() {
   if (window.HarmSound) window.HarmSound.cues.uiClick(0.92);
 
   if (infoOpen) {
-    infoOpen = false;
-    return false;
-  }
-
-  if (dist(mouseX, mouseY, INFO_UI.x, INFO_UI.y) < INFO_UI.r * 1.3) {
-    infoOpen = true;
+    if (isInfoCloseHit(mouseX, mouseY)) {
+      infoOpen = false;
+      cursor(ARROW);
+    }
     return false;
   }
 
@@ -361,11 +370,40 @@ function keyPressed() {
 // HELPERS
 // ------------------------------------------------------------
 
-function setStatus(message, hold = 1.6) {
-  if (message === lastStatus && sceneTime < statusUntil) return;
-  lastStatus = message;
-  statusUntil = sceneTime + hold;
-  if (statusEl) statusEl.textContent = message;
+function formatSubtitleText(message) {
+  let text = String(message || '').trim().replace(/\s+/g, ' ');
+  if (!text) return text;
+
+  // Messages are stored in uppercase so they are easy to scan in code.
+  // Convert each middot-separated clause independently so the visible guidance
+  // reads naturally without producing random lowercase starts after separators.
+  const clauses = text.split('·').map(part => {
+    let clause = part.trim();
+    if (!clause) return '';
+    if (clause === clause.toUpperCase()) clause = clause.toLowerCase();
+    return clause.charAt(0).toUpperCase() + clause.slice(1);
+  }).filter(Boolean);
+
+  return clauses.join(' · ')
+    .replace(/\bharm\b/gi, 'HARM')
+    .replace(/\bair load\b/gi, 'AIR LOAD')
+    .replace(/\bsdg\b/gi, 'SDG')
+    .replace(/\bp5\.js\b/gi, 'p5.js');
+}
+
+function setStatus(message, hold = 1.6, priority = 1) {
+  const cleanMessage = String(message || '').trim();
+  if (!cleanMessage) return;
+
+  // Higher-priority interaction feedback is allowed to replace passive atmospheric
+  // narration, but passive text cannot interrupt an active interaction message.
+  if (sceneTime < statusUntil && priority < statusPriority) return;
+  if (cleanMessage === lastStatus && sceneTime < statusUntil) return;
+
+  lastStatus = cleanMessage;
+  statusPriority = priority;
+  statusUntil = sceneTime + Math.max(.9, hold);
+  if (statusEl) statusEl.textContent = formatSubtitleText(cleanMessage);
 }
 
 function groundPatch(x, y, w, r, p, reveal = 1) {

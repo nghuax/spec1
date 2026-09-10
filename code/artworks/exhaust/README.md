@@ -9,7 +9,7 @@ This program takes the user's mouse input to click the "fossil energy" button th
 
 ## Installation Instructions
 
-1. Unzip `COMM2754-2026-S2-A2w08-Heal-Compilation.zip`.
+1. Unzip `COMM2754-2026-S4010990-A2w09-Heal.zip`.
 2. Start a web server in the root directory.
 3. Open the `index.html` file through the web server in a browser to see the results.
 
@@ -32,7 +32,3 @@ For example:
 Heal was created by Luong Duc Hung as a personal project.
 
 **Contact:** [s4010990@rmit.edu.vn](mailto:s4010990@rmit.edu.vn)
-
-## HEAL website integration
-
-The GitHub Pages version uses the supplied local p5.js and p5.sound files. The six recorded WAV cues referenced by the sketch were not included in the supplied `code-bill` folder, so unavailable recordings are skipped and the included generative ambience remains active.

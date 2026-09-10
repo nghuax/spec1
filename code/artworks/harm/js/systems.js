@@ -172,8 +172,8 @@ function triggerBurn(target) {
   // A burn pulse also physically disturbs the visual field without directly damaging it.
   applyCombustionShockwave(.45 + overdrive * .55);
 
-  if (overdrive > .22) setStatus('OVERDRIVE · THE GRID SURGES BRIGHTER WHILE THE ENVIRONMENT FAILS FASTER', 3.0);
-  else setStatus('THE LIGHTS TURN ON FIRST · SMOKE, SOOT AND HARM REMAIN AFTER', 2.8);
+  if (overdrive > .22) setStatus('OVERDRIVE · THE GRID SURGES, BUT POLLUTION RISES FASTER', 3.0, 3);
+  else setStatus('POWER ARRIVES IMMEDIATELY · SMOKE AND SOOT REMAIN AFTER EACH BURN', 2.8, 2);
 }
 
 function chooseTarget() {
@@ -1145,11 +1145,11 @@ function updateGlobal(dt) {
   smokeCeiling = lerp(smokeCeiling, target, .018);
 
   if (sceneTime > statusUntil) {
-    if (pollution > 88) setStatus('THE ATMOSPHERE HAS BECOME THE DOMINANT STRUCTURE', 1.6);
-    else if (pollution > 68) setStatus('LIGHT REMAINS, BUT THE LANDSCAPE IS DYING UNDER THE LOAD', 1.6);
-    else if (pollution > 42) setStatus('POWER KEEPS FLOWING WHILE THE ENVIRONMENT DRIES AND WEAKENS', 1.6);
-    else if (demandQueue.length) setStatus('DEMAND IS WAITING · EACH NEW BURN ADDS NEW HARM', 1.6);
-    else if (burnCount > 0) setStatus('AT FIRST THE GRID GLOWS BRIGHTLY · THE COST STAYS IN THE AIR', 1.6);
+    if (pollution > 88) setStatus('CRITICAL AIR LOAD · POLLUTION NOW DOMINATES THE ATMOSPHERE', 2.1, 1);
+    else if (pollution > 68) setStatus('HIGH AIR LOAD · THE GRID STAYS ACTIVE WHILE THE LANDSCAPE WEAKENS', 2.1, 1);
+    else if (pollution > 42) setStatus('RISING AIR LOAD · POWER CONTINUES AS THE ENVIRONMENT DRIES AND DEGRADES', 2.1, 1);
+    else if (demandQueue.length) setStatus('POWER DEMAND IS WAITING · EACH NEW BURN ALSO ADDS POLLUTION', 2.0, 1);
+    else if (burnCount > 0) setStatus('THE GRID IS ACTIVE · THE ENVIRONMENTAL COST REMAINS IN THE AIR', 2.0, 1);
   }
 }
 

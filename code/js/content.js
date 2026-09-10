@@ -54,12 +54,12 @@ export const siteContent = {
       artworkPath: 'artworks/adapt/index.html',
       artworkTitle: 'ADAPT interactive artwork',
       artworkDescription:
-        'A regeneration field where the user combines solar and wind energy to clear pollution and restore homes, plants and shared spaces.',
+        'A regeneration field where balanced solar and wind energy reconnect damaged habitats into a shared clean-energy network. Follow a guided regeneration or restore the field yourself.',
       instructions:
-        'Select SUN or WIND, then drag over the field. Use both energy sources until recovery reaches 100%. Press 1 / 2 to switch, R to reset and S to save. Sound is optional.',
+        'Select START REGENERATION for a guided sequence, or choose SUN / WIND and drag over the field yourself. Watch the recovery indicator and use both energy sources to reach 100%. Use SOUND to mute or unmute. Press 1 / 2 to switch, R to reset and S to save.',
       goal: {
-        title: 'Restore the field with a balanced clean-energy mix.',
-        steps: ['Apply sunlight to rebuild', 'Use wind to clear pollution', 'Reach 100% recovery']
+        title: 'Connect the field with a balanced clean-energy mix.',
+        steps: ['Start the guide or choose SUN / WIND', 'Supply both sources to every habitat', 'Reach 100% and continue to LIVEN']
       },
       context: {
         eyebrow: 'SDG 7 / WHY THIS MATTERS',

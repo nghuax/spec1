@@ -10,6 +10,14 @@
   <link rel="stylesheet" href="../css/reset.css">
   <link rel="stylesheet" href="../css/site.css">
   <link rel="stylesheet" href="../css/artwork.css">
+  <style>
+    /* ADAPT owns its controls inside the composition. */
+    body[data-chapter="adapt"] .artwork-frame { aspect-ratio: 16 / 9; min-height: 0; }
+    body[data-chapter="adapt"] [data-adapt-completion] { display: none; }
+    @media (max-width: 700px) {
+      body[data-chapter="adapt"] .artwork-frame { aspect-ratio: auto; height: clamp(480px, 140vw, 680px); }
+    }
+  </style>
 </head>
 <body data-page="artwork" data-root=".." data-chapter="adapt">
   <a class="skip-link" href="#main-content">Skip to main content</a>

@@ -4,8 +4,8 @@ ADAPT — MODULAR ECOLOGY
 
 Stage 3 bridges the Stage 2 and Stage 4 visual systems:
 - shared HEAL palette and bold p5.js primitive geometry
-- a stepped charcoal depth field that transitions into a randomized blue recovery field
-- abstract floating habitat stamps with depth-based greys that reassemble as the field recovers
+- the existing stepped depth field, warmed to charcoal-earth in the polluted state
+- ten reusable environmental asset families with intact two-state silhouettes
 - no central Earth/orb artwork; the habitats are the visual focus
 - the SUN/WIND recovery interaction remains unique to this stage
 */
@@ -30,7 +30,12 @@ const C = {
   yellow: '#78A914',
   pink: '#D94D93',
   teal: '#147A78',
-  brown: '#755443'
+  brown: '#755443',
+  pollutedAmber: '#D58A3D',
+  pollutedHotOrange: '#C87629',
+  pollutedBurnt: '#BC7634',
+  pollutedRust: '#AE630D',
+  pollutedShadow: '#7A3F00'
 };
 
 const ARTBOARD_WIDTH = 1920;
@@ -43,15 +48,22 @@ let smoke = [];
 let pollen = [];
 let sunBursts = [];
 let windLines = [];
-let debris = [];
-let recoveredFragments = [];
 let damagedField = null;
 let restoredField = null;
 let restoredLand = null;
+let energyLinks = [];
 
 let W = 0;
 let H = 0;
 let tm = 0;
+let elapsedTime = 0;
+let experienceMode = 'manual';
+let guidedTime = 0;
+let guidedPhase = 'ready';
+let paused = false;
+let audioMuted = false;
+let lastProgressSignature = '';
+let nextProgressAt = 0;
 
 let activeTool = 'sun';
 let dragging = false;
@@ -77,6 +89,18 @@ let audioMaster = null;
 let audioEnabled = false;
 let audioFetchPromise = null;
 let audioDecodePromise = null;
+// Recommended levels preserve the original balance of the six recorded cues.
+const SOUND_MIX_CHANNELS = [
+  { id: 'confirmation', label: 'Interface click', recommended: 58 },
+  { id: 'solarSelect', label: 'Solar selection', recommended: 48 },
+  { id: 'solarEnergy', label: 'Solar energy', recommended: 24 },
+  { id: 'windPaper', label: 'Wind', recommended: 30 },
+  { id: 'recoveryWater', label: 'Recovery water', recommended: 72 },
+  { id: 'assemblyKeyboard', label: 'Habitat assembly', recommended: 98 }
+];
+const soundMixLevels = Object.fromEntries(SOUND_MIX_CHANNELS.map(({ id, recommended }) => [id, recommended]));
+const audioChannelGains = new Map();
+
 const audioFileData = new Map();
 const audioBuffers = new Map();
 const activeSampleSources = new Map();
@@ -97,22 +121,46 @@ const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matc
 const motionScale = reducedMotion ? 0.18 : 1;
 const ENERGY_BRUSH_RADIUS = 580;
 const ENERGY_BRUSH_GAIN = 0.12;
-const ASSEMBLY_FRAGMENT_COLORS = [
-  C.orange,
-  C.lime,
-  C.purple,
-  C.blue,
-  C.paper,
-  C.teal
-];
-const RECOVERED_FRAGMENT_COLORS = [
-  '#FF650D',
-  '#8BD500',
-  '#7447B8',
-  '#234BDC',
-  '#D7CAB0',
-  '#258A97'
-];
+// Each reset selects a fresh composition seed. Authored asset geometry remains
+// stable; bounded layout/background variation is repeatable for an explicit seed.
+let environmentSeed = 307;
+let compositionSeed = 307;
+let floatingTextureLayout = [];
+let floatingEdgeLayout = [];
+const ambientScratch = { x: 0, y: 0, r: 0, scale: 1 };
+const sharedFloat = { x: 0, y: 0, r: 0, scale: 1 };
+// A quicker, layered float keeps the whole field lively without making the
+// large habitats feel weightless. The same clock is used for every layer, so
+// motion remains deterministic and pause/reduced-motion still work globally.
+const AMBIENT_SPEED = 2.56;
+
+// Reusable render-only motion. Callers reuse output records; no frame RNG.
+function getFloatOffset(time, phase, amplitudeX, amplitudeY, period, rotationAmount, recovery, out) {
+  const weight = 0.72 + recovery * 0.28;
+  const t = time * TWO_PI / period * AMBIENT_SPEED;
+  const accessibility = reducedMotion ? 0.2 : 1;
+  // Two restrained harmonics make the movement feel hand-authored instead of
+  // like a single pendulum, while each channel stays inside its amplitude.
+  out.x = (sin(t * 0.79 + phase * 1.31) * 0.78
+    + sin(t * 0.43 + phase * 0.71) * 0.22) * amplitudeX * weight * accessibility;
+  out.y = (sin(t + phase) * 0.76
+    + sin(t * 0.53 + phase * 1.7) * 0.14
+    + cos(t * 0.31 + phase * 0.42) * 0.10) * amplitudeY * weight * accessibility;
+  out.r = (sin(t * 0.67 + phase * 1.91) * 0.84
+    + sin(t * 0.37 + phase * 0.83) * 0.16) * rotationAmount * weight * accessibility;
+  out.scale = 1 + sin(t * 0.61 + phase) * 0.0032 * recovery * accessibility;
+  return out;
+}
+
+function getSharedFloat() {
+  return getFloatOffset(tm, compositionSeed % 71, 1.2, 3, 9.2, 0.005, globalRecovery, sharedFloat);
+}
+function environmentRandom(low, high) {
+  environmentSeed = (Math.imul(environmentSeed, 1664525) + 1013904223) >>> 0;
+  const value = environmentSeed / 4294967296;
+  if (low === undefined) return value;
+  return high === undefined ? value * low : low + value * (high - low);
+}
 
 function setup() {
   pixelDensity(1);
@@ -130,8 +178,12 @@ function setup() {
   // HEAL integration: use the user-selected shared typeface across the system.
   textFont('Stack Sans Notch');
   fitArtboardToWindow();
+  const viewport = document.getElementById('artwork-viewport');
+  if (viewport) new ResizeObserver(fitArtboardToWindow).observe(viewport);
   preloadAudioSamples();
   regenerate();
+  window.addEventListener('adapt:command', handleArtworkCommand);
+  publishProgress(true);
 }
 
 function windowResized() {
@@ -141,30 +193,40 @@ function windowResized() {
 function fitArtboardToWindow() {
   const app = document.getElementById('app');
   if (!app) return;
+  const viewport = document.getElementById('artwork-viewport');
   const displayScale = min(
-    window.innerWidth / ARTBOARD_WIDTH,
-    window.innerHeight / ARTBOARD_HEIGHT
+    (viewport?.clientWidth || window.innerWidth) / ARTBOARD_WIDTH,
+    (viewport?.clientHeight || window.innerHeight) / ARTBOARD_HEIGHT
   );
   app.style.transform = `scale(${displayScale})`;
+  viewport?.style.setProperty('--artboard-scale', String(displayScale));
+  // The interface shares the fitted artboard bounds; it never reserves a footer.
+  viewport?.style.setProperty('--artwork-width', `${ARTBOARD_WIDTH * displayScale}px`);
+  viewport?.style.setProperty('--artwork-height', `${ARTBOARD_HEIGHT * displayScale}px`);
 }
 
-function regenerate() {
-  stopSample('assembly');
-  stopSample('recovery');
+function regenerate(seed) {
+  [...activeSampleSources.keys()].forEach(stopSample);
+  lastEnergySoundAt.sun = -Infinity;
+  lastEnergySoundAt.wind = -Infinity;
   delete document.body.dataset.assemblyCue;
   delete document.body.dataset.recoveryCue;
   document.body.dataset.soundHistory = '';
   W = width;
   H = height;
   tm = 0;
+  elapsedTime = 0;
+  guidedTime = 0;
+  guidedPhase = 'ready';
+  experienceMode = 'manual';
+  paused = false;
+  if (audioEnabled && audioContext) audioContext.resume().catch(() => {});
 
   modules = [];
   smoke = [];
   pollen = [];
   sunBursts = [];
   windLines = [];
-  debris = [];
-  recoveredFragments = [];
 
   activeTool = 'sun';
   dragging = false;
@@ -181,26 +243,29 @@ function regenerate() {
   dragPointerX = pointerX;
   dragPointerY = pointerY;
 
+  compositionSeed = Number.isFinite(seed) ? seed >>> 0 : floor(random(1, 2147483647));
+  environmentSeed = compositionSeed;
+  document.body.dataset.compositionSeed = String(compositionSeed);
+  if (typeof noiseSeed === 'function') noiseSeed(compositionSeed);
   buildDamagedField();
   buildRestoredField();
   buildRestoredLand();
   buildModules();
+  buildFloatingLayouts();
+  buildEnergyNetwork();
   const visualAssetCount = modules.length - max(0, restoredLand.moduleIds.length - 1);
   document.body.dataset.assetCount = String(visualAssetCount);
   document.body.dataset.moduleCount = String(modules.length);
   document.body.dataset.landPosition = `${round(restoredLand.x)},${round(restoredLand.y)}`;
-  buildDebris();
-  buildRecoveredConstellation();
-  buildSmoke();
 
   const previewState = new URLSearchParams(window.location.search).get('state');
   const isRestoredPreview = previewState === '2' || previewState === 'restored';
   if (isRestoredPreview) {
-    for (const m of modules) {
+    modules.forEach((m) => {
       m.sun = 1;
       m.wind = 1;
       m.visualRecovery = 1;
-    }
+    });
     globalRecovery = 1;
     finalTriggered = true;
     stateTwoAnnounced = true;
@@ -208,7 +273,133 @@ function regenerate() {
 
   announceArtworkState(isRestoredPreview ? 2 : 1);
 
-  setStatus('SUN SELECTED · REBUILD THE FIELD GRADUALLY', 3);
+  setStatus('Drag to add sunlight, or use the circular arrow to reset and replay.', 3);
+  publishProgress(true);
+}
+
+// Functional array methods build a real network, not a fixed illustration:
+// filter selects energy sources/receivers; map creates one link per receiver.
+function buildEnergyNetwork() {
+  const sources = modules.filter((habitat) => habitat.kind === 'solar' || habitat.kind === 'wind');
+  energyLinks = modules
+    .filter((habitat) => habitat.kind !== 'solar' && habitat.kind !== 'wind')
+    .map((target, index) => {
+      const candidates = sources.filter((source) => source.kind === (index % 2 ? 'wind' : 'solar'));
+      const source = (candidates.length ? candidates : sources).reduce((nearest, candidate) => {
+        if (!nearest) return candidate;
+        return Math.hypot(candidate.homeX - target.homeX, candidate.homeY - target.homeY)
+          < Math.hypot(nearest.homeX - target.homeX, nearest.homeY - target.homeY) ? candidate : nearest;
+      }, null);
+      return { source, target, phase: (index * 0.381966) % 1 };
+    })
+    .filter((link) => link.source !== null);
+}
+
+function currentGuidance() {
+  if (paused) return 'Paused — resume when you are ready.';
+  if (stateTwoAnnounced) return 'The clean-energy network is ready. Continue the HEAL journey.';
+  if (elapsedTime < statusUntil && statusText) return statusText;
+  if (finalTriggered) return 'Both sources are connected — watch the network assemble.';
+  if (experienceMode === 'guided') {
+    if (guidedPhase === 'sun') return 'Sunlight activates the panels and prepares the habitats.';
+    if (guidedPhase === 'wind') return 'Wind clears pollution and completes the energy mix.';
+    return 'Disconnected habitats need a reliable clean-energy network.';
+  }
+  const sun = averageCharge('sun');
+  const wind = averageCharge('wind');
+  if (sun > wind + 0.28) return 'Sunlight is building up — select WIND to complete the balance.';
+  if (wind > sun + 0.28) return 'Wind is clearing the field — select SUN to complete the balance.';
+  return activeTool === 'sun' ? 'Drag over habitats to add sunlight.' : 'Drag over habitats to add wind.';
+}
+
+function publishProgress(force = false) {
+  if (!force && performance.now() < nextProgressAt) return;
+  nextProgressAt = performance.now() + 100;
+  const detail = {
+    tool: activeTool,
+    sun: round(averageCharge('sun') * 100),
+    wind: round(averageCharge('wind') * 100),
+    recovery: stateTwoAnnounced ? 100 : min(99, round(globalRecovery * 100)),
+    completed: stateTwoAnnounced,
+    mode: experienceMode,
+    paused,
+    sound: !audioMuted,
+    phase: guidedPhase,
+    status: currentGuidance()
+  };
+  document.body.dataset.recovery = String(detail.recovery);
+  document.body.dataset.sun = String(detail.sun);
+  document.body.dataset.wind = String(detail.wind);
+  document.body.dataset.mode = experienceMode;
+  document.body.dataset.paused = String(paused);
+  document.body.dataset.guidedSeconds = guidedTime.toFixed(1);
+  const signature = JSON.stringify(detail);
+  if (force || signature !== lastProgressSignature) {
+    lastProgressSignature = signature;
+    window.dispatchEvent(new CustomEvent('adapt:progress', { detail }));
+  }
+}
+
+function selectEnergyTool(tool) {
+  if (tool !== 'sun' && tool !== 'wind') return;
+  experienceMode = 'manual';
+  activeTool = tool;
+  ensureAudioEnabled(false).then(() => playSelectSound(tool));
+  setStatus(tool === 'sun' ? 'SUN selected — drag to activate the panels.' : 'WIND selected — drag to clear pollution.', 1.7);
+  publishProgress(true);
+}
+
+function handleArtworkCommand(event) {
+  const command = event.detail || {};
+  if (command.action === 'tool') selectEnergyTool(command.tool);
+  else if (command.action === 'start' || command.action === 'reset') {
+    resetAndReplay();  } else if (command.action === 'pause') {
+    paused = !paused;
+    dragging = false;
+    if (audioContext) {
+      const operation = paused ? audioContext.suspend() : audioEnabled ? audioContext.resume() : null;
+      operation?.catch(() => {});
+    }
+  } else if (command.action === 'sound') toggleSound();
+  else if (command.action === 'mix') setSoundMixLevel(command.channel, command.level);
+  else if (command.action === 'mix-reset') resetSoundMix();
+  else if (command.action === 'mix-preview') {
+    const channel = SOUND_MIX_CHANNELS.find(({ id }) => id === command.channel);
+    if (channel) ensureAudioEnabled(false).then(() => playSample(channel.id, { gain: channel.recommended / 100, exclusive: 'mix-preview' }));
+  }
+  else if (command.action === 'save') exportArtwork();
+  publishProgress(true);
+}
+
+// One action owns start, replay and reset, including the R shortcut.
+function resetAndReplay() {
+  regenerate();
+  experienceMode = 'guided';
+  guidedPhase = 'damage';
+  setStatus('Watch the habitats reconnect through sunlight and wind.', 2);
+  ensureAudioEnabled(true);
+  publishProgress(true);
+}
+
+function updateGuidedSequence(dt) {
+  if (experienceMode !== 'guided' || stateTwoAnnounced) return;
+  guidedTime += dt;
+  const phase = guidedTime < 2 ? 'damage' : guidedTime < 8 ? 'sun' : guidedTime < 14 ? 'wind' : 'assembly';
+  if (phase !== guidedPhase) {
+    guidedPhase = phase;
+    statusUntil = 0;
+    if (phase === 'sun' || phase === 'wind') {
+      activeTool = phase;
+      playSelectSound(phase);
+    }
+  }
+  // forEach updates each habitat independently with a slightly staggered arrival.
+  modules.forEach((habitat, index) => {
+    const stagger = index * 0.025;
+    habitat.sun = max(habitat.sun, smoothClamp(guidedTime, 2 + stagger, 7.6 + stagger));
+    habitat.wind = max(habitat.wind, smoothClamp(guidedTime, 8 + stagger, 13.6 + stagger));
+  });
+  if (phase === 'sun' || phase === 'wind') playEnergySound(phase);
 }
 
 function announceArtworkState(state) {
@@ -217,454 +408,70 @@ function announceArtworkState(state) {
   }));
 }
 
-function randomKind() {
-  const r = random();
-  return r < 0.18 ? 'forest'
-    : r < 0.34 ? 'water'
-    : r < 0.51 ? 'solar'
-    : r < 0.68 ? 'wind'
-    : r < 0.84 ? 'community'
-    : 'wildlife';
-}
-
-function scaleFor(kind) {
-  if (kind === 'community') return random(0.98, 1.16);
-  if (kind === 'solar' || kind === 'wind') return random(0.94, 1.12);
-  if (kind === 'water') return random(0.92, 1.12);
-  if (kind === 'forest') return random(0.90, 1.12);
-  return random(0.88, 1.06);
-}
-
-function spacingFor(kind) {
-  if (kind === 'community') return 148;
-  if (kind === 'solar' || kind === 'wind') return 142;
-  if (kind === 'water') return 138;
-  if (kind === 'forest') return 132;
-  return 126;
-}
-
+// Twelve logical modules retain the existing energy/network model. Four share
+// one island, leaving nine visual habitat groups and generous negative space.
+let acceptedComposition = null;
 function buildModules() {
-  // Four clean-energy modules combine on the shared land and count as one
-  // visual habitat. Seven to nine satellite habitats keep the final scene at
-  // the requested eight-to-ten clearly readable asset groups.
-  const targetVisualCount = floor(random(8, 11));
-  const targetCount = targetVisualCount + 3;
-  const kinds = ['community', 'forest', 'wind', 'wildlife', 'solar', 'water'];
-  while (kinds.length < targetCount) kinds.push(randomKind());
-
-  // Shuffle both the habitat families and their scale hierarchy on every reset.
-  for (let i = kinds.length - 1; i > 0; i--) {
-    const j = floor(random(i + 1));
-    [kinds[i], kinds[j]] = [kinds[j], kinds[i]];
-  }
-
-  const layout = kinds.map((kind) => ({
-    kind,
-    ring: floor(random(2)),
-    scale: random(1.16, 1.38)
-  }));
-  const startPositions = generateStartPositions(layout.length);
-
-  for (let moduleIndex = 0; moduleIndex < layout.length; moduleIndex++) {
-    const item = layout[moduleIndex];
-    const start = startPositions[moduleIndex];
-    const s = scaleFor(item.kind) * item.scale;
-    const module = makeModule(moduleIndex, item.kind, start.x, start.y, s);
-    module.orbitRing = item.ring;
-    module.orbitAngle = atan2(start.y - FIELD_Y, start.x - FIELD_X);
-    modules.push(module);
-  }
-
-  placeSharedLandModules();
-}
-
-function generateStartPositions(count) {
-  const positions = [];
-  const minimumDistance = count >= 13 ? 166 : count === 12 ? 174 : count === 11 ? 184 : 205;
-  const fallback = [
-    { x: 820, y: 410 },
-    { x: 1130, y: 290 },
-    { x: 1450, y: 440 },
-    { x: 1700, y: 620 },
-    { x: 470, y: 690 },
-    { x: 800, y: 700 },
-    { x: 1130, y: 730 },
-    { x: 1430, y: 700 },
-    { x: 990, y: 520 },
-    { x: 1630, y: 430 }
-  ];
-
-  for (let i = 0; i < count; i++) {
-    let chosen = null;
-
-    for (let attempt = 0; attempt < 320; attempt++) {
-      const candidate = {
-        x: random(330, 1790),
-        y: random(210, 820)
-      };
-
-      // Keep the exact Figma title, subtitle and information control readable.
-      if (candidate.x < 730 && candidate.y < 575) continue;
-      if (candidate.x > 1320 && candidate.y < 380) continue;
-      if (candidate.x > 1540 && candidate.y > 720) continue;
-      if (pointInRestoredLandClearance(candidate.x, candidate.y)) continue;
-
-      const hasRoom = positions.every((other) =>
-        dist(candidate.x, candidate.y, other.x, other.y) >= minimumDistance
-      );
-      if (!hasRoom) continue;
-
-      chosen = candidate;
-      break;
-    }
-
-    if (!chosen) {
-      const safe = fallback.find((candidate) =>
-        !pointInRestoredLandClearance(candidate.x, candidate.y) &&
-        positions.every((other) =>
-          dist(candidate.x, candidate.y, other.x, other.y) >= minimumDistance - 18
-        )
-      ) || fallback[i % fallback.length];
-      chosen = {
-        x: safe.x + random(-36, 36),
-        y: safe.y + random(-28, 28)
-      };
-    }
-
-    positions.push(chosen);
-  }
-
-  return positions;
-}
-
-function pointInRestoredLandClearance(x, y) {
-  if (!restoredLand) return false;
-  const dx = (x - restoredLand.x) / (restoredLand.w * 0.64);
-  const dy = (y - restoredLand.y) / (restoredLand.h * 1.45);
-  return dx * dx + dy * dy < 1;
-}
-
-function placeSharedLandModules() {
-  if (!restoredLand || !modules.length) return;
-
+  // Generate entirely off-screen, then publish the highest-scoring valid layout.
+  acceptedComposition = generateAdaptLayout(compositionSeed, W, H);
+  const anchor = acceptedComposition.groups[0];
+  const unit = Math.min(W / 1920, H / 1080);
+  restoredLand = { x: anchor.x, y: anchor.y - 48, w: anchor.width,
+    h: 66 * anchor.scale * unit, rotation: 0, moduleIds: [] };
   const anchorKinds = ['solar', 'wind', 'community', 'forest'];
-  const anchors = anchorKinds
-    .map((kind) => modules.find((m) => m.kind === kind))
-    .filter(Boolean);
-  const offsets = [
-    -restoredLand.w * 0.35,
-    -restoredLand.w * 0.13,
-    restoredLand.w * 0.12,
-    restoredLand.w * 0.35
-  ];
-  const verticalOffsets = [8, -8, -13, 7];
-
-  anchors.forEach((m, index) => {
-    m.sharedLand = true;
-    m.sharedLandIndex = index;
-    const anchorScale =
-      m.kind === 'community' ? 1.38 :
-      m.kind === 'wind' ? 1.28 :
-      m.kind === 'solar' ? 1.22 : 1.18;
-    m.s = min(m.s, anchorScale);
-    m.homeX = restoredLand.x + offsets[index];
-    m.homeY = restoredLand.y + verticalOffsets[index];
-    m.x = m.homeX;
-    m.y = m.homeY;
+  const offsets = [-0.35, -0.13, 0.12, 0.35];
+  const relativeScales = [1.12, 1.08, 1.12, 1.03];
+  modules = anchorKinds.map((kind, id) => {
+    const s = relativeScales[id] * anchor.scale * unit;
+    const m = makeModule(id, kind, anchor.x + anchor.width * offsets[id], anchor.y - 40 * s, s);
+    m.sharedLand = true; m.sharedLandIndex = id;
+    return m;
   });
-
-  restoredLand.moduleIds = anchors.map((m) => m.id);
+  acceptedComposition.groups.slice(1).forEach((group, index) => {
+    const s = group.scale * unit;
+    modules.push(makeModule(index + 4, group.kind, group.x, group.y - 40 * s, s));
+  });
+  modules.forEach(m => {
+    m.seed = environmentRandom(10000); m.phase = environmentRandom(TWO_PI);
+    m.variant = Math.floor(environmentRandom(3));
+  });
+  restoredLand.moduleIds = modules.slice(0, 4).map(m => m.id);
+  document.body.dataset.layoutScore = acceptedComposition.evaluation.score.toFixed(1);
+  document.body.dataset.layoutCandidates = String(acceptedComposition.validCandidates);
 }
 
 function makeModule(id, kind, x, y, s) {
-  const partCount =
-    kind === 'community' ? 6 :
-    kind === 'solar' ? 6 :
-    kind === 'wind' ? 5 :
-    kind === 'forest' ? 5 :
-    kind === 'water' ? 4 : 5;
-
-  const mass =
-    kind === 'community' ? 1.00 :
-    kind === 'water' ? 0.90 :
-    kind === 'solar' || kind === 'wind' ? 0.84 :
-    kind === 'forest' ? 0.72 : 0.64;
-
-  const parts = [];
-  for (let i = 0; i < partCount; i++) {
-    const scatter = random() < 0.42 ? random(1.35, 2.05) : random(0.82, 1.32);
-    parts.push({
-      fx: random(-70, 70) * scatter,
-      fy: random(-60, 54) * scatter,
-      fr: random(-0.68, 0.68),
-      delay: random(0.04, 0.48),
-      floatPhase: random(TWO_PI),
-      floatSpeed: random(0.22, 0.46),
-      floatRadius: random(7, 17)
-    });
-  }
-
-  const baseW = random(132, 160);
-  const baseH = random(28, 36);
-  const phase = random(TWO_PI);
-  const fragmentCount = floor(random(22, 30));
-  const fragmentSpread = random(0.92, 1.28);
-  const fragments = [];
-
-  for (let i = 0; i < fragmentCount; i++) {
-    const layerRoll = random();
-    const layer = layerRoll < 0.62 ? 0 : layerRoll < 0.93 ? 1 : 2;
-    const size = layer === 0
-      ? random(3.5, 10)
-      : layer === 1
-        ? random(9, 21)
-        : random(27, 58);
-    const radius = layer === 0
-      ? random(120, 235)
-      : layer === 1
-        ? random(86, 190)
-        : random(180, 285);
-    const progress = fragmentCount > 1 ? i / (fragmentCount - 1) : 0;
-
-    fragments.push({
-      layer,
-      size,
-      radius,
-      angle: phase + progress * PI * 1.72 + random(-0.72, 0.72),
-      stretch: random(0.52, 2.25),
-      rotation: random(TWO_PI),
-      spin: random(-0.16, 0.16),
-      floatSpeed: random(0.16, 0.46),
-      drift: layer === 2 ? random(16, 34) : random(7, 22),
-      phase: random(TWO_PI),
-      shape: floor(random(7)),
-      colorIndex: floor(random(ASSEMBLY_FRAGMENT_COLORS.length)),
-      alpha: layer === 0 ? random(42, 72) : layer === 1 ? random(72, 120) : random(34, 56)
-    });
-  }
-
+  const mass = kind === 'community' ? 1 : kind === 'water' ? 0.9
+    : kind === 'solar' || kind === 'wind' ? 0.84 : kind === 'forest' ? 0.72 : 0.64;
   return {
-    id,
-    kind,
-    x,
-    y,
-    homeX: x,
-    homeY: y,
-    vx: random(-0.22, 0.22),
-    vy: random(-0.18, 0.18),
-    rot: random(-0.04, 0.04),
-    s,
-    mass,
-    parts,
-    platform: { w: baseW, h: baseH },
-    sun: 0,
-    wind: 0,
-    visualRecovery: 0,
-    assemblyDelay: random(0.02, 0.3),
-    seed: random(10000),
-    phase,
-    floatAmp: random(6, 15),
-    orbitAmp: random(3, 9),
-    orbitSpeed: random(0.25, 0.8),
-    fragmentSeed: random(1000),
-    fragmentCount,
-    fragmentSpread,
-    fragments,
-    hover: 0
+    id, kind, x, y, homeX: x, homeY: y, s, mass,
+    vx: 0, vy: 0, rot: 0, platform: { w: 160, h: 36 },
+    sun: 0, wind: 0, visualRecovery: 0,
+    assemblyDelay: 0.06 + (id % 4) * 0.035,
+    seed: 307 + id * 97, phase: id * 1.618,
+    floatAmp: 3, orbitAmp: 2, orbitSpeed: 0.3, hover: 0
   };
-}
-
-function buildDebris() {
-  const count = floor(random(60, 81));
-  for (let i = 0; i < count; i++) {
-    let x = null;
-    let y = null;
-    const layerRoll = random();
-    const layer = layerRoll < 0.64 ? 0 : layerRoll < 0.93 ? 1 : 2;
-
-    for (let attempt = 0; attempt < 80; attempt++) {
-      if (layer === 2 && random() < 0.58) {
-        // A few oversized foreground shards enter from the artboard edges.
-        const edge = floor(random(4));
-        if (edge === 0) {
-          x = random(-90, 130);
-          y = random(100, H - 150);
-        } else if (edge === 1) {
-          x = random(W - 130, W + 90);
-          y = random(100, H - 150);
-        } else if (edge === 2) {
-          x = random(120, W - 120);
-          y = random(-70, 150);
-        } else {
-          x = random(120, W - 120);
-          y = random(H - 210, H + 70);
-        }
-      } else if (random() < 0.76 && modules.length) {
-        const source = random(modules);
-        const spread = layer === 0 ? 240 : layer === 1 ? 210 : 300;
-        x = source.homeX + random(-spread, spread);
-        y = source.homeY + random(-spread * 0.68, spread * 0.62);
-      } else {
-        x = random(-60, W + 60);
-        y = random(70, H - 100);
-      }
-
-      if (isProtectedUiPoint(x, y, layer === 2 ? 82 : 28)) continue;
-      break;
-    }
-
-    if (!Number.isFinite(x) || !Number.isFinite(y) || isProtectedUiPoint(x, y, 22)) {
-      x = random(760, 1460);
-      y = random(260, 760);
-    }
-
-    const size = layer === 0
-      ? random(3, 9)
-      : layer === 1
-        ? random(11, 32)
-        : random(40, 88);
-
-    debris.push({
-      x,
-      y,
-      layer,
-      size,
-      stretch: random(0.55, 2.1),
-      rotation: random(TWO_PI),
-      spin: random(-0.14, 0.14),
-      phase: random(TWO_PI),
-      floatSpeed: random(0.18, 0.48),
-      drift: layer === 2 ? random(14, 34) : random(7, 23),
-      fallSpeed: layer === 0 ? random(1.4, 3.8) : layer === 1 ? random(2.4, 6) : random(3.4, 8.2),
-      depth: random(),
-      shape: floor(random(7)),
-      colorIndex: floor(random(ASSEMBLY_FRAGMENT_COLORS.length)),
-      alpha: layer === 0 ? random(36, 66) : layer === 1 ? random(60, 102) : random(28, 48)
-    });
-  }
-}
-
-function buildRecoveredConstellation() {
-  // The recovered field keeps a visible memory of the scattered pieces. Small,
-  // saturated fragments connect the separate habitats into one living system;
-  // larger slate shards at the perimeter create foreground depth.
-  const fragmentCount = floor(random(315, 356));
-
-  for (let i = 0; i < fragmentCount; i++) {
-    const layerRoll = random();
-    const layer = layerRoll < 0.62 ? 0 : 1;
-    let x = null;
-    let y = null;
-
-    for (let attempt = 0; attempt < 120; attempt++) {
-      if (random() < 0.78 && modules.length) {
-        const source = random(modules);
-        const spreadX = layer === 0 ? random(150, 320) : random(120, 270);
-        x = source.homeX + random(-spreadX, spreadX);
-        y = source.homeY + random(-spreadX * 0.62, spreadX * 0.62);
-      } else {
-        x = random(30, W - 30);
-        y = random(150, H - 185);
-      }
-
-      if (isProtectedUiPoint(x, y, layer === 0 ? 14 : 26)) continue;
-      break;
-    }
-
-    if (!Number.isFinite(x) || !Number.isFinite(y) || isProtectedUiPoint(x, y, 10)) {
-      x = random(720, 1510);
-      y = random(250, 790);
-    }
-
-    recoveredFragments.push({
-      x,
-      y,
-      layer,
-      edge: false,
-      size: layer === 0 ? random(3.5, 9.5) : random(10, 24),
-      stretch: random(0.58, 1.85),
-      rotation: random(TWO_PI),
-      spin: random(-0.045, 0.045),
-      phase: random(TWO_PI),
-      floatSpeed: random(0.16, 0.38),
-      drift: layer === 0 ? random(1.5, 5.5) : random(3, 8),
-      shape: floor(random(7)),
-      colorIndex: floor(random(ASSEMBLY_FRAGMENT_COLORS.length)),
-      alpha: layer === 0 ? random(188, 248) : random(205, 255)
-    });
-  }
-
-  const edgeCount = floor(random(16, 23));
-  for (let i = 0; i < edgeCount; i++) {
-    const edge = i % 4;
-    let x;
-    let y;
-    if (edge === 0) {
-      x = random(-65, 110);
-      y = random(30, H - 150);
-    } else if (edge === 1) {
-      x = random(W - 110, W + 65);
-      y = random(25, H - 150);
-    } else if (edge === 2) {
-      x = random(160, W - 120);
-      y = random(-65, 115);
-    } else {
-      x = random(70, W - 120);
-      y = random(H - 170, H + 70);
-    }
-
-    if (isProtectedUiPoint(x, y, 90)) {
-      i--;
-      continue;
-    }
-
-    recoveredFragments.push({
-      x,
-      y,
-      layer: random() < 0.55 ? -1 : 2,
-      edge: true,
-      size: random(42, 112),
-      stretch: random(0.72, 2.25),
-      rotation: random(TWO_PI),
-      spin: random(-0.018, 0.018),
-      phase: random(TWO_PI),
-      floatSpeed: random(0.08, 0.2),
-      drift: random(2, 7),
-      shape: floor(random(1, 7)),
-      colorIndex: floor(random(ASSEMBLY_FRAGMENT_COLORS.length)),
-      alpha: random(105, 182)
-    });
-  }
 }
 
 function isProtectedUiPoint(x, y, margin = 0) {
   const inTitle = x < 690 + margin && y < 330 + margin;
+  const inTools = x < 620 + margin && y > 300 - margin && y < 500 + margin;
+  const inRecovery = x > 1390 - margin && y < 370 + margin;
+  const inOptions = x > 1660 - margin && y > 780 - margin;
   const inSubtitle = x > 270 - margin && x < 1640 + margin && y > 880 - margin;
-  const inInfo = x > 1640 - margin && y > 815 - margin;
-  return inTitle || inSubtitle || inInfo;
+  return inTitle || inTools || inSubtitle || inRecovery || inOptions;
 }
 
-function buildSmoke() {
-  const count = floor(random(10, 16));
-  for (let i = 0; i < count; i++) {
-    smoke.push({
-      x: random(-50, W + 50),
-      y: random(20, H * 0.88),
-      vx: random(-0.08, 0.08),
-      vy: random(-0.03, 0.04),
-      rot: random(TWO_PI),
-      vr: random(-0.006, 0.006),
-      size: random(10, 26),
-      life: random(0.82, 1.12),
-      dark: random() > 0.25,
-      phase: random(TWO_PI)
-    });
-  }
-}
+
 
 function draw() {
   const dt = min(deltaTime / 1000, 0.05);
-  tm += dt;
+  if (!paused) {
+    // One motion clock controls all decorative movement, including particles,
+    // bobbing, smoke and rotation. Recovery timing remains readable when reduced.
+    tm += dt * motionScale;
+    elapsedTime += dt;
+  }
   W = width;
   H = height;
 
@@ -679,31 +486,199 @@ function draw() {
     fpsWindowFrames = 0;
   }
 
-  if (frameCount % 30 === 0) {
-    document.body.dataset.recovery = String(round(globalRecovery * 100));
+  if (!paused) {
+    updateGuidedSequence(dt);
+    updateWindCursor(dt);
+    updateModules(dt);
+    updateSmoke(dt);
+    updateParticles(dt);
   }
-
-  updateWindCursor(dt);
-  updateModules(dt);
-  updateSmoke(dt);
-  updateParticles(dt);
+  publishProgress();
 
   drawBackground();
-  drawSmoke();
-  drawDebris();
-  drawRecoveredConstellation('back');
+  drawEnvironmentalTexture();
+  drawHabitatConstellations();
+  drawEnergyNetwork();
   drawRestoredLand();
   drawPlatforms();
   drawModules();
-  drawRecoveredConstellation('front');
   drawBurstsAndWind();
-  drawPollen();
   drawEnergyCursor();
 }
 
 function drawBackground() {
   const rec = smoothClamp(globalRecovery, 0.08, 0.92);
   drawDepthField(rec);
+}
+
+// Authored atmospheric accents, not an eleventh gameplay asset family.
+// A rich, deterministic field; one fifth of its anchors fade during recovery.
+// Drawn behind every habitat with UI/asset clearance checked during motion.
+const ADAPT_TEXTURE_LAYOUT = Object.freeze([
+  [620, 565, 18], [685, 510, 12], [640, 660, 14], [365, 590, 22],
+  [320, 780, 15], [660, 800, 12], [590, 845, 20], [890, 868, 16],
+  [945, 745, 13], [1010, 850, 24], [1260, 835, 16], [1540, 820, 18],
+  [1630, 755, 11], [1810, 725, 20], [680, 365, 17], [704, 195, 13],
+  [950, 175, 12], [1260, 210, 24], [1280, 355, 16], [1360, 270, 12],
+  [1680, 440, 25], [1780, 520, 14], [1610, 525, 18], [1550, 575, 11],
+  [930, 380, 11], [1080, 400, 15], [1220, 690, 14], [680, 705, 16]
+].concat(Array.from({ length: 392 }, (_, index) => {
+  // Low-discrepancy placement fills the field without a visible grid or RNG.
+  const u = ((index + 1) * 0.61803398875) % 1;
+  const v = ((index + 1) * 0.75487766625) % 1;
+  const size = index % 13 === 0 ? 38 + index % 17 : 10 + (index * 7) % 23;
+  return [42 + u * 1836, 50 + v * 820, size];
+})).map((point) => Object.freeze(point)));
+
+function pollutedToneAt(x, y, variation = 0) {
+  const dx = (x - ARTBOARD_WIDTH * 0.5) / (ARTBOARD_WIDTH * 0.5);
+  const dy = (y - ARTBOARD_HEIGHT * 0.5) / (ARTBOARD_HEIGHT * 0.5);
+  const distance = constrain(Math.sqrt(dx * dx + dy * dy), 0, 1);
+  const centerWeight = 1 - distance;
+  const nudge = ((variation % 3) - 1) * 0.22;
+  const index = constrain(Math.floor(centerWeight * 4.2 + nudge), 0, 4);
+  const palette = [C.pollutedAmber, C.pollutedHotOrange, C.pollutedBurnt,
+    C.pollutedRust, C.pollutedShadow];
+  return color(palette[index]);
+}
+
+function drawEnvironmentalTexture() {
+  const rec = constrain(globalRecovery, 0, 1);
+  const colors = [ADAPT_COLORS.blue, ADAPT_COLORS.teal, ADAPT_COLORS.purple,
+    ADAPT_COLORS.sand, ADAPT_COLORS.green, ADAPT_COLORS.orange];
+  push();
+  noStroke();
+  floatingTextureLayout.forEach(([homeX, homeY, size], index) => {
+    const depthAlpha = index % 3 === 0 ? 0.65 : 1;
+    const alpha = (index % 5 === 0 ? 1 - rec : 1) * lerp(112, 142, rec) * depthAlpha;
+    if (alpha <= 0.5) return;
+    const phase = index * 1.618 + compositionSeed % 997;
+    const float = getFloatOffset(tm, phase, 3 + index % 6, 6 + index % 9,
+      6 + index % 9, 0.035 + index % 4 * 0.016, rec, ambientScratch);
+    const x = homeX + sin(phase * 1.7) * 32 + float.x;
+    const y = homeY + cos(phase * 1.3) * 24 + float.y;
+    const rotation = phase + float.r;
+    if (isProtectedUiPoint(x, y, size + 8)) return;
+    // Avoid drawing through the object or its platform, even after wind nudges.
+    if (modules.some((m) => {
+      const pose = habitatPose(m);
+      return abs(x - pose.x) < 100 * m.s + size
+        && y > pose.y - 156 * m.s - size && y < pose.y + 40 * m.s + size;
+    })) return;
+    if (restoredLand && abs(x - restoredLand.x) < restoredLand.w * 0.55 + size
+      && y > restoredLand.y + 30 && y < restoredLand.y + 106 + size) return;
+    const shade = lerpColor(pollutedToneAt(x, y, index), color(colors[index % colors.length]), rec);
+    shade.setAlpha(alpha);
+    fill(shade);
+    push();
+    translate(x, y);
+    rotate(rotation);
+    if (index % 3 === 0) {
+      poly([[-size * 0.6, size * 0.3], [-size * 0.16, -size * 0.64], [size * 0.58, size * 0.2]]);
+    } else if (index % 3 === 1) {
+      poly([[-size * 0.55, -size * 0.12], [size * 0.26, -size * 0.45],
+        [size * 0.58, size * 0.15], [-size * 0.23, size * 0.45]]);
+    } else {
+      poly([[-size * 0.5, -size * 0.24], [size * 0.5, -size * 0.24],
+        [size * 0.35, size * 0.26], [-size * 0.58, size * 0.26]]);
+    }
+    pop();
+  });
+  pop();
+}
+
+// v3.6 reference: nearby fragment constellations and large edge silhouettes.
+// Authored relative positions keep the field repeatable and leave object cores clear.
+const HABITAT_SCRAPS = Object.freeze([
+  [-105, -105, 12], [-83, -139, 22], [-44, -152, 9], [26, -159, 14],
+  [91, -125, 18], [109, -72, 10], [101, -23, 19], [76, 42, 12],
+  [27, 60, 24], [-35, 53, 11], [-96, 31, 18], [-115, -33, 9]
+]);
+
+// Sample once per reset. Both states render these same anchors so recovery
+// changes color and motion without teleporting the field on every frame.
+function buildFloatingLayouts() {
+  floatingTextureLayout = ADAPT_TEXTURE_LAYOUT.map(() => {
+    // Keep most atmospheric pieces small, with a few larger depth accents.
+    const size = environmentRandom() < 0.16
+      ? environmentRandom(38, 64)
+      : environmentRandom(8, 34);
+    return [environmentRandom(32, 1888), environmentRandom(36, 870), size];
+  });
+  modules.forEach((m) => {
+    m.scraps = HABITAT_SCRAPS.map(([, , size], i) => {
+      const angle = i * TWO_PI / HABITAT_SCRAPS.length + environmentRandom(-0.22, 0.22);
+      const radius = environmentRandom(94, 149);
+      return [cos(angle) * radius, -52 + sin(angle) * radius * 0.83,
+        size * environmentRandom(0.75, 1.35)];
+    });
+  });
+  // Accent pieces are stratified across the whole work, not just the border.
+  // Each cell gets one deterministic piece so the field has air, corners and
+  // middle-ground texture without collapsing into a noisy center cluster.
+  const edgeSize = () => environmentRandom() < 0.2
+    ? environmentRandom(78, 148)
+    : environmentRandom(24, 68);
+  const accentCells = [
+    [0.04, 0.19, 0.05, 0.22], [0.20, 0.34, 0.05, 0.22], [0.36, 0.49, 0.05, 0.22],
+    [0.52, 0.65, 0.05, 0.22], [0.68, 0.81, 0.05, 0.22], [0.84, 0.96, 0.05, 0.22],
+    [0.04, 0.19, 0.28, 0.47], [0.20, 0.34, 0.28, 0.47], [0.36, 0.49, 0.28, 0.47],
+    [0.52, 0.65, 0.28, 0.47], [0.68, 0.81, 0.28, 0.47], [0.84, 0.96, 0.28, 0.47],
+    [0.04, 0.19, 0.53, 0.72], [0.20, 0.34, 0.53, 0.72], [0.36, 0.49, 0.53, 0.72],
+    [0.52, 0.65, 0.53, 0.72], [0.68, 0.81, 0.53, 0.72], [0.84, 0.96, 0.53, 0.72],
+    [0.04, 0.19, 0.77, 0.92], [0.20, 0.34, 0.77, 0.92], [0.36, 0.49, 0.77, 0.92],
+    [0.52, 0.65, 0.77, 0.92], [0.68, 0.81, 0.77, 0.92], [0.84, 0.96, 0.77, 0.92],
+    [0.02, 0.11, 0.31, 0.46], [0.89, 0.98, 0.31, 0.46],
+    [0.02, 0.11, 0.55, 0.72], [0.89, 0.98, 0.55, 0.72]
+  ];
+  floatingEdgeLayout = Array.from({ length: 28 }, (_, i) => {
+    const [x0, x1, y0, y1] = accentCells[i];
+    return [environmentRandom(x0 * 1920, x1 * 1920),
+      environmentRandom(y0 * 1080, y1 * 1080), edgeSize()];
+  });
+}
+
+function drawHabitatConstellations() {
+  push();
+  noStroke();
+  const palette = [C.orange, C.lime, C.purple, C.blue, C.paper, C.teal];
+  modules.forEach((m) => {
+    const pose = habitatPose(m), rec = moduleRecovery(m);
+    (m.scraps || HABITAT_SCRAPS).forEach(([sx, sy, size], i) => {
+      const phase = m.phase + i * 1.72;
+      const spread = lerp(1.08, 0.94, rec);
+      const float = getFloatOffset(tm, phase, 4, 8, 7 + i % 6, 0.05, rec, ambientScratch);
+      const x = pose.x + (sx * spread + float.x) * m.s;
+      const y = pose.y + (sy * spread + float.y) * m.s;
+      const rotation = phase + float.r;
+      if (isProtectedUiPoint(x, y, size)) return;
+      const blocked = modules.some(other => {
+        const p = habitatPose(other);
+        return abs(x - p.x) < 78 * other.s + size * 0.4
+          && y > p.y - 135 * other.s && y < p.y + 26 * other.s;
+      });
+      if (blocked) return;
+      const shade = lerpColor(pollutedToneAt(x, y, i + m.id),
+        color(palette[(i + m.id) % palette.length]), rec);
+      shade.setAlpha(lerp(115, 175, rec));
+      fill(shade);
+      push(); translate(x, y); rotate(rotation);
+      if (i % 3 === 0) triangle(-size * 0.7, size * 0.4, 0, -size * 0.6, size * 0.6, size * 0.3);
+      else poly([[-size * 0.6, -size * 0.3], [size * 0.4, -size * 0.5], [size * 0.6, size * 0.3], [-size * 0.3, size * 0.5]]);
+      pop();
+    });
+  });
+  floatingEdgeLayout.forEach(([x, y, size], i) => {
+    if (isProtectedUiPoint(x, y, 20)) return;
+    const shade = lerpColor(pollutedToneAt(x, y, i),
+      color(i % 2 ? C.blue : C.paper), globalRecovery);
+    shade.setAlpha(lerp(65, 48, globalRecovery)); fill(shade);
+    const float = getFloatOffset(tm, i * 1.9 + compositionSeed % 53, 3, 5, 11 + i % 4, 0.025, globalRecovery, ambientScratch);
+    push(); translate(x + float.x, y + float.y); rotate(i * 1.9 + float.r);
+    poly([[-size, -size * 0.2], [-size * 0.3, -size * 0.7], [size * 0.7, -size * 0.45], [size, size * 0.4], [-size * 0.4, size * 0.8]]);
+    pop();
+  });
+  pop();
 }
 
 function alphaColor(hex, alpha) {
@@ -716,7 +691,7 @@ function makeFieldPolygon(cx, cy, rx, ry, count, rotationOffset, jitter) {
   const points = [];
   for (let i = 0; i < count; i++) {
     const angle = rotationOffset + i * TWO_PI / count;
-    const radius = random(1 - jitter, 1 + jitter);
+    const radius = environmentRandom(1 - jitter, 1 + jitter);
     points.push([
       cx + cos(angle) * rx * radius,
       cy + sin(angle) * ry * radius
@@ -726,68 +701,68 @@ function makeFieldPolygon(cx, cy, rx, ry, count, rotationOffset, jitter) {
 }
 
 function buildDamagedField() {
-  const centerX = random(870, 1260);
-  const centerY = random(420, 650);
-  const rotationOffset = random(-0.46, 0.24);
-  const outerRx = random(520, 720);
-  const outerRy = random(300, 440);
+  const centerX = environmentRandom(870, 1260);
+  const centerY = environmentRandom(420, 650);
+  const rotationOffset = environmentRandom(-0.46, 0.24);
+  const outerRx = environmentRandom(520, 720);
+  const outerRy = environmentRandom(300, 440);
 
   damagedField = {
-    base: '#505050',
+    base: '#C87629',
     layers: [
       {
-        color: '#484848',
+        color: '#D58A3D',
         points: [
-          [random(-180, 80), random(80, 330)],
-          [random(980, 1520), random(-140, 80)],
-          [random(1900, 2130), random(350, 720)],
-          [random(760, 1260), random(1080, 1240)],
-          [random(-160, 120), random(850, 1100)]
+          [environmentRandom(-180, 80), environmentRandom(80, 330)],
+          [environmentRandom(980, 1520), environmentRandom(-140, 80)],
+          [environmentRandom(1900, 2130), environmentRandom(350, 720)],
+          [environmentRandom(760, 1260), environmentRandom(1080, 1240)],
+          [environmentRandom(-160, 120), environmentRandom(850, 1100)]
         ]
       },
       {
-        color: '#403F3F',
+        color: '#BF6D1B',
         points: [
-          [random(120, 360), random(160, 360)],
-          [random(1360, 1740), random(80, 260)],
-          [random(1760, 2040), random(720, 980)],
-          [random(620, 1120), random(1020, 1190)],
-          [random(-100, 130), random(560, 820)]
+          [environmentRandom(120, 360), environmentRandom(160, 360)],
+          [environmentRandom(1360, 1740), environmentRandom(80, 260)],
+          [environmentRandom(1760, 2040), environmentRandom(720, 980)],
+          [environmentRandom(620, 1120), environmentRandom(1020, 1190)],
+          [environmentRandom(-100, 130), environmentRandom(560, 820)]
         ]
       },
       {
-        color: '#3C3C3C',
+        color: '#AE630D',
         points: makeFieldPolygon(
           centerX,
           centerY,
           outerRx,
           outerRy,
-          floor(random(6, 9)),
+          floor(environmentRandom(6, 9)),
           rotationOffset,
           0.14
         )
       },
       {
-        color: '#2F2F2F',
+        color: '#A15400',
         points: makeFieldPolygon(
-          centerX + random(-50, 50),
-          centerY + random(-35, 38),
-          outerRx * random(0.58, 0.72),
-          outerRy * random(0.54, 0.68),
-          floor(random(5, 8)),
-          rotationOffset + random(-0.22, 0.22),
+          centerX + environmentRandom(-50, 50),
+          centerY + environmentRandom(-35, 38),
+          outerRx * environmentRandom(0.58, 0.72),
+          outerRy * environmentRandom(0.54, 0.68),
+          floor(environmentRandom(5, 8)),
+          rotationOffset + environmentRandom(-0.22, 0.22),
           0.16
         )
       },
       {
-        color: '#292929',
+        color: '#7A3F00',
         points: makeFieldPolygon(
-          centerX + random(-65, 65),
-          centerY + random(-45, 48),
-          outerRx * random(0.27, 0.42),
-          outerRy * random(0.24, 0.38),
-          floor(random(5, 8)),
-          rotationOffset + random(-0.3, 0.3),
+          centerX + environmentRandom(-65, 65),
+          centerY + environmentRandom(-45, 48),
+          outerRx * environmentRandom(0.27, 0.42),
+          outerRy * environmentRandom(0.24, 0.38),
+          floor(environmentRandom(5, 8)),
+          rotationOffset + environmentRandom(-0.3, 0.3),
           0.2
         )
       }
@@ -804,26 +779,26 @@ function buildRestoredField() {
     middle: '#19417A',
     inner: '#28538F'
   };
-  const centerX = random(860, 1320);
-  const centerY = random(430, 650);
-  const rotationOffset = random(-0.42, 0.28);
-  const outerRx = random(500, 690);
-  const outerRy = random(285, 420);
-  const vertexCount = floor(random(6, 9));
+  const centerX = environmentRandom(860, 1320);
+  const centerY = environmentRandom(430, 650);
+  const rotationOffset = environmentRandom(-0.42, 0.28);
+  const outerRx = environmentRandom(500, 690);
+  const outerRy = environmentRandom(285, 420);
+  const vertexCount = floor(environmentRandom(6, 9));
 
   restoredField = {
     palette,
     sweep: [
-      [random(-180, 120), random(150, 390)],
-      [random(920, 1480), random(-160, 70)],
-      [random(1860, 2100), random(320, 700)],
-      [random(620, 1180), random(1060, 1230)],
-      [random(-180, 130), random(900, 1160)]
+      [environmentRandom(-180, 120), environmentRandom(150, 390)],
+      [environmentRandom(920, 1480), environmentRandom(-160, 70)],
+      [environmentRandom(1860, 2100), environmentRandom(320, 700)],
+      [environmentRandom(620, 1180), environmentRandom(1060, 1230)],
+      [environmentRandom(-180, 130), environmentRandom(900, 1160)]
     ],
     accent: [
-      [0, random(440, 720)],
-      [random(260, 620), random(650, 850)],
-      [random(720, 1100), 1080],
+      [0, environmentRandom(440, 720)],
+      [environmentRandom(260, 620), environmentRandom(650, 850)],
+      [environmentRandom(720, 1100), 1080],
       [0, 1080]
     ],
     layers: [
@@ -842,24 +817,24 @@ function buildRestoredField() {
       {
         color: palette.middle,
         points: makeFieldPolygon(
-          centerX + random(-50, 55),
-          centerY + random(-35, 40),
-          outerRx * random(0.58, 0.72),
-          outerRy * random(0.54, 0.68),
-          floor(random(5, 8)),
-          rotationOffset + random(-0.24, 0.24),
+          centerX + environmentRandom(-50, 55),
+          centerY + environmentRandom(-35, 40),
+          outerRx * environmentRandom(0.58, 0.72),
+          outerRy * environmentRandom(0.54, 0.68),
+          floor(environmentRandom(5, 8)),
+          rotationOffset + environmentRandom(-0.24, 0.24),
           0.16
         )
       },
       {
         color: palette.inner,
         points: makeFieldPolygon(
-          centerX + random(-70, 75),
-          centerY + random(-50, 55),
-          outerRx * random(0.27, 0.42),
-          outerRy * random(0.24, 0.38),
-          floor(random(5, 8)),
-          rotationOffset + random(-0.34, 0.34),
+          centerX + environmentRandom(-70, 75),
+          centerY + environmentRandom(-50, 55),
+          outerRx * environmentRandom(0.27, 0.42),
+          outerRy * environmentRandom(0.24, 0.38),
+          floor(environmentRandom(5, 8)),
+          rotationOffset + environmentRandom(-0.34, 0.34),
           0.2
         )
       }
@@ -868,51 +843,24 @@ function buildRestoredField() {
 }
 
 function buildRestoredLand() {
-  const horizontalDirection = random() < 0.5 ? -1 : 1;
-  const w = random(735, 805);
-  const h = random(132, 166);
-
-  restoredLand = {
-    x: horizontalDirection < 0 ? random(930, 1015) : random(1165, 1250),
-    y: FIELD_Y + random(-72, 86),
-    w,
-    h,
-    rotation: random(-0.045, 0.045),
-    points: [
-      [-w * 0.50, -h * random(0.12, 0.2)],
-      [-w * random(0.38, 0.44), -h * random(0.42, 0.5)],
-      [w * random(0.33, 0.4), -h * random(0.42, 0.5)],
-      [w * 0.50, -h * random(0.08, 0.16)],
-      [w * random(0.36, 0.42), h * random(0.42, 0.5)],
-      [-w * random(0.38, 0.44), h * random(0.42, 0.5)]
-    ],
-    moduleIds: []
-  };
-}
-
-function sharedLandReveal() {
-  return smoothClamp(globalRecovery, 0.56, 0.96);
+  restoredLand = { x: environmentRandom(1068, 1132), y: environmentRandom(525, 560),
+    w: environmentRandom(735, 785), h: environmentRandom(60, 74), rotation: 0, moduleIds: [] };
 }
 
 function drawRestoredLand() {
   if (!restoredLand) return;
-  const reveal = sharedLandReveal();
-  if (reveal <= 0.001) return;
-
-  push();
-  translate(restoredLand.x, restoredLand.y + 82);
-  rotate(restoredLand.rotation);
-  noStroke();
-
-  const landColor = lerpColor(color('#292D33'), color(C.purple), smoothClamp(globalRecovery, 0.5, 0.94));
-  landColor.setAlpha(255 * reveal);
-  fill(landColor);
-  poly(restoredLand.points);
-  pop();
+  const float = getSharedFloat();
+  const anchors = modules.filter((m) => m.sharedLand);
+  const recovery = anchors.reduce((sum, m) => sum + moduleRecovery(m), 0) / max(1, anchors.length);
+  ADAPT_ASSETS.habitatIsland({
+    x: restoredLand.x + float.x, y: restoredLand.y + 48 + float.y, rotation: float.r,
+    width: restoredLand.w, height: restoredLand.h, recovery, variant: 1,
+    alpha: smoothClamp(globalRecovery, 0.38, 0.92)
+  });
 }
 
 function drawDepthField(rec) {
-  const stateOneBase = color(damagedField?.base || '#505050');
+  const stateOneBase = color(damagedField?.base || '#C87629');
   const restoredBase = color(restoredField?.palette.base || '#07152F');
 
   background(lerpColor(stateOneBase, restoredBase, rec));
@@ -952,20 +900,7 @@ function drawRestoredDepthField(rec) {
   pop();
 }
 
-function moduleDepth(m) {
-  return constrain(map(m.homeY, 220, 820, 0, 1), 0, 1);
-}
 
-function damagedPalette(m) {
-  const depth = moduleDepth(m);
-  return {
-    highlight: lerpColor(color('#242A30'), color('#C3C8CD'), depth),
-    light: lerpColor(color('#2C333A'), color('#AEB4BB'), depth),
-    mid: lerpColor(color('#20262C'), color('#747C85'), depth),
-    dark: lerpColor(color('#101419'), color('#454C54'), depth),
-    base: lerpColor(color('#171C21'), color('#59616A'), depth)
-  };
-}
 
 function flowAt(x, y, seedOff = 0) {
   const a = noise(x * 0.00135 + seedOff, y * 0.00125 + seedOff, tm * 0.06) * TWO_PI * 2.5;
@@ -975,7 +910,8 @@ function flowAt(x, y, seedOff = 0) {
 
 function moduleCharge(m) {
   const dual = min(m.sun, m.wind);
-  return constrain(dual * 0.84 + (m.sun + m.wind) * 0.08, 0, 1);
+  // One source visibly prepares the habitat (up to 30%); both are needed for 100%.
+  return constrain(dual * 0.4 + (m.sun + m.wind) * 0.3, 0, 1);
 }
 
 function moduleRecovery(m) {
@@ -1004,42 +940,30 @@ function updateModules(dt) {
 
     const rawRecovery = moduleCharge(m);
     rawTotal += rawRecovery;
-    const visualTarget = smoothClamp(rawRecovery, m.assemblyDelay, 0.98);
+    const visualTarget = constrain(rawRecovery * 0.42 + smoothClamp(rawRecovery, m.assemblyDelay, 0.98) * 0.58, 0, 1);
     const assemblyRate = finalTriggered ? 0.8 : 0.62;
     const assemblyEase = 1 - exp(-dt * assemblyRate);
     m.visualRecovery = lerp(m.visualRecovery, visualTarget, assemblyEase);
     const rec = moduleRecovery(m);
     total += rec;
 
-    const flow = flowAt(m.x, m.y, m.seed * 0.0001);
-    const weight = 1 / (0.7 + m.mass * 0.85);
-    const targetVx = flow.x * 1.22 * weight;
-    const targetVy = flow.y * 0.92 * weight;
-
-    const chaos = 1 - smoothClamp(rec, 0.12, 0.85);
-    const extraX = (noise(m.seed, tm * 0.34) - 0.5) * 0.26 * chaos;
-    const extraY = (noise(m.seed + 40, tm * 0.37) - 0.5) * 0.20 * chaos;
-
-    m.vx = lerp(m.vx, targetVx + extraX, 0.04);
-    m.vy = lerp(m.vy, targetVy + extraY, 0.04);
+    // Ambient motion is render-only. Preserve the existing wind-brush impulse
+    // and home attraction, but do not drive coordinates with ambient flow.
+    m.vx = lerp(m.vx, 0, 0.04);
+    m.vy = lerp(m.vy, 0, 0.04);
 
     m.x += m.vx * 60 * dt * motionScale;
     m.y += m.vy * 60 * dt * motionScale;
     m.x = lerp(m.x, m.homeX, 0.012);
     m.y = lerp(m.y, m.homeY, 0.012);
-    m.rot = lerp(m.rot, sin(tm * 0.25 + m.seed) * 0.018 + m.vx * 0.018, 0.03);
+    m.rot = lerp(m.rot, m.vx * 0.018, 0.03);
 
     m.x = constrain(m.x, 110, W - 110);
-    m.y = constrain(m.y, 170, H - 300);
+    m.y = constrain(m.y, 100, H - 100);
 
-    // Preserve clear space for the persistent title and objective UI.
-    if (m.x < 700 && m.y < 550) {
-      m.x = lerp(m.x, 720, 0.12);
-      m.y = lerp(m.y, 575, 0.12);
-    }
-    if (m.x > 1320 && m.y < 360) {
-      m.y = lerp(m.y, 390, 0.14);
-    }
+    // Layout generation already reserves the title/control areas. Do not kick
+    // moving habitats away from a hard UI boundary here: their home attraction
+    // would pull them across it again, causing repeated jumps in the shared land.
 
     if (dist(pointerX, pointerY, m.x, m.y) < 84 * m.s) {
       m.hover = lerp(m.hover, 1, 0.12);
@@ -1047,17 +971,6 @@ function updateModules(dt) {
       m.hover = lerp(m.hover, 0, 0.08);
     }
 
-    if (!reducedMotion && rec > 0.62 && random() < 0.009 * dt * 60) {
-      pollen.push({
-        x: m.x + random(-10, 10),
-        y: m.y - random(10, 32),
-        vx: random(-0.12, 0.12),
-        vy: random(-0.26, -0.06),
-        size: random(4, 8),
-        life: 1,
-        col: random([C.lime, C.orange, C.purple, C.blue, C.white])
-      });
-    }
   }
 
   const backgroundEase = 1 - exp(-dt * 0.68);
@@ -1073,19 +986,13 @@ function updateModules(dt) {
     playAssemblySound();
   }
 
-  if (finalTriggered && !stateTwoAnnounced && globalRecovery > 0.92) {
+  if (finalTriggered && !stateTwoAnnounced && globalRecovery > 0.985) {
     stateTwoAnnounced = true;
+    globalRecovery = 1;
+    modules.forEach((habitat) => { habitat.sun = 1; habitat.wind = 1; habitat.visualRecovery = 1; });
     announceArtworkState(2);
-    setStatus('ENVIRONMENT REGENERATED · THE FIELD IS ALIVE', 4);
+    setStatus('A connected clean-energy network is ready.', 4);
     playCompletionSound();
-    for (let i = 0; i < 18; i++) {
-      sunBursts.push({
-        x: random(80, W - 80),
-        y: random(80, H - 120),
-        r: random(12, 34),
-        life: random(0.65, 1.0)
-      });
-    }
   }
 }
 
@@ -1098,9 +1005,9 @@ function updateSmoke(dt) {
     s.vy += flow.y * 0.003 - clear * 0.0007;
     s.vx *= 0.994;
     s.vy *= 0.994;
-    s.x += s.vx * 60 * dt;
-    s.y += s.vy * 60 * dt;
-    s.rot += s.vr * 60 * dt;
+    s.x += s.vx * 60 * dt * motionScale;
+    s.y += s.vy * 60 * dt * motionScale;
+    s.rot += s.vr * 60 * dt * motionScale;
     s.life = max(0.03, s.life - dt * (0.002 + clear * 0.018));
 
     if (s.x < -60) s.x = W + 60;
@@ -1111,29 +1018,30 @@ function updateSmoke(dt) {
 }
 
 function updateParticles(dt) {
-  for (let i = sunBursts.length - 1; i >= 0; i--) {
-    sunBursts[i].life -= dt * 1.1;
-    sunBursts[i].r += dt * 220;
-    if (sunBursts[i].life <= 0) sunBursts.splice(i, 1);
-  }
+  // forEach advances each particle. filter returns only living particles,
+  // avoiding splice/index errors and keeping the generative system bounded.
+  sunBursts.forEach((burst) => {
+    burst.life -= dt * 1.1;
+    burst.r += dt * 220 * motionScale;
+  });
+  sunBursts = sunBursts.filter((burst) => burst.life > 0);
 
-  for (let i = windLines.length - 1; i >= 0; i--) {
-    windLines[i].life -= dt * 1.45;
-    windLines[i].x += windLines[i].dx * 4.5;
-    windLines[i].y += windLines[i].dy * 4.5;
-    if (windLines[i].life <= 0) windLines.splice(i, 1);
-  }
+  windLines.forEach((line) => {
+    line.life -= dt * 1.45;
+    line.x += line.dx * 270 * dt * motionScale;
+    line.y += line.dy * 270 * dt * motionScale;
+  });
+  windLines = windLines.filter((line) => line.life > 0);
 
-  for (let i = pollen.length - 1; i >= 0; i--) {
-    const p = pollen[i];
+  pollen.forEach((p) => {
     const flow = flowAt(p.x, p.y, 500);
     p.vx = lerp(p.vx, flow.x * 0.75, 0.05);
     p.vy = lerp(p.vy, flow.y * 0.45 - 0.14, 0.05);
-    p.x += p.vx * 60 * dt;
-    p.y += p.vy * 60 * dt;
+    p.x += p.vx * 60 * dt * motionScale;
+    p.y += p.vy * 60 * dt * motionScale;
     p.life -= dt * 0.28;
-    if (p.life <= 0) pollen.splice(i, 1);
-  }
+  });
+  pollen = pollen.filter((p) => p.life > 0);
 }
 
 function smoothClamp(v, a, b) {
@@ -1142,331 +1050,121 @@ function smoothClamp(v, a, b) {
 }
 
 function displayOffset(m, rec) {
-  const t = smoothClamp(rec, 0.28, 1);
-  const parallax = lerp(0.72, 1.28, moduleDepth(m));
-  const sway = lerp(m.floatAmp * 1.75 * parallax, m.floatAmp, t);
-  const orbit = lerp(m.orbitAmp * 0.72 * parallax, m.orbitAmp, t);
+  const loose = 1 - smoothClamp(rec, 0.12, 0.95);
+  const out = m.floatOffset || (m.floatOffset = { x: 0, y: 0, r: 0, scale: 1 });
+  const light = m.kind === 'forest' || m.kind === 'wildlife';
+  getFloatOffset(tm, m.phase, light ? 3 : 2, light ? 5.5 : 4,
+    ((light ? 5.2 : 6.6) + m.id % 3 * 0.6) * Math.sqrt(m.s), light ? 0.014 : 0.0087, rec, out);
+  if (m.sharedLand) {
+    const offsets = [[-18, -20], [-10, 16], [16, -18], [20, 12]][m.sharedLandIndex];
+    const land = getSharedFloat();
+    const dx = m.homeX - restoredLand.x;
+    out.x = m.homeX - m.x + (offsets[0] + out.x) * loose
+      + (land.x + dx * (cos(land.r) - 1)) * (1 - loose);
+    out.y = m.homeY - m.y + (offsets[1] + out.y) * loose
+      + (land.y + dx * sin(land.r)) * (1 - loose);
+    out.r = out.r * loose + land.r * (1 - loose);
+    out.scale = 1;
+  }
+  return out;
+}
+
+function drawEnergyNetwork() {
+  const reveal = smoothClamp(globalRecovery, 0.28, 0.94);
+  if (reveal < 0.01) return;
+  push();
+  energyLinks.forEach(({ source, target, phase }) => {
+    const from = displayOffset(source, moduleRecovery(source));
+    const to = displayOffset(target, moduleRecovery(target));
+    const startX = source.x + from.x;
+    const startY = source.y + from.y + 50 * source.s;
+    const endX = target.x + to.x;
+    const endY = target.y + to.y + 50 * target.s;
+    const bend = min(72, abs(endX - startX) * 0.18 + 20);
+    const point = (t) => ({ x: lerp(startX, endX, t), y: lerp(startY, endY, t) - sin(t * PI) * bend });
+    const tint = source.kind === 'sun' || source.kind === 'solar' ? C.orange : C.teal;
+    stroke(alphaColor(tint, 66 * reveal));
+    strokeWeight(2);
+    noFill();
+    for (let segment = 0; segment < 24; segment++) {
+      const a = point(segment / 24);
+      const b = point((segment + 1) / 24);
+      if (!isProtectedUiPoint(a.x, a.y, 8) && !isProtectedUiPoint(b.x, b.y, 8)) line(a.x, a.y, b.x, b.y);
+    }
+    noStroke();
+    fill(alphaColor(tint, 235 * reveal));
+    for (let pulse = 0; pulse < 3; pulse++) {
+      const p = point((tm * 0.055 + phase + pulse / 3) % 1);
+      if (!isProtectedUiPoint(p.x, p.y, 10)) {
+        push();
+        translate(p.x, p.y);
+        rotate(QUARTER_PI);
+        rect(0, 0, 7, 7);
+        pop();
+      }
+    }
+  });
+  pop();
+}
+
+function habitatPose(m) {
+  const recovery = moduleRecovery(m);
+  const off = displayOffset(m, recovery);
   return {
-    x:
-      sin(tm * (0.26 + m.orbitSpeed * 0.32) + m.phase) * sway * 0.48 +
-      cos(tm * (0.19 + m.orbitSpeed * 0.44) + m.phase * 0.8) * orbit,
-    y:
-      cos(tm * (0.31 + m.orbitSpeed * 0.24) + m.phase * 1.1) * sway * 0.68 +
-      sin(tm * (0.22 + m.orbitSpeed * 0.52) + m.phase * 0.7) * orbit * 0.72,
-    r: sin(tm * 0.24 + m.phase) * lerp(0.052, 0.04, t)
+    x: m.x + off.x, y: m.y + off.y + 40 * m.s,
+    scale: m.s * (1 + m.hover * 0.025) * off.scale,
+    rotation: m.sharedLand ? off.r : m.rot + off.r,
+    recovery, state: recovery >= 0.65 ? 'recovered' : 'polluted'
   };
 }
 
-function drawSmoke() {
-  const clear = constrain((averageCharge('wind') + averageCharge('sun')) * 0.5 + globalRecovery * 0.42, 0, 1);
-
-  for (const s of smoke) {
-    const alphaBase = (s.dark ? 42 : 28) * s.life * (1 - clear);
-    if (alphaBase < 2) continue;
-
-    push();
-    translate(s.x, s.y);
-    rotate(s.rot);
-    noStroke();
-
-    const col = s.dark ? color(24, 24, 24) : color(84, 87, 90);
-    col.setAlpha(alphaBase);
-    fill(col);
-
-    const w = s.size * (1.03 + sin(tm * 0.26 + s.phase) * 0.05);
-    const h = s.size * (0.74 + cos(tm * 0.23 + s.phase) * 0.06);
-
-    beginShape();
-    vertex(-w * 0.52, -h * 0.04);
-    vertex(-w * 0.36, -h * 0.34);
-    vertex(0, -h * 0.46);
-    vertex(w * 0.30, -h * 0.30);
-    vertex(w * 0.50, -h * 0.04);
-    vertex(w * 0.36, h * 0.24);
-    vertex(0, h * 0.38);
-    vertex(-w * 0.30, h * 0.28);
-    vertex(-w * 0.46, h * 0.10);
-    endShape(CLOSE);
-
-    pop();
-  }
-}
-
-function drawDebris() {
-  const loose = pow(1 - smoothClamp(globalRecovery, 0.08, 0.96), 1.14);
-  if (loose < 0.01) return;
-
-  noStroke();
-  for (const piece of debris) {
-    const floatX = sin(tm * piece.floatSpeed + piece.phase) * piece.drift;
-    const floatY = cos(tm * piece.floatSpeed * 0.73 + piece.phase * 1.31) * piece.drift * 0.7;
-    const fallingY = tm * piece.fallSpeed;
-    const y = ((piece.y + floatY + fallingY + 120) % (H + 240)) - 120;
-    const damagedTone = piece.layer === 0
-      ? lerpColor(color('#858E98'), color('#C5CBD1'), piece.depth)
-      : piece.layer === 1
-        ? lerpColor(color('#39434D'), color('#8B949E'), piece.depth)
-        : lerpColor(color('#111821'), color('#2B3542'), piece.depth);
-    const restoredTone = color(ASSEMBLY_FRAGMENT_COLORS[piece.colorIndex]);
-    const colorArrival = smoothClamp(globalRecovery, 0.08, 0.62);
-    const assemblyEmphasis = 1 + sin(constrain(globalRecovery, 0, 1) * PI) * 0.55;
-    const tone = lerpColor(damagedTone, restoredTone, colorArrival * (piece.layer === 2 ? 0.5 : 0.82));
-    tone.setAlpha(min(255, piece.alpha * assemblyEmphasis * smoothClamp(loose, 0, 0.72)));
-
-    push();
-    translate(piece.x + floatX, y);
-    rotate(piece.rotation + tm * piece.spin);
-    fill(tone);
-
-    const size = piece.size * lerp(0.42, 1, loose);
-    drawFragmentPrimitive(piece.shape, size, piece.stretch);
-    pop();
-  }
-}
-
-function drawRecoveredConstellation(pass = 'back') {
-  const reveal = smoothClamp(globalRecovery, 0.64, 0.96);
-  if (reveal <= 0.025) return;
-
-  noStroke();
-  const visibleCount = ceil(recoveredFragments.length * reveal);
-  for (let pieceIndex = 0; pieceIndex < visibleCount; pieceIndex++) {
-    const piece = recoveredFragments[pieceIndex];
-    const isFront = piece.layer === 2;
-    if ((pass === 'front') !== isFront) continue;
-
-    const floatX = sin(tm * piece.floatSpeed + piece.phase) * piece.drift * motionScale;
-    const floatY = cos(tm * piece.floatSpeed * 0.73 + piece.phase * 1.27) * piece.drift * 0.72 * motionScale;
-    const scaleIn = lerp(0.18, 1, 1 - pow(1 - reveal, 3));
-
-    push();
-    translate(piece.x + floatX, piece.y + floatY);
-    rotate(piece.rotation + tm * piece.spin * motionScale);
-
-    if (piece.edge) {
-      const edgePalette = ['#243B6C', '#395589', '#50658C', '#172B52'];
-      const edgeColor = color(edgePalette[piece.colorIndex % edgePalette.length]);
-      edgeColor.setAlpha(piece.alpha * reveal);
-      fill(edgeColor);
-    } else {
-      const fragmentColor = color(RECOVERED_FRAGMENT_COLORS[piece.colorIndex]);
-      fragmentColor.setAlpha(piece.alpha * reveal);
-      fill(fragmentColor);
-    }
-
-    drawFragmentPrimitive(piece.shape, piece.size * scaleIn, piece.stretch);
-    pop();
-  }
-}
-
-function drawFragmentPrimitive(shape, size, stretch = 1) {
-  if (shape === 0) {
-    rect(0, 0, size * stretch, size * 0.58);
-  } else if (shape === 1) {
-    triangle(-size, size * 0.58, size * 0.82, size * 0.14, -size * 0.2, -size);
-  } else if (shape === 2) {
-    poly([
-      [-size, -size * 0.35],
-      [size * 0.45, -size * 0.7],
-      [size, size * 0.28],
-      [-size * 0.35, size * 0.72]
-    ]);
-  } else if (shape === 3) {
-    rect(0, 0, size * 0.72, size * 0.72);
-  } else if (shape === 4) {
-    quad(
-      -size * stretch, -size * 0.18,
-      -size * 0.36, -size * 0.64,
-      size * stretch, size * 0.12,
-      size * 0.28, size * 0.62
-    );
-  } else if (shape === 5) {
-    triangle(-size * 0.92, size * 0.4, size * 0.16, -size, size, size * 0.55);
-  } else {
-    poly([
-      [-size * 0.92, -size * 0.22],
-      [-size * 0.24, -size * 0.76],
-      [size * 0.72, -size * 0.48],
-      [size, size * 0.16],
-      [size * 0.12, size * 0.76],
-      [-size * 0.68, size * 0.48]
-    ]);
-  }
-}
-
 function drawPlatforms() {
-  const ordered = modules.slice().sort((a, b) => a.y - b.y);
-  for (const m of ordered) {
-    const rec = moduleRecovery(m);
-    const off = displayOffset(m, rec);
-
-    push();
-    translate(m.x + off.x, m.y + 42 * m.s + off.y);
-    rotate(m.rot + off.r * 0.4);
-    scale(m.s * (1 + m.hover * 0.025));
-
-    noStroke();
-    const damaged = damagedPalette(m);
-    const restoredBase = m.id % 2 ? C.purple : C.blue;
-    const individualPlatformAlpha = m.sharedLand ? 1 - sharedLandReveal() : 1;
-    if (individualPlatformAlpha > 0.01) {
-      const platformColor = lerpColor(damaged.base, color(restoredBase), rec);
-      platformColor.setAlpha(255 * individualPlatformAlpha);
-      fill(platformColor);
-      drawFloatingBase(m, rec, damaged);
-    }
-
-    pop();
+  for (const m of modules) {
+    const alpha = m.sharedLand ? 1 - smoothClamp(globalRecovery, 0.38, 0.92) : 1;
+    ADAPT_ASSETS.habitatIsland({ ...habitatPose(m), width: m.platform.w, height: m.platform.h, variant: m.id % 2, alpha });
   }
 }
 
 function drawModules() {
-  const ordered = modules.slice().sort((a, b) => a.y - b.y);
-  for (const m of ordered) {
-    const rec = moduleRecovery(m);
-    const off = displayOffset(m, rec);
-
+  for (const m of modules.slice().sort((a, b) => a.y - b.y)) {
+    const pose = habitatPose(m);
     push();
-    translate(m.x + off.x, m.y + off.y);
-    rotate(m.rot + off.r);
-    scale(m.s * (1 + m.hover * 0.025));
-
-    noStroke();
-    const damaged = damagedPalette(m);
-    drawLooseFragments(m, rec, damaged, 'back');
-    if (m.kind === 'forest') drawForestHabitat(m, rec, damaged);
-    else if (m.kind === 'water') drawWaterHabitat(m, rec, damaged);
-    else if (m.kind === 'solar') drawSolarHabitat(m, rec, damaged);
-    else if (m.kind === 'wind') drawWindHabitat(m, rec, damaged);
-    else if (m.kind === 'community') drawCommunityHabitat(m, rec, damaged);
-    else drawWildlifeHabitat(m, rec, damaged);
-    drawLooseFragments(m, rec, damaged, 'front');
-
-    pop();
-  }
-}
-
-function partTransform(m, idx, rec, fn) {
-  const part = m.parts[idx % m.parts.length];
-  const t = smoothClamp(rec, part.delay, min(1, part.delay + 0.56));
-  const loose = pow(1 - t, 1.08);
-  const floatX = sin(tm * part.floatSpeed + part.floatPhase) * part.floatRadius * loose;
-  const floatY = cos(tm * part.floatSpeed * 0.78 + part.floatPhase * 1.27) * part.floatRadius * 1.35 * loose;
-  push();
-  translate(part.fx * loose + floatX, part.fy * loose + floatY);
-  rotate(part.fr * loose * 0.62 + sin(tm * 0.2 + part.floatPhase) * 0.055 * loose);
-  fn(t);
-  pop();
-}
-
-function drawLooseFragments(m, rec, damaged, pass = 'back') {
-  // Let each constellation linger until the whole field catches up. This keeps
-  // the recovery readable as one dramatic wave instead of isolated assets
-  // snapping clean the moment their own energy reaches them.
-  const fragmentRecovery = lerp(rec, globalRecovery, 0.72);
-  const loose = pow(1 - smoothClamp(fragmentRecovery, 0.08, 0.98), 1.08);
-  if (loose < 0.015) return;
-
-  const fragments = m.fragments || [];
-  for (let i = 0; i < fragments.length; i++) {
-    const fragment = fragments[i];
-    const visibleShare = min(1, loose * 1.42);
-    if (i / max(1, fragments.length - 1) > visibleShare) continue;
-    const isFront = fragment.layer === 2;
-    if ((pass === 'front') !== isFront) continue;
-
-    const pull = pow(loose, fragment.layer === 0 ? 0.86 : fragment.layer === 1 ? 0.78 : 0.68);
-    const angle = fragment.angle + sin(tm * 0.09 + fragment.phase) * 0.12;
-    const driftX = sin(tm * fragment.floatSpeed + fragment.phase) * fragment.drift;
-    const driftY = cos(tm * fragment.floatSpeed * 0.77 + fragment.phase * 1.23) * fragment.drift * 0.72;
-    const waveLift = sin(i * 0.7 + m.phase) * (fragment.layer === 0 ? 18 : fragment.layer === 1 ? 28 : 42);
-    const x = (cos(angle) * fragment.radius * m.fragmentSpread + driftX) * pull;
-    const y = (sin(angle) * fragment.radius * 0.54 + driftY + waveLift) * pull;
-    const size = fragment.size * lerp(0.34, 1, loose);
-
-    const globalX = m.x + x * m.s;
-    const globalY = m.y + y * m.s;
-    if (isProtectedUiPoint(globalX, globalY, fragment.layer === 2 ? size * 0.5 : 8)) continue;
-
-    push();
-    translate(x, y);
-    rotate(fragment.rotation + angle * 0.24 + tm * fragment.spin);
-
-    const damagedTone = fragment.layer === 0
-      ? damaged.highlight
-      : fragment.layer === 1
-        ? damaged.mid
-        : damaged.dark;
-    const restoredTone = color(ASSEMBLY_FRAGMENT_COLORS[fragment.colorIndex]);
-    const colorArrival = smoothClamp(max(rec, globalRecovery), 0.08, 0.62);
-    const assemblyEmphasis = 1 + sin(constrain(fragmentRecovery, 0, 1) * PI) * 0.8;
-    const fragmentColor = lerpColor(
-      color(damagedTone),
-      restoredTone,
-      colorArrival * (fragment.layer === 2 ? 0.56 : 0.92)
-    );
-    fragmentColor.setAlpha(min(255, fragment.alpha * assemblyEmphasis * smoothClamp(loose, 0, 0.76)));
-    fill(fragmentColor);
-    drawFragmentPrimitive(fragment.shape, size, fragment.stretch);
-    pop();
-  }
-}
-
-function drawFloatingBase(m, rec, damaged) {
-  const w = m.platform.w;
-  const h = m.platform.h;
-  const loose = pow(1 - smoothClamp(rec, 0.04, 0.9), 1.18);
-  const gap = 14 * loose;
-  const leftFloat = sin(tm * 0.24 + m.phase) * 5.5 * loose;
-  const rightFloat = cos(tm * 0.21 + m.phase * 1.3) * 6.5 * loose;
-
-  push();
-  translate(-gap * 0.5, leftFloat);
-  rotate(-0.055 * loose + sin(tm * 0.17 + m.phase) * 0.018 * loose);
-  poly([
-    [-w * 0.5, -h * 0.22],
-    [-w * 0.38, -h * 0.5],
-    [0, -h * 0.5],
-    [0, h * 0.5],
-    [-w * 0.36, h * 0.5]
-  ]);
-  pop();
-
-  push();
-  translate(gap * 0.5, rightFloat);
-  rotate(0.052 * loose + cos(tm * 0.19 + m.phase) * 0.017 * loose);
-  poly([
-    [0, -h * 0.5],
-    [w * 0.38, -h * 0.5],
-    [w * 0.5, -h * 0.08],
-    [w * 0.36, h * 0.5],
-    [0, h * 0.5]
-  ]);
-  pop();
-
-  if (loose > 0.03) {
-    push();
-    translate(
-      sin(tm * 0.22 + m.phase) * 5 * loose,
-      h * 1.16 + cos(tm * 0.18 + m.phase) * 7 * loose
-    );
-    rotate(tm * 0.08 + m.phase);
-    const upperFragment = color(damaged.light);
-    upperFragment.setAlpha(195 * loose);
-    fill(upperFragment);
-    rect(0, 0, 11 * loose, 11 * loose);
-    pop();
-
-    push();
-    translate(
-      cos(tm * 0.16 + m.phase) * 8 * loose,
-      h * 2.08 + sin(tm * 0.14 + m.phase) * 9 * loose
-    );
-    rotate(QUARTER_PI + sin(tm * 0.12 + m.phase) * 0.22);
-    const lowerFragment = color(damaged.dark);
-    lowerFragment.setAlpha(190 * loose);
-    fill(lowerFragment);
-    rect(0, 0, 18 * loose, 18 * loose);
+    translate(pose.x, pose.y);
+    rotate(pose.rotation);
+    scale(pose.scale);
+    const loose = 1 - smoothClamp(pose.recovery, 0.12, 0.94);
+    // Lift the current object group off its platform, as in the v3.6 assembly.
+    translate(sin(m.phase) * 12 * loose, -22 * loose);
+    rotate(sin(m.phase + 1) * 0.075 * loose);
+    const appearance = { recovery: pose.recovery, state: pose.state, variant: m.variant };
+    if (m.kind === 'solar') {
+      if (m.sharedLand) {
+        ADAPT_ASSETS.solarArray({ ...appearance, x: -22, scale: 0.9, energy: m.sun });
+        ADAPT_ASSETS.tree({ ...appearance, x: 56, scale: 0.42 });
+      } else ADAPT_ASSETS.solarHouse({ ...appearance, scale: 1.05, energy: m.sun });
+    } else if (m.kind === 'wind') {
+      ADAPT_ASSETS.windTurbine({ ...appearance, x: -20, scale: 0.93, energy: m.wind, angle: tm * m.wind * 0.38 });
+      ADAPT_ASSETS.basicHouse({ ...appearance, x: 44, scale: 0.49 });
+    } else if (m.kind === 'community') {
+      ADAPT_ASSETS.basicHouse({ ...appearance, x: -33, scale: 0.8 });
+      ADAPT_ASSETS.solarHouse({ ...appearance, x: 38, scale: 0.68, energy: m.sun });
+    } else if (m.kind === 'forest') {
+      ADAPT_ASSETS.treeCluster({ ...appearance, scale: 1.04 });
+    } else if (m.kind === 'water') {
+      ADAPT_ASSETS.landmark({ ...appearance, x: -18, scale: 1.05 });
+      ADAPT_ASSETS.tree({ ...appearance, x: 57, scale: 0.56 });
+    } else {
+      ADAPT_ASSETS.tree({ ...appearance, x: 47, scale: 0.84 });
+      ADAPT_ASSETS.wildlife({ ...appearance, x: -28, scale: 0.72 });
+    }
+    // Five deliberately placed clusters across nine habitats. The other zones
+    // communicate damage through dormant infrastructure and two ground scars.
+    if ([0, 4, 7, 9, 11].includes(m.id)) {
+      ADAPT_ASSETS.pollutionCluster({
+        ...appearance, x: m.kind === 'wildlife' ? -35 : -58, y: 8,
+        scale: 0.4, variant: m.id % 3
+      });
+    }
     pop();
   }
 }
@@ -1477,16 +1175,7 @@ function poly(points) {
   endShape(CLOSE);
 }
 
-function drawChamferedBase(cx, cy, w, h) {
-  poly([
-    [cx - w * 0.5, cy - h * 0.22],
-    [cx - w * 0.38, cy - h * 0.5],
-    [cx + w * 0.38, cy - h * 0.5],
-    [cx + w * 0.5, cy - h * 0.08],
-    [cx + w * 0.36, cy + h * 0.5],
-    [cx - w * 0.36, cy + h * 0.5]
-  ]);
-}
+
 
 function drawOctagon(cx, cy, radius) {
   beginShape();
@@ -1501,50 +1190,7 @@ function restoredFill(damaged, restored, rec) {
   return lerpColor(color(damaged), color(restored), constrain(rec, 0, 1));
 }
 
-function drawHouseBlock(cx, baseline, w, h, bodyColor, roofColor, loose = 0, phase = 0) {
-  fill(bodyColor);
-  rect(cx, baseline - h * 0.5, w, h);
-  push();
-  translate(
-    sin(tm * 0.24 + phase) * 8 * loose,
-    -loose * (9 + cos(phase) * 4) + cos(tm * 0.19 + phase) * 5 * loose
-  );
-  rotate(sin(tm * 0.17 + phase) * 0.09 * loose);
-  fill(roofColor);
-  triangle(
-    cx - w * 0.58, baseline - h,
-    cx, baseline - h - w * 0.34,
-    cx + w * 0.58, baseline - h
-  );
-  pop();
-}
 
-function drawSolarPanel(cx, cy, w, h, panelColor, loose = 0, phase = 0) {
-  push();
-  translate(cx, cy);
-  rotate(-0.12);
-  fill(panelColor);
-  const cellW = w * 0.46;
-  const cellH = h * 0.42;
-  const cells = [
-    [-w * 0.25, -h * 0.25],
-    [w * 0.25, -h * 0.25],
-    [-w * 0.25, h * 0.25],
-    [w * 0.25, h * 0.25]
-  ];
-  for (let i = 0; i < cells.length; i++) {
-    const cellPhase = phase + i * 1.43;
-    push();
-    translate(
-      cells[i][0] + sin(tm * 0.23 + cellPhase) * (8 + i * 1.5) * loose,
-      cells[i][1] + cos(tm * 0.19 + cellPhase) * (9 + i) * loose
-    );
-    rotate(sin(tm * 0.16 + cellPhase) * 0.12 * loose);
-    rect(0, 0, cellW, cellH);
-    pop();
-  }
-  pop();
-}
 
 function drawSunPrimitive(size, restored = 1, damaged = null) {
   const palette = damaged || {
@@ -1580,10 +1226,10 @@ function drawWindPrimitive(size, angle = 0, restored = 1, loose = 0, phase = 0, 
     push();
     rotate(i * TWO_PI / 3);
     translate(
-      sin(tm * 0.21 + phase + i * 1.7) * 10 * loose,
-      -loose * (5 + i * 2) + cos(tm * 0.18 + phase + i) * 7 * loose
+      sin(tm * 0.32 + phase + i * 1.7) * 10 * loose,
+      -loose * (5 + i * 2) + cos(tm * 0.27 + phase + i) * 7 * loose
     );
-    rotate(sin(tm * 0.14 + phase + i * 1.4) * 0.16 * loose);
+    rotate(sin(tm * 0.22 + phase + i * 1.4) * 0.16 * loose);
     triangle(
       -size * 0.07, -size * 0.08,
       size * 0.08, -size * 0.5,
@@ -1596,122 +1242,7 @@ function drawWindPrimitive(size, angle = 0, restored = 1, loose = 0, phase = 0, 
   pop();
 }
 
-function drawForestHabitat(m, rec, damaged) {
-  partTransform(m, 0, rec, () => {
-    fill(restoredFill(damaged.mid, C.orange, rec));
-    rect(-24, 8, 9, 44);
-    rect(22, 14, 8, 32);
-  });
-  partTransform(m, 1, rec, () => {
-    fill(restoredFill(damaged.highlight, C.lime, rec));
-    drawOctagon(-24, -20, 27);
-    drawOctagon(22, -9, 20);
-  });
-  partTransform(m, 2, rec, () => {
-    fill(restoredFill(damaged.light, C.paper, rec));
-    triangle(35, 26, 62, -12, 82, 26);
-  });
-}
 
-function drawWaterHabitat(m, rec, damaged) {
-  partTransform(m, 0, rec, () => {
-    fill(restoredFill(damaged.light, C.paper, rec));
-    triangle(-62, 28, -18, -36, 24, 28);
-  });
-  partTransform(m, 1, rec, () => {
-    fill(restoredFill(damaged.mid, C.blue, rec));
-    poly([[-72,6],[-48,-2],[-24,8],[2,-2],[30,8],[58,0],[72,18],[-72,18]]);
-  });
-  partTransform(m, 2, rec, () => {
-    fill(restoredFill(damaged.dark, C.purple, rec));
-    triangle(-52, 28, 0, 0, 58, 28);
-  });
-  partTransform(m, 3, rec, () => {
-    fill(restoredFill(damaged.highlight, C.teal, rec));
-    push();
-    translate(52, -10);
-    rotate(QUARTER_PI);
-    rect(0, 0, 13, 13);
-    pop();
-  });
-}
-
-function drawSolarHabitat(m, rec, damaged) {
-  partTransform(m, 0, rec, (t) => {
-    drawSolarPanel(16, -12, 72, 42, restoredFill(damaged.highlight, C.orange, rec), 1 - t, m.phase);
-  });
-  partTransform(m, 1, rec, (t) => {
-    drawHouseBlock(-40, 28, 34, 34, restoredFill(damaged.light, C.paper, rec), restoredFill(damaged.mid, C.orange, rec), 1 - t, m.phase + 1);
-  });
-  partTransform(m, 2, rec, (t) => {
-    drawHouseBlock(52, 28, 30, 27, restoredFill(damaged.light, C.paper, rec), restoredFill(damaged.mid, C.orange, rec), 1 - t, m.phase + 2);
-  });
-  partTransform(m, 3, rec, () => {
-    push();
-    translate(-54, -42);
-    scale(0.48);
-    drawSunPrimitive(58, rec, damaged);
-    pop();
-  });
-}
-
-function drawWindHabitat(m, rec, damaged) {
-  partTransform(m, 0, rec, () => {
-    fill(restoredFill(damaged.mid, C.orange, rec));
-    rect(8, -2, 10, 68);
-  });
-  partTransform(m, 1, rec, (t) => {
-    push();
-    translate(8, -40);
-    drawWindPrimitive(74, windFanAngle * 0.18 + m.phase, rec, 1 - t, m.phase, damaged);
-    pop();
-  });
-  partTransform(m, 2, rec, (t) => {
-    drawHouseBlock(-42, 28, 34, 34, restoredFill(damaged.light, C.paper, rec), restoredFill(damaged.mid, C.blue, rec), 1 - t, m.phase + 1);
-  });
-  partTransform(m, 3, rec, (t) => {
-    drawHouseBlock(50, 28, 30, 27, restoredFill(damaged.light, C.paper, rec), restoredFill(damaged.mid, C.blue, rec), 1 - t, m.phase + 2);
-  });
-}
-
-function drawCommunityHabitat(m, rec, damaged) {
-  const body = restoredFill(damaged.light, C.paper, rec);
-  const roof = restoredFill(damaged.mid, C.orange, rec);
-  partTransform(m, 0, rec, (t) => drawHouseBlock(-46, 28, 34, 30, body, roof, 1 - t, m.phase));
-  partTransform(m, 1, rec, (t) => drawHouseBlock(0, 28, 48, 52, body, roof, 1 - t, m.phase + 1));
-  partTransform(m, 2, rec, (t) => drawHouseBlock(48, 28, 34, 27, body, roof, 1 - t, m.phase + 2));
-  partTransform(m, 3, rec, () => {
-    fill(restoredFill(damaged.dark, C.teal, rec));
-    rect(0, 20, 13, 20);
-  });
-}
-
-function drawWildlifeHabitat(m, rec, damaged) {
-  const animal = restoredFill(damaged.light, C.orange, rec);
-  partTransform(m, 0, rec, () => {
-    fill(animal);
-    rect(-8, 2, 50, 30);
-    rect(14, -20, 12, 34);
-  });
-  partTransform(m, 1, rec, () => {
-    fill(animal);
-    quad(10, -38, 34, -34, 38, -20, 14, -17);
-    triangle(-34, -2, -52, -14, -34, 10);
-  });
-  partTransform(m, 2, rec, () => {
-    fill(animal);
-    rect(-22, 24, 7, 28);
-    rect(10, 24, 7, 28);
-  });
-  partTransform(m, 3, rec, () => {
-    fill(restoredFill(damaged.dark, C.orange, rec));
-    rect(54, 8, 8, 34);
-  });
-  partTransform(m, 4, rec, () => {
-    fill(restoredFill(damaged.highlight, C.lime, rec));
-    drawOctagon(54, -18, 22);
-  });
-}
 
 function updateWindCursor(dt) {
   const dx = pointerX - lastMouseX;
@@ -1722,7 +1253,7 @@ function updateWindCursor(dt) {
   if (activeTool === 'wind') {
     const target = 0.12 + constrain(speed / 26, 0, 1) * 0.58;
     windFanSpeed = lerp(windFanSpeed, target, 0.18);
-    windFanAngle += windFanSpeed * 60 * dt;
+    windFanAngle += windFanSpeed * 60 * dt * motionScale;
     windTrailCooldown -= dt;
 
     if (speed > 4 && windTrailCooldown <= 0) {
@@ -1797,19 +1328,20 @@ function drawBurstsAndWind() {
   }
 }
 
-function drawPollen() {
-  noStroke();
-  for (const p of pollen) {
-    const c = color(p.col);
-    c.setAlpha(110 * p.life);
-    fill(c);
-    circle(p.x, p.y, p.size);
-  }
-}
+
 
 function setStatus(msg, sec) {
   statusText = msg;
-  statusUntil = tm + sec;
+  statusUntil = elapsedTime + sec;
+}
+
+function isCanvasInteraction(event) {
+  if ((document.body.classList.contains('info-is-open') || document.body.classList.contains('sound-is-open'))) return false;
+  if (!event?.target || event.target.tagName !== 'CANVAS') return false;
+  const bounds = event.target.getBoundingClientRect();
+  const source = event.touches?.[0] || event.changedTouches?.[0] || event;
+  return source.clientX >= bounds.left && source.clientX <= bounds.right
+    && source.clientY >= bounds.top && source.clientY <= bounds.bottom;
 }
 
 function artboardPointFromEvent(event) {
@@ -1834,21 +1366,32 @@ function updatePointerFromEvent(event) {
 }
 
 function mouseMoved(event) {
+  if (!isCanvasInteraction(event)) return true;
   updatePointerFromEvent(event);
   return false;
 }
 
 function mousePressed(event) {
+  if (!isCanvasInteraction(event) || paused || stateTwoAnnounced) return true;
   ensureAudioEnabled(true);
+  experienceMode = 'manual';
   const point = updatePointerFromEvent(event);
   dragging = true;
   dragPointerX = point.x;
   dragPointerY = point.y;
+  applyEnergy(activeTool, point.x, point.y, 0, 0);
+  publishProgress(true);
   return false;
 }
 
 function mouseDragged(event) {
-  if (!dragging) return false;
+  if (!dragging || paused || (document.body.classList.contains('info-is-open') || document.body.classList.contains('sound-is-open'))) return true;
+  // Crossing an overlaid control must not keep supplying energy underneath it.
+  const pointTarget = document.elementFromPoint(
+    event?.touches?.[0]?.clientX ?? event?.clientX,
+    event?.touches?.[0]?.clientY ?? event?.clientY
+  );
+  if (pointTarget?.closest('#artwork-controls')) return true;
   const point = updatePointerFromEvent(event);
   applyEnergy(activeTool, point.x, point.y, point.x - dragPointerX, point.y - dragPointerY);
   dragPointerX = point.x;
@@ -1857,6 +1400,7 @@ function mouseDragged(event) {
 }
 
 function mouseReleased(event) {
+  if (!dragging) return true;
   updatePointerFromEvent(event);
   dragging = false;
   return false;
@@ -1874,19 +1418,88 @@ function touchEnded(event) {
   return mouseReleased(event);
 }
 
-function keyPressed() {
+function keyPressed(event) {
+  if ((document.body.classList.contains('info-is-open') || document.body.classList.contains('sound-is-open')) || event?.repeat) return true;
+  if (event?.target?.matches?.('input, textarea, select, [contenteditable="true"]')) return true;
   if (key === '1') {
-    activeTool = 'sun';
-    ensureAudioEnabled(false).then(() => playSelectSound('sun'));
-    setStatus('SUN SELECTED · REBUILD THE FIELD GRADUALLY', 2.6);
+    selectEnergyTool('sun');
   } else if (key === '2') {
-    activeTool = 'wind';
-    ensureAudioEnabled(false).then(() => playSelectSound('wind'));
-    setStatus('WIND SELECTED · CLEAR POLLUTION WITH AIR FLOW', 2.6);
+    selectEnergyTool('wind');
   } else if (key === 'r' || key === 'R') {
-    regenerate();
+    resetAndReplay();
   } else if (key === 's' || key === 'S') {
-    saveCanvas('adapt_stage3_unified', 'png');
+    exportArtwork();
+  } else if (key === 'm' || key === 'M') toggleSound();
+  else return true;
+  return false;
+}
+
+async function exportArtwork() {
+  const source = document.querySelector('#app canvas');
+  if (!source) return;
+  try {
+    await document.fonts.ready;
+    const output = document.createElement('canvas');
+    output.width = ARTBOARD_WIDTH;
+    output.height = ARTBOARD_HEIGHT;
+    const ctx = output.getContext('2d');
+    ctx.drawImage(source, 0, 0);
+    // The artwork's title/message are DOM overlays. Composite their original
+    // local SVG assets and type at logical size so exported PNGs keep the story.
+    const exportUi = document.querySelector('.figma-ui').cloneNode(true);
+    exportUi.classList.add('export-ui');
+    exportUi.style.cssText = 'position:fixed;left:-10000px;top:0;margin:0;transform:none;visibility:hidden;pointer-events:none';
+    exportUi.removeAttribute('id');
+    exportUi.querySelectorAll('[id]').forEach((node) => node.removeAttribute('id'));
+    document.body.append(exportUi);
+    try {
+    const overlays = [...exportUi.querySelectorAll('.badge-layer img, .badge-title, .badge-stage, .figma-subtitle img, .figma-subtitle p')];
+    await Promise.all(overlays.filter((element) => element.tagName === 'IMG').map((element) => element.decode()));
+    overlays.forEach((element) => {
+      const style = getComputedStyle(element);
+      let x = 0;
+      let y = 0;
+      for (let node = element; node && node !== exportUi; node = node.offsetParent) {
+        x += node.offsetLeft;
+        y += node.offsetTop;
+      }
+      const w = element.offsetWidth;
+      const h = element.offsetHeight;
+      ctx.save();
+      ctx.translate(x + w / 2, y + h / 2);
+      if (style.transform !== 'none') {
+        const matrix = new DOMMatrix(style.transform);
+        ctx.transform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f);
+      }
+      ctx.translate(-w / 2, -h / 2);
+      if (element.tagName === 'IMG') {
+        ctx.filter = style.filter;
+        ctx.drawImage(element, 0, 0, w, h);
+      } else {
+        ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        ctx.fillStyle = style.color;
+        ctx.textBaseline = 'top';
+        ctx.textAlign = style.textAlign === 'center' ? 'center' : 'left';
+        ctx.fillText(element.textContent.trim(), ctx.textAlign === 'center' ? w / 2 : 0, 0, w);
+      }
+      ctx.restore();
+    });
+    } finally { exportUi.remove(); }
+    output.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `ADAPT-stage3-${stateTwoAnnounced ? 'network-ready' : 'regeneration'}.png`;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      document.body.dataset.exported = link.download;
+      setStatus('PNG saved with the artwork title and message.', 3);
+      publishProgress(true);
+    }, 'image/png');
+  } catch (error) {
+    setStatus('The PNG could not be saved. Please try again.', 4);
+    publishProgress(true);
   }
 }
 
@@ -1907,9 +1520,9 @@ function applyEnergy(tool, x, y, dx, dy) {
   const movementStrength = constrain(len / 24, 0.25, 1);
   const gain = ENERGY_BRUSH_GAIN * movementStrength;
 
-  for (const m of modules) {
+  modules.forEach((m) => {
     const d = dist(x, y, m.x, m.y);
-    if (d > radius) continue;
+    if (d > radius) return;
     const f = pow(1 - d / radius, 0.86);
 
     if (tool === 'sun') {
@@ -1920,7 +1533,7 @@ function applyEnergy(tool, x, y, dx, dy) {
       m.vx += ndx * push;
       m.vy += ndy * push;
     }
-  }
+  });
 
   if (tool === 'wind') {
     for (const s of smoke) {
@@ -1935,46 +1548,43 @@ function applyEnergy(tool, x, y, dx, dy) {
   }
 }
 
-function setupAudioControl() {
-  const control = document.getElementById('sound-toggle');
-  if (!control || control.dataset.ready === 'true') return;
-  control.dataset.ready = 'true';
-
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextClass) {
-    control.disabled = true;
-    control.querySelector('.audio-control__state').textContent = 'SOUND UNAVAILABLE';
-    return;
+function toggleSound() {
+  if (!audioMuted) {
+    audioMuted = true;
+    audioEnabled = false;
+    document.body.dataset.audioEnabled = 'false';
+    audioMaster?.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.025);
+    publishProgress(true);
+  } else {
+    audioMuted = false;
+    ensureAudioEnabled(true).then(() => publishProgress(true));
   }
+}
 
-  control.addEventListener('click', async (event) => {
-    event.stopPropagation();
-    createAudioGraph(AudioContextClass);
+function setSoundMixLevel(id, value) {
+  const channel = SOUND_MIX_CHANNELS.find((entry) => entry.id === id);
+  const level = Number(value);
+  if (!channel || !Number.isFinite(level)) return;
+  soundMixLevels[id] = Math.max(0, Math.min(100, level));
+  audioChannelGains.get(id)?.gain.setTargetAtTime(soundMixLevels[id] / channel.recommended, audioContext.currentTime, 0.025);
+}
 
-    audioEnabled = !audioEnabled;
-    if (audioEnabled) {
-      await audioContext.resume();
-      await decodeAudioSamples();
-      audioMaster.gain.setTargetAtTime(0.72, audioContext.currentTime, 0.02);
-      if (!playSample('confirmation', { gain: 0.58 })) {
-        playTone(392, 0.12, 'sine', 0.34);
-        playTone(587, 0.18, 'sine', 0.22, 0.07);
-      }
-    } else {
-      audioMaster.gain.setTargetAtTime(0.0001, audioContext.currentTime, 0.025);
-    }
-
-    control.setAttribute('aria-pressed', String(audioEnabled));
-    control.querySelector('.audio-control__state').textContent = audioEnabled ? 'SOUND ON' : 'SOUND OFF';
-  });
+function resetSoundMix() {
+  SOUND_MIX_CHANNELS.forEach(({ id, recommended }) => setSoundMixLevel(id, recommended));
 }
 
 function createAudioGraph(AudioContextClass = window.AudioContext || window.webkitAudioContext) {
   if (!AudioContextClass || audioContext) return;
   audioContext = new AudioContextClass();
   audioMaster = audioContext.createGain();
-  audioMaster.gain.value = 0.72;
+  audioMaster.gain.value = 0.0001;
   audioMaster.connect(audioContext.destination);
+  SOUND_MIX_CHANNELS.forEach(({ id, recommended }) => {
+    const channel = audioContext.createGain();
+    channel.gain.value = soundMixLevels[id] / recommended;
+    channel.connect(audioMaster);
+    audioChannelGains.set(id, channel);
+  });
 }
 
 function preloadAudioSamples() {
@@ -2017,30 +1627,43 @@ async function decodeAudioSamples() {
 }
 
 async function ensureAudioEnabled(playConfirmation = false) {
+  // A visitor's explicit mute survives tool selection, strokes and regeneration.
+  if (audioMuted) return;
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
-
   const isFirstActivation = !audioContext;
   createAudioGraph(AudioContextClass);
-
-  audioEnabled = true;
-  document.body.dataset.audioEnabled = 'true';
-  await audioContext.resume();
-  await decodeAudioSamples();
-
-  if (isFirstActivation && playConfirmation) {
-    if (!playSample('confirmation', { gain: 0.58 })) {
-      playTone(392, 0.12, 'sine', 0.24);
-      playTone(587, 0.18, 'sine', 0.15, 0.07);
+  try {
+    if (!paused) await audioContext.resume();
+    await decodeAudioSamples();
+    // A mute click may occur while the browser is decoding its first samples.
+    if (audioMuted) return;
+    audioEnabled = true;
+    document.body.dataset.audioEnabled = 'true';
+    audioMaster.gain.setTargetAtTime(0.72, audioContext.currentTime, 0.025);
+    if (isFirstActivation && playConfirmation) {
+      if (!playSample('confirmation', { gain: 0.58 })) {
+        playTone(392, 0.12, 'sine', 0.24);
+        playTone(587, 0.18, 'sine', 0.15, 0.07);
+      }
     }
+  } catch (error) {
+    audioEnabled = false;
+    document.body.dataset.audioEnabled = 'false';
+    setStatus('Sound could not start. You can continue silently.', 4);
   }
+  publishProgress(true);
 }
 
 function stopSample(key) {
   const active = activeSampleSources.get(key);
   if (!active) return;
   try {
-    active.stop();
+    const now = audioContext.currentTime;
+    active.gain.gain.cancelScheduledValues(now);
+    active.gain.gain.setValueAtTime(active.gain.gain.value, now);
+    active.gain.gain.linearRampToValueAtTime(0, now + 0.045);
+    active.source.stop(now + 0.05);
   } catch (error) {
     // The sample may already have ended; clearing the reference is sufficient.
   }
@@ -2048,7 +1671,7 @@ function stopSample(key) {
 }
 
 function playSample(name, options = {}) {
-  if (!audioEnabled || !audioContext || !audioMaster) return false;
+  if (!audioEnabled || paused || !audioContext || !audioMaster) return false;
   const buffer = audioBuffers.get(name);
   if (!buffer) return false;
 
@@ -2056,24 +1679,35 @@ function playSample(name, options = {}) {
     gain: level = 0.5,
     rate = 1,
     delay = 0,
-    exclusive = null
+    exclusive = null,
+    finishPrevious = false
   } = options;
 
+  // Sustained strokes let the current cue end naturally before retriggering it.
+  if (exclusive && finishPrevious && activeSampleSources.has(exclusive)) return true;
   if (exclusive) stopSample(exclusive);
   const source = audioContext.createBufferSource();
   const gain = audioContext.createGain();
   source.buffer = buffer;
   source.playbackRate.value = rate;
-  gain.gain.value = level;
+  const startsAt = audioContext.currentTime + delay;
+  const endsAt = startsAt + buffer.duration / rate;
+  gain.gain.setValueAtTime(0, startsAt);
+  gain.gain.linearRampToValueAtTime(level, startsAt + 0.012);
+  gain.gain.setValueAtTime(level, max(startsAt + 0.012, endsAt - 0.045));
+  gain.gain.linearRampToValueAtTime(0, endsAt);
   source.connect(gain);
-  gain.connect(audioMaster);
+  gain.connect(audioChannelGains.get(name) || audioMaster);
   if (exclusive) {
-    activeSampleSources.set(exclusive, source);
+    const active = { source, gain };
+    activeSampleSources.set(exclusive, active);
     source.addEventListener('ended', () => {
-      if (activeSampleSources.get(exclusive) === source) activeSampleSources.delete(exclusive);
+      if (activeSampleSources.get(exclusive) === active) activeSampleSources.delete(exclusive);
+      source.disconnect();
+      gain.disconnect();
     });
   }
-  source.start(audioContext.currentTime + delay);
+  source.start(startsAt);
   document.body.dataset.lastSound = name;
   const history = (document.body.dataset.soundHistory || '').split(',').filter(Boolean);
   history.push(name);
@@ -2081,8 +1715,8 @@ function playSample(name, options = {}) {
   return true;
 }
 
-function playTone(frequency, duration, type = 'sine', level = 0.2, delay = 0) {
-  if (!audioEnabled || !audioContext || !audioMaster) return;
+function playTone(frequency, duration, type = 'sine', level = 0.2, delay = 0, channel = 'confirmation') {
+  if (!audioEnabled || paused || !audioContext || !audioMaster) return;
   const start = audioContext.currentTime + delay;
   const oscillator = audioContext.createOscillator();
   const gain = audioContext.createGain();
@@ -2092,7 +1726,7 @@ function playTone(frequency, duration, type = 'sine', level = 0.2, delay = 0) {
   gain.gain.exponentialRampToValueAtTime(level, start + 0.025);
   gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
   oscillator.connect(gain);
-  gain.connect(audioMaster);
+  gain.connect(audioChannelGains.get(channel) || audioMaster);
   oscillator.start(start);
   oscillator.stop(start + duration + 0.03);
 }
@@ -2100,19 +1734,19 @@ function playTone(frequency, duration, type = 'sine', level = 0.2, delay = 0) {
 function playSelectSound(tool) {
   if (tool === 'sun') {
     if (!playSample('solarSelect', { gain: 0.48, exclusive: 'selection' })) {
-      playTone(440, 0.16, 'sine', 0.2);
-      playTone(660, 0.2, 'sine', 0.12, 0.04);
+      playTone(440, 0.16, 'sine', 0.2, 0, 'solarSelect');
+      playTone(660, 0.2, 'sine', 0.12, 0.04, 'solarSelect');
     }
   } else {
     if (!playSample('windPaper', { gain: 0.38, rate: 0.94, exclusive: 'selection' })) {
-      playTone(220, 0.2, 'triangle', 0.18);
-      playTone(330, 0.18, 'sine', 0.1, 0.04);
+      playTone(220, 0.2, 'triangle', 0.18, 0, 'windPaper');
+      playTone(330, 0.18, 'sine', 0.1, 0.04, 'windPaper');
     }
   }
 }
 
 function playEnergySound(tool) {
-  if (!audioEnabled || !audioContext) return;
+  if (!audioEnabled || paused || !audioContext || activeSampleSources.has('energy')) return;
   const now = performance.now();
   const cooldown = tool === 'sun' ? 1050 : 720;
   if (now - lastEnergySoundAt[tool] < cooldown) return;
@@ -2122,17 +1756,19 @@ function playEnergySound(tool) {
     if (!playSample('solarEnergy', {
       gain: 0.24,
       rate: 0.96 + globalRecovery * 0.08,
-      exclusive: 'energy'
+      exclusive: 'energy',
+      finishPrevious: true
     })) {
-      playTone(360 + recoveryLift, 0.11, 'sine', 0.085);
+      playTone(360 + recoveryLift, 0.11, 'sine', 0.085, 0, 'solarEnergy');
     }
   } else {
     if (!playSample('windPaper', {
       gain: 0.3,
       rate: 0.9 + globalRecovery * 0.12,
-      exclusive: 'energy'
+      exclusive: 'energy',
+      finishPrevious: true
     })) {
-      playTone(180 + recoveryLift * 0.55, 0.13, 'triangle', 0.07);
+      playTone(180 + recoveryLift * 0.55, 0.13, 'triangle', 0.07, 0, 'windPaper');
     }
   }
 }
@@ -2140,7 +1776,7 @@ function playEnergySound(tool) {
 function playAssemblySound() {
   if (!playSample('assemblyKeyboard', { gain: 0.98, exclusive: 'assembly' })) {
     [246, 294, 370].forEach((note, index) => {
-      playTone(note, 0.18, 'triangle', 0.1, index * 0.09);
+      playTone(note, 0.18, 'triangle', 0.1, index * 0.09, 'assemblyKeyboard');
     });
   } else {
     document.body.dataset.assemblyCue = 'keyboard';
@@ -2150,7 +1786,7 @@ function playAssemblySound() {
 function playCompletionSound() {
   if (!playSample('recoveryWater', { gain: 0.72, exclusive: 'recovery' })) {
     [392, 494, 587, 784].forEach((note, index) => {
-      playTone(note, 0.42, index % 2 ? 'triangle' : 'sine', 0.13, index * 0.085);
+      playTone(note, 0.42, index % 2 ? 'triangle' : 'sine', 0.13, index * 0.085, 'recoveryWater');
     });
   } else {
     document.body.dataset.recoveryCue = 'water';

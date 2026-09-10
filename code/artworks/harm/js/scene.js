@@ -1,55 +1,60 @@
 // ------------------------------------------------------------
 // CONTROLLED WORLD
+// Final spacing pass: houses and trees are distributed a little wider and smaller
+// so the stage feels more open around the machine, subtitle, and right-side controls.
 // ------------------------------------------------------------
 
 function buildWorld() {
+  // Rebalanced spacing pass: keep the storytelling flow the same, but open a
+  // little more negative space around the machine, the poles, and the far-right
+  // cluster so the scene reads cleaner at a glance.
   houses = [
-    makeHouse('H0', 362, 742, .50, -.012, 0, 0.20),
-    makeHouse('H1', 652, 904, .49, .012, 1, 0.75),
-    makeHouse('H2', 896, 714, .56, .004, 2, 1.18),
-    makeHouse('H3', 1118, 884, .51, -.016, 3, 1.62),
-    makeHouse('H4', 1334, 790, .49, .014, 0, 2.05),
-    makeHouse('H5', 1560, 918, .52, -.010, 1, 2.42),
-    makeHouse('H6', 1768, 792, .47, .012, 2, 2.78)
+    makeHouse('H0', 318, 620, .36, -.012, 0, 0.20),
+    makeHouse('H1', 594, 766, .34, .010, 1, 0.75),
+    makeHouse('H2', 874, 582, .39, .004, 2, 1.18),
+    makeHouse('H3', 1152, 748, .37, -.014, 3, 1.62),
+    makeHouse('H4', 1338, 654, .34, .012, 0, 2.05),
+    makeHouse('H5', 1582, 772, .36, -.010, 1, 2.42),
+    makeHouse('H6', 1768, 642, .31, .010, 2, 2.78)
   ];
 
   trees = [
-    makeTree(138, 828, .66, -.022, 0, .05),
-    makeTree(286, 666, .34, .010, 2, .42),
-    makeTree(585, 956, .48, -.016, 1, .83),
-    makeTree(790, 934, .49, .018, 2, 1.12),
-    makeTree(958, 622, .38, .024, 1, 1.48),
-    makeTree(1192, 930, .50, -.016, 0, 1.78),
-    makeTree(1338, 646, .43, -.020, 2, 2.05),
-    makeTree(1452, 958, .52, .010, 1, 2.35),
-    makeTree(1616, 664, .45, -.012, 0, 2.62),
-    makeTree(1836, 902, .44, .016, 2, 2.92),
-    makeTree(1496, 650, .32, .008, 1, 3.18)
+    makeTree(114, 712, .50, -.022, 0, .05),
+    makeTree(262, 538, .25, .010, 2, .42),
+    makeTree(508, 796, .35, -.014, 1, .83),
+    makeTree(740, 776, .36, .016, 2, 1.12),
+    makeTree(934, 502, .29, .022, 1, 1.48),
+    makeTree(1108, 520, .23, .008, 1, 1.70),
+    makeTree(1234, 782, .36, -.014, 0, 1.92),
+    makeTree(1314, 510, .31, -.018, 2, 2.10),
+    makeTree(1434, 786, .36, .010, 1, 2.35),
+    makeTree(1592, 520, .31, -.010, 0, 2.62),
+    makeTree(1842, 736, .28, .014, 2, 2.92)
   ];
 
   poles = [
-    makePole('P0', 548, 760, .48, -.008, .56),
-    makePole('P1', 988, 724, .54, -.012, 1.42),
-    makePole('P2', 1380, 842, .47, .010, 2.18),
-    makePole('P3', 1702, 812, .52, -.016, 2.84)
+    makePole('P0', 520, 700, .47, -.008, .56),
+    makePole('P1', 984, 664, .53, -.012, 1.42),
+    makePole('P2', 1372, 780, .46, .010, 2.18),
+    makePole('P3', 1688, 748, .51, -.014, 2.84)
   ];
 
   factories = [
-    makeFactory('F0', 248, 586, .23, 1, -.010, .32),
-    makeFactory('F05', 726, 584, .22, 0, .010, .94),
-    makeFactory('F1', 1228, 500, .55, 2, -.018, 1.55),
-    makeFactory('F2', 1528, 442, .48, 1, .014, 2.08),
-    makeFactory('F3', 1466, 716, .28, 0, -.008, 2.54),
-    makeFactory('F4', 1778, 620, .26, 1, .008, 3.00)
+    makeFactory('F0', 248, 526, .23, 1, -.010, .32),
+    makeFactory('F05', 714, 524, .22, 0, .010, .94),
+    makeFactory('F1', 1216, 438, .54, 2, -.018, 1.55),
+    makeFactory('F2', 1512, 386, .47, 1, .014, 2.08),
+    makeFactory('F3', 1448, 652, .27, 0, -.008, 2.54),
+    makeFactory('F4', 1722, 556, .23, 1, .008, 3.00)
   ];
 
   // Ground patches are derived from each building's real baseline instead of
   // manually guessed Y values. This keeps every house/factory physically planted
   // on its island even when scale changes.
   const housePatchSpecs = [
-    { w: 144, r: -.01 }, { w: 154, r: .01 }, { w: 144, r: 0 },
-    { w: 168, r: -.02 }, { w: 150, r: .01 }, { w: 174, r: .02 },
-    { w: 148, r: .01 }
+    { w: 124, r: -.01 }, { w: 132, r: .01 }, { w: 126, r: 0 },
+    { w: 142, r: -.02 }, { w: 130, r: .01 }, { w: 146, r: .02 },
+    { w: 126, r: .01 }
   ];
   const factoryPatchSpecs = [
     { w: 86, r: 0 }, { w: 96, r: 0 }, { w: 226, r: -.03 },
@@ -227,7 +232,7 @@ function unlockArchitectureForBurn(count) {
   }
 
   if (unlocked > 0) {
-    setStatus(`BURN ${nf(count, 2)} · ${unlocked} STRUCTURE${unlocked > 1 ? 'S' : ''} ARE FORMING`, 2.8);
+    setStatus(`BURN ${nf(count, 2)} · ${unlocked} STRUCTURE${unlocked > 1 ? 'S' : ''} COMING ONLINE`, 2.8, 2);
   }
 
   // Factory construction gets one quiet Rice background bed plus a soft
@@ -336,12 +341,24 @@ function getCeilingDepthAtX(x, layer = 0) {
   return broad + sourceBias + n * (28 + p * 76) + wave;
 }
 
+function ambientFragmentSpawnValid(x, y) {
+  const inAirHudZone = x > W - 330 && y < 170;
+  const inControlZone = x > W - 215 && y > H - 390;
+  const inSubtitleZone = x > 420 && x < 1510 && y > H - 170;
+  return !(inAirHudZone || inControlZone || inSubtitleZone);
+}
+
 function buildAmbientFragments() {
   ambientFragments = [];
-  for (let i = 0; i < MAX_AMBIENT_FRAGMENTS; i++) {
+  let guard = 0;
+  while (ambientFragments.length < MAX_AMBIENT_FRAGMENTS && guard < MAX_AMBIENT_FRAGMENTS * 24) {
+    guard++;
+    const x = random(20, W - 20);
+    const y = random(55, H - 40);
+    if (!ambientFragmentSpawnValid(x, y)) continue;
     ambientFragments.push({
-      x: random(20, W - 20),
-      y: random(55, H - 40),
+      x,
+      y,
       vx: random(-.08, .08),
       vy: random(-.05, .05),
       size: random(2.5, 9.5),
@@ -548,7 +565,7 @@ function requestDemand(node) {
       size: random(3, 8)
     }))
   });
-  setStatus('ENERGY DEMAND APPEARS · SATISFY IT AND THE AIR LOAD WILL RISE', 2.4);
+  setStatus('ENERGY DEMAND DETECTED · SUPPLYING IT WILL RAISE AIR LOAD', 2.4, 2);
 }
 
 function updateDemandSignals(dt) {
@@ -574,7 +591,7 @@ function queueDemand(node) {
   node.ref.demandReady = 1;
   node.ref.demandQueuedAt = sceneTime;
   node.ref.demandFlash = max(node.ref.demandFlash, .55);
-  setStatus('DEMAND IS WAITING · MORE POWER NOW ALSO MEANS MORE HARM LATER', 2.8);
+  setStatus('DEMAND IS QUEUED · MORE POWER NOW ALSO MEANS MORE POLLUTION LATER', 2.8, 2);
 }
 
 function updateDemandQueue() {

@@ -404,6 +404,11 @@
 }
 
 [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+[data-reveal].reveal-pending {
   opacity: 0;
   transform: translateY(2rem);
   transition: opacity var(--transition-medium), transform var(--transition-medium);
@@ -412,6 +417,13 @@
 [data-reveal].is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal].reveal-pending {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .home-about {

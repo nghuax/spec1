@@ -42,12 +42,23 @@ export function renderNavigation() {
   const toggle = host.querySelector('.site-nav__toggle');
   const menu = host.querySelector('.site-nav__links');
   const label = host.querySelector('.site-nav__toggle-label');
+  const background = [...document.querySelectorAll('main, [data-site-footer], .skip-link')];
+  const inertBeforeOpen = new Map();
 
   function setMenu(open) {
     toggle.setAttribute('aria-expanded', String(open));
     menu.classList.toggle('is-open', open);
     document.body.classList.toggle('menu-is-open', open);
     label.textContent = open ? 'CLOSE' : 'MENU';
+    background.forEach((element) => {
+      if (open) {
+        if (!inertBeforeOpen.has(element)) inertBeforeOpen.set(element, element.inert);
+        element.inert = true;
+      } else if (inertBeforeOpen.has(element)) {
+        element.inert = inertBeforeOpen.get(element);
+        inertBeforeOpen.delete(element);
+      }
+    });
   }
 
   toggle.addEventListener('click', () => {
@@ -59,15 +70,30 @@ export function renderNavigation() {
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+    if (toggle.getAttribute('aria-expanded') !== 'true') return;
+    if (event.key === 'Escape') {
       setMenu(false);
       toggle.focus();
+    } else if (event.key === 'Tab') {
+      const controls = [...host.querySelectorAll('a, button')];
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
   });
 
   const desktopQuery = window.matchMedia('(min-width: 840px)');
   desktopQuery.addEventListener('change', (event) => {
-    if (event.matches) setMenu(false);
+    const focused = document.activeElement;
+    setMenu(false);
+    if (event.matches && focused === toggle) host.querySelector('.site-nav__brand').focus();
+    if (!event.matches && menu.contains(focused)) toggle.focus();
   });
 }
 
@@ -79,7 +105,7 @@ export function renderFooter() {
   host.innerHTML = `
     <div class="site-footer__identity">
       <span>HEAL</span>
-      <span>COMM2748</span>
+      <span>COMM2754</span>
       <span>RMIT UNIVERSITY VIETNAM</span>
       <span>2026</span>
     </div>

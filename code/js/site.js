@@ -123,7 +123,7 @@ function progressMarkup(root, currentIndex) {
       const state = index < currentIndex ? 'is-complete' : index === currentIndex ? 'is-current' : '';
       return `
         <li class="chapter-progress__item ${state}">
-          <a href="${chapterHref(root, chapter)}" ${index === currentIndex ? 'aria-current="step"' : ''}>
+          <a href="${chapterHref(root, chapter)}" aria-label="${chapter.title}" ${index === currentIndex ? 'aria-current="step"' : ''}>
             <span class="chapter-progress__marker" aria-hidden="true"></span>
             <span class="chapter-progress__letter">${chapter.letter}</span>
             <span class="chapter-progress__name">${chapter.title}</span>
@@ -187,6 +187,16 @@ function renderArtworkPage() {
         </div>
       </section>`
     : '';
+  const completion = chapter.id === 'adapt' && next
+    ? `<aside class="artwork-completion" data-adapt-completion aria-labelledby="adapt-completion-title" hidden>
+        <div>
+          <p class="section-label">STAGE 3 COMPLETE</p>
+          <h3 id="adapt-completion-title">A connected clean-energy network is ready.</h3>
+          <p>Carry this transition into LIVEN and see life return to Earth.</p>
+        </div>
+        <a href="${chapterHref(root, next)}">CONTINUE TO LIVEN<span aria-hidden="true"> →</span></a>
+      </aside>`
+    : '';
 
   host.innerHTML = `
     <section class="chapter-masthead" aria-labelledby="chapter-title">
@@ -233,6 +243,7 @@ function renderArtworkPage() {
           <a href="${route(root, 'index.html')}">RETURN TO HEAL</a>
         </div>
       </div>
+      ${completion}
       <p class="visually-hidden" id="artwork-description">${chapter.artworkDescription}</p>
       <div class="artwork-instructions" id="artwork-instructions">
         <p class="section-label">HOW TO INTERACT</p>
@@ -248,6 +259,31 @@ function renderArtworkPage() {
     </nav>`;
 
   setupArtworkFrame(host, chapter.title);
+  if (chapter.id === 'adapt' && next) {
+    setupAdaptCompletion(host, chapterHref(root, next));
+  }
+}
+
+function setupAdaptCompletion(host, nextHref) {
+  const iframe = host.querySelector('[data-artwork-iframe]');
+  const completion = host.querySelector('[data-adapt-completion]');
+  if (!iframe || !completion) return;
+
+  // Only the embedded artwork on this origin can signal chapter completion.
+  window.addEventListener('message', (event) => {
+    if (event.source !== iframe.contentWindow || event.origin !== window.location.origin) return;
+    const type = event.data && event.data.type;
+    if (type === 'adapt:complete') {
+      completion.hidden = false;
+    } else if (type === 'adapt:reset') {
+      completion.hidden = true;
+    } else if (type === 'adapt:continue') {
+      window.location.assign(nextHref);
+    }
+  });
+
+  // Reloading an artwork starts a new field even after a completed visit.
+  iframe.addEventListener('load', () => { completion.hidden = true; });
 }
 
 function setupArtworkFrame(host, chapterTitle) {
@@ -256,31 +292,45 @@ function setupArtworkFrame(host, chapterTitle) {
   const loader = host.querySelector('[data-artwork-loader]');
   const error = host.querySelector('[data-artwork-error]');
   const reload = host.querySelector('[data-reload-artwork]');
-  let loaded = false;
+  let failureTimer;
+  let hideTimer;
 
   function showLoaded() {
-    loaded = true;
+    window.clearTimeout(failureTimer);
+    window.clearTimeout(hideTimer);
+    error.hidden = true;
     frame.classList.add('is-loaded');
+    frame.setAttribute('aria-busy', 'false');
     loader.setAttribute('aria-label', `${chapterTitle} loaded`);
-    window.setTimeout(() => {
+    hideTimer = window.setTimeout(() => {
       loader.hidden = true;
     }, 450);
   }
 
-  iframe.addEventListener('load', showLoaded, { once: true });
-  const failureTimer = window.setTimeout(() => {
-    if (!loaded) {
-      loader.hidden = true;
-      error.hidden = false;
-    }
-  }, 18000);
+  function showError() {
+    window.clearTimeout(failureTimer);
+    window.clearTimeout(hideTimer);
+    frame.setAttribute('aria-busy', 'false');
+    loader.hidden = true;
+    error.hidden = false;
+  }
 
-  iframe.addEventListener('load', () => window.clearTimeout(failureTimer), { once: true });
-  reload.addEventListener('click', () => {
+  function startLoading() {
+    window.clearTimeout(failureTimer);
+    window.clearTimeout(hideTimer);
     error.hidden = true;
     loader.hidden = false;
+    loader.removeAttribute('aria-label');
     frame.classList.remove('is-loaded');
-    loaded = false;
+    frame.setAttribute('aria-busy', 'true');
+    failureTimer = window.setTimeout(showError, 18000);
+  }
+
+  iframe.addEventListener('load', showLoaded);
+  iframe.addEventListener('error', showError);
+  startLoading();
+  reload.addEventListener('click', () => {
+    startLoading();
     iframe.src = iframe.src;
   });
 }
@@ -431,7 +481,7 @@ function renderAbout() {
 
 function setupReveal() {
   const elements = document.querySelectorAll('[data-reveal]');
-  if (!elements.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!elements.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -445,7 +495,10 @@ function setupReveal() {
     { threshold: 0.16 }
   );
 
-  elements.forEach((element) => observer.observe(element));
+  elements.forEach((element) => {
+    element.classList.add('reveal-pending');
+    observer.observe(element);
+  });
 }
 
 function init() {

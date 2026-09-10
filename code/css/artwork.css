@@ -186,6 +186,8 @@
   grid-template-rows: auto auto;
   column-gap: 0.55rem;
   width: fit-content;
+  min-width: var(--control-min);
+  min-height: var(--control-min);
 }
 
 .chapter-progress__marker {
@@ -212,13 +214,15 @@
 
 .chapter-progress__name {
   margin-top: 0.35rem;
-  font-size: 0.58rem;
+  font-size: var(--type-label);
   font-weight: 700;
   letter-spacing: 0.07em;
 }
 
 .chapter-progress__item.is-current a {
   color: var(--page-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
 }
 
 .artwork-stage {
@@ -231,7 +235,8 @@
 .artwork-frame,
 .artwork-instructions,
 .artwork-credit {
-  width: min(92vw, 1600px);
+  width: 100%;
+  max-width: var(--content-max);
   margin-inline: auto;
 }
 
@@ -240,7 +245,8 @@
 }
 
 .artwork-goal {
-  width: min(92vw, 1600px);
+  width: 100%;
+  max-width: var(--content-max);
   margin: var(--space-md) auto 0;
   padding: clamp(1.25rem, 2.4vw, 2.25rem);
   display: grid;
@@ -295,6 +301,62 @@
   background: var(--heal-ink);
   opacity: 0;
   transition: opacity var(--transition-medium);
+}
+
+.artwork-stage--adapt .artwork-frame {
+  aspect-ratio: 3 / 2;
+  min-height: 460px;
+}
+
+.artwork-completion {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: var(--space-sm) auto 0;
+  padding: clamp(1.25rem, 2.4vw, 2.25rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-md);
+  color: var(--heal-ink);
+  background: var(--heal-lime);
+}
+
+.artwork-completion[hidden] {
+  display: none;
+}
+
+.artwork-completion h3 {
+  max-width: 28ch;
+  margin-block: 0.6rem;
+  font-size: clamp(1.6rem, 3vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.artwork-completion p:last-child {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.artwork-completion a {
+  min-height: 3.25rem;
+  padding: 0.85rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid currentColor;
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+
+.artwork-completion a:hover,
+.artwork-completion a:focus-visible {
+  color: var(--heal-white);
+  outline: 2px solid var(--heal-ink);
+  outline-offset: 3px;
+  background: var(--heal-ink);
 }
 
 .artwork-frame.is-loaded iframe {
@@ -360,6 +422,7 @@
 
 .artwork-error button,
 .artwork-error a {
+  min-height: var(--control-min);
   padding: 0.75rem 1rem;
   border: 1px solid currentColor;
   background: transparent;
@@ -383,7 +446,8 @@
 }
 
 .artwork-context {
-  width: min(92vw, 1600px);
+  width: 100%;
+  max-width: var(--content-max);
   margin-inline: auto;
   padding-block: var(--space-lg);
   display: grid;
@@ -448,7 +512,6 @@
 .artwork-action a:hover,
 .artwork-action a:focus-visible {
   color: var(--heal-white);
-  outline: none;
   background: var(--heal-ink);
 }
 
@@ -500,8 +563,21 @@
 }
 
 .chapter-nav__link:hover {
-  color: var(--heal-ink);
+  color: var(--chapter-hover-foreground, var(--heal-ink));
   background: var(--page-accent);
+}
+
+body[data-chapter='exhaust'],
+body[data-chapter='liven'] {
+  --chapter-hover-foreground: var(--heal-white);
+}
+
+.artwork-stage {
+  --type-label: 0.75rem;
+}
+
+.artwork-stage__topline {
+  font-size: var(--type-label);
 }
 
 @media (max-width: 839px) {
@@ -527,9 +603,15 @@
   .artwork-frame,
   .artwork-instructions,
   .artwork-credit,
+  .artwork-completion,
   .artwork-goal,
   .artwork-context {
     width: 100%;
+  }
+
+  .artwork-stage--adapt .artwork-goal {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 
@@ -575,15 +657,17 @@
   }
 
   .chapter-progress__name {
-    display: none;
+    font-size: 0.625rem;
+    letter-spacing: 0;
   }
 
   .chapter-progress__item a {
-    grid-template-rows: auto;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
   }
 
   .chapter-progress__marker {
-    grid-row: 1;
+    grid-row: 1 / 3;
   }
 
   .artwork-stage {
@@ -603,11 +687,14 @@
   }
 
   .artwork-stage--adapt .artwork-frame {
-    aspect-ratio: 4 / 5;
+    aspect-ratio: auto;
+    height: 600px;
+    min-height: 600px;
   }
 
   .artwork-instructions,
   .artwork-credit,
+  .artwork-completion,
   .artwork-goal,
   .artwork-context,
   .artwork-action {
@@ -616,6 +703,7 @@
   }
 
   .artwork-goal,
+  .artwork-completion,
   .artwork-context {
     width: auto;
     margin-inline: var(--page-gutter);
@@ -625,7 +713,8 @@
     margin-top: var(--space-md);
   }
 
-  .artwork-action a {
+  .artwork-action a,
+  .artwork-completion a {
     width: 100%;
   }
 
@@ -654,5 +743,9 @@
 
   .artwork-frame {
     width: min(92vw, calc((100svh - 5.5rem) * 16 / 9));
+  }
+
+  .artwork-stage--adapt .artwork-frame {
+    width: 92vw;
   }
 }

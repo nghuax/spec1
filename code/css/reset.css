@@ -67,8 +67,13 @@ iframe {
 }
 
 :focus-visible {
-  outline: 3px solid var(--page-accent);
-  outline-offset: 4px;
+  outline: 3px solid var(--heal-white);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--heal-ink);
+}
+
+[id] {
+  scroll-margin-top: calc(var(--header-height) + 1rem);
 }
 
 ::selection {

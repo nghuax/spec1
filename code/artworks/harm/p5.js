@@ -1,4 +1,3 @@
-/*! p5.js v1.9.0 November 28, 2023 */
 (function (f) {
   if (typeof exports === 'object' && typeof module !== 'undefined') {
     module.exports = f()

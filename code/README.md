@@ -3,7 +3,7 @@
 **Version:** 1.0.0  
 **Date:** 20 August 2026
 
-HEAL is a responsive static exhibition website for COMM2748 / Digital Specialisation 1 at RMIT University Vietnam. It presents four p5.js artworks as one sequential environmental journey:
+HEAL is a responsive static exhibition website for COMM2754 / Digital Media Specialisation 1 at RMIT University Vietnam. It presents four p5.js artworks as one sequential environmental journey:
 
 **HARM → EXHAUST → ADAPT → LIVEN**
 
@@ -77,11 +77,13 @@ The website navigation is keyboard accessible with Tab, Shift+Tab, Enter and Spa
 
 ### A — ADAPT
 
+- Select **START REGENERATION** to follow a guided clean-energy sequence.
 - Select **SUN** or **WIND** on the artwork, or press `1` / `2`.
-- Drag across the field and use both sources until recovery reaches 100%.
+- Drag across the field and use both sources; the visible recovery indicator tracks progress toward 100%.
 - Use the optional **SOUND** control for interaction and completion cues.
 - `R` resets the artwork.
 - `S` saves a PNG.
+- Once the connected clean-energy network is ready, select **CONTINUE TO LIVEN** to enter the final chapter.
 
 ### L — LIVEN
 
