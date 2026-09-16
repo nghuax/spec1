@@ -3,7 +3,8 @@
   if(parent === window || new URLSearchParams(location.search).get('exhibition') !== 'heal') return;
   const stage=location.pathname.split('/').at(-2);
   document.body.dataset.healEmbedded='true';
-  let ready=false,active=false,wantedMute=true,last='',timer=0,status='',mode='full';
+  document.body.dataset.healMode='off';
+  let ready=false,active=false,wantedMute=true,last='',timer=0,status='',mode='off';
   const emit = data => parent.postMessage(data,location.origin);
   const adaptCommand = (action,extra={}) => window.dispatchEvent(new CustomEvent('adapt:command',{detail:{action,...extra}}));
   function sceneBackground() {
@@ -102,7 +103,19 @@
     else if(data.action==='mute' && typeof data.muted==='boolean'){wantedMute=data.muted;mute(active && mode!=='preview'?wantedMute:true);publish(true);}
     else if(active && mode==='full') perform(data);
   });
+  // Record panel ownership before a source handler closes its dialog. Otherwise
+  // the same Escape can dismiss both an artwork panel and the installation.
+  const panelEscapes=new WeakSet();
   document.addEventListener('keydown',event=>{
+    if(event.key!=='Escape')return;
+    const panel=[...document.querySelectorAll('dialog[open],[role="dialog"]')].some(element=>{
+      const style=getComputedStyle(element);
+      return !element.hidden && style.display!=='none' && style.visibility!=='hidden';
+    });
+    if(panel)panelEscapes.add(event);
+  },true);
+  document.addEventListener('keydown',event=>{
+    if(event.defaultPrevented || panelEscapes.has(event))return;
     if(event.key==='Escape' && !document.querySelector('dialog[open]')) emit({type:'heal:escape'});
     else if(['PageDown','PageUp','ArrowDown','ArrowUp',' ','Home','End'].includes(event.key)
       && !event.ctrlKey && !event.metaKey && !event.altKey && !document.querySelector('dialog[open]')
@@ -129,9 +142,22 @@
       informationButton.elt.addEventListener('click',event=>{if(event.detail===0)setInformationPanelOpen(!informationPanelOpen);});
     }
     if(stage==='harm') {const button=document.getElementById('sound-button');if(button){button.disabled=true;button.title='Sound recordings were not included in this package.';}}
-    setActive(false);
+    setActive(false,'off');
+    startPublishing();
+  }
+  function startPublishing() {
+    clearInterval(timer);
     timer=setInterval(()=>{if(active)publish();},500);
   }
-  window.addEventListener('pagehide',()=>{clearTimeout(timer);clearInterval(timer);if(ready)setActive(false);},{once:true});
+  window.addEventListener('pagehide',()=>{
+    clearTimeout(timer);clearInterval(timer);
+    if(ready)setActive(false,'off');
+  });
+  window.addEventListener('pageshow',event=>{
+    if(!event.persisted)return;
+    if(!ready){boot();return;}
+    startPublishing();
+    emit({type:'heal:resume'});
+  });
   boot();
 })();

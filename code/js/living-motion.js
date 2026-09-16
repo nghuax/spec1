@@ -1,9 +1,10 @@
 /* Shared motion preference. System settings are the default; an explicit
    session choice lets the visitor preview or pause the exhibition shell. */
 export class MotionPreference {
-  constructor({ media = matchMedia('(prefers-reduced-motion: reduce)'), root = document.documentElement, storage = sessionStorage } = {}) {
+  constructor({ media = matchMedia('(prefers-reduced-motion: reduce)'), root = document.documentElement, storage } = {}) {
     this.media=media; this.root=root; this.storage=storage; this.listeners=new Set();
-    try { this.choice=storage.getItem('heal-motion'); } catch { this.choice=null; }
+    // Accessing the storage property itself can throw in restricted contexts.
+    try { this.storage ??= sessionStorage; this.choice=this.storage.getItem('heal-motion'); } catch { this.choice=null; }
     if(!['full','reduced'].includes(this.choice)) this.choice=null;
     this.sync();
     media.addEventListener('change',()=>{ if(!this.choice) this.sync(true); });

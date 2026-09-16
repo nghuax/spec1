@@ -9,6 +9,9 @@ function fixture(stage = 'liven') {
   const messages = [];
   const events = {};
   const keys = {};
+  const keyCaptures = {};
+  const panels = [];
+  const intervals = new Map(); let intervalId = 10;
   const calls = { loop: 0, stop: 0, reset: 0, drops: 0 };
   const parent = { postMessage: data => messages.push(data) };
   const pieces = ['solar', 'water', 'turbine'].map(kind => ({ kind, placed: false }));
@@ -29,8 +32,10 @@ function fixture(stage = 'liven') {
     resetScene: () => { calls.reset++;context.burnCount=0; },
     document: {
       body: { dataset: {} }, querySelector: selector => selector === 'canvas' ? {} : null,
-      getElementById: () => null, addEventListener: (name, fn) => { keys[name] = fn; }
+      querySelectorAll: () => panels,
+      getElementById: () => null, addEventListener: (name, fn, capture) => { (capture?keyCaptures:keys)[name] = fn; }
     },
+    getComputedStyle: element=>({display:element.hidden?'none':'block',visibility:'visible'}),
     window: { addEventListener: (name, fn) => { events[name] = fn; }, livenUI: { sync() {} } },
     noLoop: () => calls.stop++, loop: () => calls.loop++, frameRate: value=>calls.fps=value, stopAllSounds() {},
     toggleSoundMute: () => { context.soundMuted = !context.soundMuted; },
@@ -39,13 +44,14 @@ function fixture(stage = 'liven') {
     earthDisplayPoint: (x, y) => ({ x, y }), returnPieceToOrbit() {},
     tryRenewableDrop: piece => { calls.drops++; piece.placed = true; },
     regenerateScene: () => { calls.reset++; pieces.forEach(piece => { piece.placed = false; }); },
-    setInterval: () => 1, setTimeout: () => 2, clearInterval() {}, clearTimeout() {},
+    setInterval: fn => {intervals.set(++intervalId,fn);return intervalId;},
+    setTimeout: () => 2, clearInterval: id=>intervals.delete(id), clearTimeout() {},
   });
   vm.runInContext(source, context);
   function send(data, override = {}) {
     events.message({ origin: 'http://localhost', source: parent, data: { type: 'heal:command', ...data }, ...override });
   }
-  return { context, calls, send, messages, events, keys };
+  return { context, calls, send, messages, events, keys, keyCaptures, panels, intervals };
 }
 
 test('a prefetched artwork starts stopped and ignores foreign or unrelated messages', () => {
@@ -157,12 +163,12 @@ test('EXHAUST requires all 21 original pollution actions, then resets its counte
 
 test('a deliberate interaction can resume a paused visible artwork', () => {
   const f=fixture();
-  f.keys.pointerdown();
+  f.keyCaptures.pointerdown();
   assert.equal(f.messages.at(-1).type,'heal:interact');
   assert.equal(f.calls.loop,0,'Only the parent can authorize resuming');
   f.send({action:'activity',active:true});
   const count=f.messages.length;
-  f.keys.pointerdown();
+  f.keyCaptures.pointerdown();
   assert.equal(f.messages.length,count);
 });
 
@@ -182,4 +188,42 @@ test('fullscreen wheel stays with the installation rather than moving the catalo
   const f=fixture();f.send({action:'activity',active:true,mode:'full'});const count=f.messages.length;
   let prevented=false;f.events.wheel({deltaX:0,deltaY:120,deltaMode:0,target:{closest:()=>null},preventDefault(){prevented=true;}});
   assert.equal(f.messages.length,count);assert.equal(prevented,false);
+});
+
+test('cached navigation restores one publisher and requests current parent lifecycle without resetting progress',()=>{
+  const f=fixture();
+  f.send({action:'activity',active:true,mode:'full'});
+  f.send({action:'place',piece:'solar',slot:'solar'});
+  for(let visit=0;visit<2;visit++) {
+    f.events.pagehide({persisted:true});
+    assert.equal(f.intervals.size,0);
+    assert.equal(f.context.document.body.dataset.healActive,'false');
+    assert.equal(f.context.document.body.dataset.healMode,'off');
+    f.events.pageshow({persisted:true});
+    assert.equal(f.intervals.size,1);
+    assert.equal(f.messages.at(-1).type,'heal:resume');
+    assert.equal(f.context.document.body.dataset.healActive,'false','Wait for parent visibility/pause policy');
+    f.send({action:'activity',active:true,mode:'full'});
+    f.context.renewablePieces[1].placed=true;
+    for(const tick of f.intervals.values())tick();
+    assert.match(f.messages.at(-1).status,/Earth recovery: 67%/);
+    assert.equal(f.context.renewablePieces[0].placed,true);
+    assert.equal(f.calls.reset,0);
+  }
+});
+
+test('Escape closes an artwork panel before exiting the installation, including source handlers that hide it first',()=>{
+  const f=fixture();const panel={hidden:false};f.panels.push(panel);
+  const event={key:'Escape'};
+  const count=f.messages.length;
+  f.keyCaptures.keydown(event);
+  panel.hidden=true; // Original artwork handles the event.
+  f.keys.keydown(event);
+  assert.equal(f.messages.length,count);
+  const next={key:'Escape'};
+  f.keyCaptures.keydown(next);f.keys.keydown(next);
+  assert.equal(f.messages.at(-1).type,'heal:escape');
+  const handled={key:'Escape',defaultPrevented:true};
+  f.keyCaptures.keydown(handled);f.keys.keydown(handled);
+  assert.equal(f.messages.length,count+1);
 });

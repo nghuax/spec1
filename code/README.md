@@ -1,10 +1,12 @@
 # HEAL — Damage to Recovery
 
-Catalogue + optional installations · 15 September 2026
+Catalogue + optional installations · final refinement 16 September 2026
 
 Landing → HARM → EXHAUST → ADAPT → LIVEN → HEAL → ABOUT.
 
 Each chapter contains a stage title, short brief and live artwork preview. Click the preview to expand the original artwork into an optional fullscreen installation. Close or Esc returns to the same preview without resetting progress. Navigation and Next land on the complete chapter composition.
+
+The final audit removes duplicate preview badges, restores EXHAUST's instruction typography, corrects heading order and nested Escape handling, and hardens cached-navigation and storage-denial recovery. Exact chapter/CTA copy and original artwork logic are preserved. Run `node --test tests/*.test.cjs` from the repository root; the Pages workflow runs this suite before publishing. Current results and limitations are in repository-root `tests/production-qa.md`; older reports below describe earlier revisions.
 
 ## Run and host
 

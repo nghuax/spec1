@@ -8,11 +8,15 @@ export const stageBriefs = {
   liven: {statement:'Cleaner energy can reshape the places we call home.',body:'When renewable energy becomes part of our communities, recovery becomes something we can see, share and build on.',thread:'CLEAN ENERGY → STRONGER COMMUNITIES'}
 };
 
-export function introMarkup(stage,index) {
+export function briefMarkup(stage) {
   const brief=stageBriefs[stage.id];
   return `<div class="chapter-copy">
     <div class="stage-brief"><span class="brief-header-tab" aria-hidden="true"></span><span class="brief-corner-marks" aria-hidden="true"></span><h3>${brief.statement}</h3><p>${brief.body}</p><p class="stage-thread">${brief.thread}</p></div>
-  </div><div class="artwork-slot">
+  </div>`;
+}
+
+export function introMarkup(stage,index) {
+  return `<div class="artwork-slot">
     <span class="artwork-corner-accents" aria-hidden="true">
       <svg class="frame-shard frame-shard-top" viewBox="0 0 160 100" focusable="false"><path class="shard-muted" d="M0 26 111 49 53 52Z"/><path class="shard-main" d="m61 17 83 15 13 64-46-47Z"/><path class="shard-light" d="m61 17 50 32 33-17Z"/><path class="shard-dark" d="m111 49 46 47-13-64Z"/></svg>
       <svg class="frame-shard frame-shard-right" viewBox="0 0 160 130" focusable="false"><path class="shard-muted" d="m3 103 72-30 78-66-35 111Z"/><path class="shard-main" d="m3 103 57-43 22 31 36 27Z"/><path class="shard-light" d="m75 73 78-66-35 60-36 24Z"/><path class="shard-dark" d="m82 91 36-24 0 51Z"/><path class="shard-deep" d="m3 103 57-43 22 31Z"/></svg>

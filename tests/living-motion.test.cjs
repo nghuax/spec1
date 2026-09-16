@@ -32,6 +32,17 @@ test('storage denial and invalid values preserve functionality and safe defaults
   assert.equal(fixture({saved:'invalid'}).preference.matches,true);
 });
 
+test('a denied sessionStorage getter cannot prevent the exhibition from initializing',()=>{
+  const env={};
+  Object.defineProperty(env,'sessionStorage',{get(){throw new Error('SecurityError');}});
+  const context=vm.createContext(env);vm.runInContext(source,context);
+  let preference;
+  assert.doesNotThrow(()=>{preference=new context.MotionPreference({media:{matches:true,addEventListener(){}},root:{dataset:{}}});});
+  assert.equal(preference.matches,true);
+  assert.doesNotThrow(()=>preference.toggle());
+  assert.equal(preference.matches,false);
+});
+
 test('a delayed explicit reset is accepted while settling and restores the suspended lifecycle',()=>{
   const journey=fs.readFileSync('code/js/journey.js','utf8');
   const helper=journey.slice(journey.indexOf('function performCommand('),journey.indexOf('function activity('));

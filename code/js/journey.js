@@ -3,7 +3,7 @@ import { healMark } from './heal-mark.js';
 import { endings } from './artwork-endings.js';
 import { SectionScroll } from './section-scroll.js';
 import { MotionPreference, LivingMotion } from './living-motion.js';
-import { introMarkup, StageIntros } from './stage-intros.js';
+import { introMarkup, briefMarkup, StageIntros } from './stage-intros.js';
 import { Installation } from './installation.js';
 import { LogoFlight } from './logo-flight.js';
 
@@ -42,7 +42,7 @@ document.querySelector('[data-chapters]').innerHTML = stages.map((stage,i) => `
       </div>
     </dialog>
     <button class="preview-trigger" aria-label="Open ${stage.title} artwork in fullscreen"><span class="preview-hover-label" aria-hidden="true">CLICK TO EXPERIENCE</span></button>
-    </div></div>
+    </div>${briefMarkup(stage)}</div>
   </section>`).join('');
 
 const sections = [...document.querySelectorAll('[data-section]')];
@@ -348,6 +348,11 @@ window.addEventListener('message', event => {
     frame.motionPaused=false;
     const pause=frame.section.querySelector('[data-action="pause"]');
     pause.textContent='PAUSE';pause.setAttribute('aria-pressed','false');activity(frame);
+  } else if(data?.type === 'heal:resume') {
+    // A cached iframe may restore after the parent pageshow event. Handshake
+    // again so the current visibility, pause and fullscreen state always wins.
+    frame.active=null;
+    activity(frame);
   } else if(data?.type === 'heal:escape') {
     if(installation.frame===frame)installation.close();
   } else if(data?.type === 'heal:wheel' && Number.isFinite(data.deltaY)) {
@@ -356,7 +361,15 @@ window.addEventListener('message', event => {
     // Page-scroll keys cannot move the catalogue behind an installation.
   } else if(data?.type === 'adapt:continue' && installation.frame===frame) navigate('liven');
 });
-window.addEventListener('pagehide',()=>frames.forEach(f=>command(f,'activity',{active:false})));
+window.addEventListener('pagehide',()=>frames.forEach(frame=>{
+  command(frame,'activity',{active:false,mode:'off'});
+  frame.active=null;
+}));
+window.addEventListener('pageshow',event=>{
+  if(!event.persisted)return;
+  measure();
+  frames.forEach(frame=>{frame.active=null;activity(frame);});
+});
 measure();
 requestAnimationFrame(()=>{
   state.initializing=false;

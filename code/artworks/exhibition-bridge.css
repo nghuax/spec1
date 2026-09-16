@@ -1,4 +1,9 @@
 /* Integration-only controls: authored canvas compositions remain intact. */
+/* The catalogue supplies its own corner pin. Keep the source badge only when
+   entering the installation; standalone artwork styling is unaffected. */
+body[data-heal-embedded]:not([data-heal-mode="full"]) :is(.stage2-badge-layer,.stage2-badge-title,.stage2-badge-stage,.badge-layer,.badge-title,.badge-stage,#liven-ui .badge) {
+  visibility:hidden;
+}
 body[data-heal-embedded] button:focus-visible,
 body[data-heal-embedded] input:focus-visible,
 body[data-heal-embedded] canvas:focus-visible {
@@ -20,7 +25,7 @@ body[data-heal-embedded] #air-load-value { font-size: 1.78cqw; }
 body[data-heal-embedded] .air-load-hud__label { font-size: .73cqw; padding-bottom: .26cqw; }
 body[data-heal-embedded] .air-load-hud__caption { font-size: .57cqw; margin-top: .417cqw; }
 body[data-heal-embedded] .air-load-hud__track { height: .26cqw; margin-top: .52cqw; }
-body[data-heal-embedded] .stage2-subtitle-text { font-size: 1.02cqw; }
+body[data-heal-embedded] #canvas-holder .stage2-subtitle-text { font-size: 1.02cqw; }
 
 /* ADAPT keeps its authored UI proportions inside the fitted landscape viewport.
    Large accessible equivalents remain available from the exhibition controls. */
