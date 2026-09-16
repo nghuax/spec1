@@ -1,0 +1,147 @@
+/* Fullscreen exhibition: source artboards stay 1920 × 1080, including their UI. */
+:root {
+  --nav-height: clamp(64px, 4.6vw, 88px);
+  --art-top: calc(var(--nav-height) + 4px);
+  --art-bottom: 4px;
+  --art-right: 64px;
+  --viewport-height: 100vh;
+}
+@supports (height: 100dvh) { :root { --viewport-height: 100dvh; } }
+body { isolation: isolate; }
+main { position: relative; }
+.journey-nav { background: transparent; pointer-events: none; color: var(--white); }
+.journey-nav :is(a,b,span) { color: inherit; }
+.journey-nav a { pointer-events: auto; }
+.journey-nav nav { text-shadow: 0 1px 2px #0009; }
+.journey-nav nav a::after { background: currentColor; }
+/* Navigation belongs to the catalogue shell, independent of iframe lightSurface. */
+.nav-brand { max-height: calc(var(--nav-height) - 12px); }
+.nav-brand svg { max-height: calc(var(--nav-height) - 12px); }
+.journey-rail { pointer-events: none; }
+.journey-rail a { pointer-events: auto; }
+.journey-rail a::before { outline: 1px solid #ffffff70; }
+
+.chapter {
+  height: var(--viewport-height);
+  min-height: var(--viewport-height);
+  width: 100%;
+  position: relative;
+  overflow: clip;
+  background: #08090d;
+  scroll-snap-align: none;
+  scroll-margin-top: 0;
+  isolation: isolate;
+}
+#exhaust { background: #05051c; }
+#adapt { background: #05051c; }
+#liven { background: #05051c; }
+.chapter-inner {
+  position: relative;
+  inset: auto;
+  padding: 0;
+  height: 100%;
+  min-height: 0;
+  display: block;
+}
+.artwork-frame {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+  background: transparent;
+  aspect-ratio: auto;
+  overflow: visible;
+  touch-action: pan-y;
+}
+.artwork-viewport {
+  position: absolute;
+  inset: var(--art-top) var(--art-right) var(--art-bottom) 0;
+  display: grid;
+  place-items: center;
+}
+.artwork-frame iframe {
+  position: static;
+  width: var(--art-width, 100%); height: var(--art-height, 100%);
+  max-width: none; max-height: none;
+  transform: none;
+  border: 0;
+}
+.artwork-loading,.artwork-error { z-index: 2; }
+.artwork-loading { background: #08090d; }
+
+/* Optional interaction controls, collapsed during the artwork experience. */
+.artwork-tools { position: absolute; z-index: 8; left: 12px; bottom: calc(var(--art-bottom) + 8px); color: #fff; }
+.artwork-tools summary { width: 44px; height: 44px; padding: 10px; list-style: none; cursor: pointer; }
+.artwork-tools summary::-webkit-details-marker { display: none; }
+.artwork-tools summary svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.5; filter: drop-shadow(0 1px 1px #000); }
+.artwork-tools[open] summary { background: var(--blue); }
+.artwork-tools-panel {
+  position: absolute; left: 0; bottom: 52px;
+  width: min(460px, calc(100vw - 32px));
+  max-height: calc(var(--viewport-height) - var(--art-top) - var(--art-bottom) - 68px);
+  overflow: auto; padding: 18px;
+  background: #101018; border-top: 4px solid var(--blue);
+  box-shadow: 6px 6px 0 #000;
+}
+.artwork-tools .chapter-actions,.artwork-tools .keyboard-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; color: #fff; }
+.artwork-tools .keyboard-controls { margin-top: 14px; }
+.artwork-tools button,.artwork-tools select,.artwork-tools a {
+  padding: 10px; min-height: 44px; border: 1px solid #ffffff66; color: #fff;
+  background: #101018; font-size: 12px; font-weight: 600;
+}
+.artwork-tools button:hover,.artwork-tools a:hover { background: var(--blue); }
+.artwork-tools output { display: block; margin-top: 14px; font-size: 13px; }
+
+/* Offset plates reference the existing HEAL chapter labels; no modal backdrop. */
+.artwork-ending {
+  position: absolute; z-index: 7;
+  left: calc((100% - var(--art-right)) / 2); top: 52%;
+  transform: translate(-50%, -50%);
+  width: min(440px, calc(100% - 48px));
+  padding: 24px 28px 18px;
+  color: #fff; text-align: center; pointer-events: none;
+  animation: ending-arrive .4s var(--ease) both;
+  isolation: isolate;
+}
+.artwork-ending::before,.artwork-ending::after { content: ''; position: absolute; inset: 0; z-index: -1; }
+.artwork-ending::before { background: #000; transform: translate(7px, 7px) rotate(1deg); }
+.artwork-ending::after { background: var(--blue); clip-path: polygon(1% 3%, 100% 0, 98% 98%, 0 100%); }
+.ending-message { font-size: clamp(20px, 1.7vw, 30px); line-height: 1.12; font-weight: 700; }
+.ending-detail { margin-top: 12px; font-size: 15px; line-height: 1.4; }
+.ending-actions { display: flex; justify-content: center; gap: 32px; margin-top: 16px; }
+.ending-actions button,.ending-actions a {
+  pointer-events: auto; display: inline-flex; align-items: center; gap: 14px;
+  min-height: 44px; padding: 6px 0; border: 0; border-bottom: 1px solid #ffffff88;
+  color: #fff; background: transparent; font-size: 14px; font-weight: 600;
+}
+.ending-actions button:hover,.ending-actions a:hover { border-color: #fff; }
+.artwork-ending:focus { outline: none; }
+.ending-below-art .artwork-ending { top: var(--ending-top); transform: translateX(-50%); }
+@keyframes ending-arrive { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+
+@media (min-width: 701px) {
+  .angled-label { scale: .78; transform-origin: center; }
+  .label-harm { left: 13.6%; top: 58%; }
+  .label-exhaust { left: 32%; top: 54%; }
+  .label-adapt { left: 51.5%; top: 51%; }
+  .label-liven { left: 70.5%; top: 48%; }
+}
+@media (max-width: 1000px) { :root { --art-right: 52px; } }
+@media (max-width: 700px) {
+  :root { --art-top: calc(var(--nav-height) + env(safe-area-inset-top) + 4px); --art-bottom: calc(52px + env(safe-area-inset-bottom)); --art-right: 0px; }
+  .journey-nav { padding-top: calc(6px + env(safe-area-inset-top)); }
+  .journey-rail { background: transparent; }
+  .artwork-ending { left: 50%; top: 52%; padding: 22px 22px 16px; }
+  .angled-label { scale: .88; }
+}
+@media (max-height: 500px) and (min-width: 701px) {
+  :root { --nav-height: 54px; --art-right: 50px; }
+  .nav-brand { width: 116px; }
+  .journey-rail { height: calc(100dvh - 96px); }
+  .journey-nav nav { gap: 16px; }
+  .journey-rail { top: calc(var(--nav-height) + 20px); transform: none; }
+  body.exhibition-entered .journey-rail { transform: none; }
+  .artwork-ending { width: min(330px, calc(100% - 80px)); padding: 16px 20px 12px; }
+  .ending-message { font-size: 18px; }
+  .ending-actions { margin-top: 10px; }
+}
+

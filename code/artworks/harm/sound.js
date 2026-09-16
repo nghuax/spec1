@@ -17,6 +17,9 @@
   'use strict';
 
   const SOUND_ROOT = '../designed-sounds/';
+  // Integration manifest: the supplied HARM package omits all six recordings.
+  // Set to true after placing those original recordings in SOUND_ROOT.
+  const RECORDINGS_AVAILABLE = false;
   const FILES = {
     mouseclick: 'COMM2754-2026-S3936790-A2w09-Heal-Mouseclickwav.wav',
     microwave: 'COMM2754-2026-S3936790-A2w09-Heal-Microwave.wav',
@@ -102,6 +105,7 @@
   }
 
   function buildClips() {
+    if (!RECORDINGS_AVAILABLE) return;
     Object.entries(FILES).forEach(([key, file]) => {
       const audio = new Audio(SOUND_ROOT + file);
       audio.preload = 'auto';
@@ -478,6 +482,7 @@
   }
 
   function setMuted(next) {
+    if (!RECORDINGS_AVAILABLE) next = true;
     state.muted = Boolean(next);
     storage.set('harmSoundV8Muted', state.muted ? '1' : '0');
     if (state.muted) stopAll(false);
@@ -507,7 +512,7 @@
   function restoreSettings() {
     // The old MUTE control was removed from the UI. Always start audible so a
     // previously-saved muted state cannot leave the new single SOUND button silent.
-    state.muted = false;
+    state.muted = !RECORDINGS_AVAILABLE;
     storage.set('harmSoundV8Muted', '0');
     try {
       const saved = JSON.parse(storage.get('harmSoundV8Levels') || '{}');
@@ -528,6 +533,8 @@
 
     if (settings) settings.hidden = !state.settingsOpen;
     if (soundButton) {
+      soundButton.disabled = !RECORDINGS_AVAILABLE;
+      if (!RECORDINGS_AVAILABLE) soundButton.setAttribute('aria-label', 'Sound unavailable — original recordings not supplied');
       soundButton.setAttribute('aria-expanded', state.settingsOpen ? 'true' : 'false');
       soundButton.setAttribute('data-tooltip', state.muted
         ? (state.settingsOpen ? 'Muted · close sound mix' : 'Muted · open sound mix')
@@ -600,7 +607,7 @@
 
   restoreSettings();
   buildClips();
-  state.atmosphereTimer = setInterval(updateSmokeBed, 100);
+  if (RECORDINGS_AVAILABLE) state.atmosphereTimer = setInterval(updateSmokeBed, 100);
 
   window.HarmSound = {
     cues,

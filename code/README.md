@@ -1,153 +1,85 @@
-# HEAL
+# HEAL — Damage to Recovery
 
-**Version:** 1.0.0  
-**Date:** 20 August 2026
+Catalogue + optional installations · 15 September 2026
 
-HEAL is a responsive static exhibition website for COMM2754 / Digital Media Specialisation 1 at RMIT University Vietnam. It presents four p5.js artworks as one sequential environmental journey:
+Landing → HARM → EXHAUST → ADAPT → LIVEN → HEAL → ABOUT.
 
-**HARM → EXHAUST → ADAPT → LIVEN**
+Each chapter contains a stage title, short brief and live artwork preview. Click the preview to expand the original artwork into an optional fullscreen installation. Close or Esc returns to the same preview without resetting progress. Navigation and Next land on the complete chapter composition.
 
-One connected journey from damage to recovery.
+## Run and host
 
-## Project description
+Serve this directory with any static HTTP server, for example `python -m http.server 8137` from `code/`. Open `http://localhost:8137/`. JavaScript modules require HTTP; opening the HTML through `file://` is unsupported.
 
-The experience moves from the consequences of traditional energy, through pollution and environmental exhaustion, toward renewable adaptation and recovery. Each artwork remains an independently runnable p5.js package and is loaded into its chapter page through a same-origin iframe.
+Publish the contents of `code/` to GitHub Pages or another static host. The repository's existing Pages workflow already uses `code/`. All site and artwork paths are relative, including when hosted under a repository subpath. There is no build step, backend, framework, database or external runtime request. GitHub Pages publishes this directory when main is updated.
 
-No stock media, externally hosted fonts, analytics, framework, backend, database or build process is used. Stack Sans Notch is self-hosted under the SIL Open Font License 1.1. All visual material is typography, CSS geometry or artwork produced inside the supplied p5.js sketches.
+## Editable implementation
 
-## Website structure
+- `index.html`: semantic opening, navigation, six-node progress rail, conclusion and About.
+- `css/journey.css`: Figma colours, geometry, spacing, typography and responsive rules.
+- `css/fullscreen.css`: viewport chapters, transparent navigation, proportional fitting, floating geometry and endings.
+- `js/artwork-endings.js`: editable completion messages; add one or two lines through each `detail` field.
+- `js/heal-mark.js`: inline, editable SVG paths from Figma node 19:479.
+- `js/journey.js`: chapter rendering, anchors, active navigation, scroll progress, lazy loading and controls.
+- `js/section-scroll.js`: shared magnetic section controller for manual scrolling, anchors and Next.
+- `js/stage-intros.js` and `css/stage-intros.css`: brief copy, pinned title composition, scroll-driven zoom/reveal and one resting composition per chapter.
+- `js/motion.js`: continuous section interpolation, velocity tangent and distance-based timing.
+- `css/motion.css`: shared UI timing/easing, layered button feedback, navigation presence and completion departure.
+- `js/exhibition-content.js`: shared artwork titles and author credits.
+- `artworks/exhibition-bridge.js` and `.css`: same-origin integration adapters. They run only with `?exhibition=heal`.
+- `artworks/{harm,exhaust,adapt,liven}/`: isolated original p5 worlds, assets and interfaces; each `index.html` also runs independently.
+- `works/*.html` and `about.html`: compatibility redirects into the continuous exhibition.
 
-- `index.html` — HEAL introduction and chapter sequence
-- `works/harm.html` — HARM chapter and industrial-energy artwork
-- `works/exhaust.html` — EXHAUST chapter and pollution artwork
-- `works/adapt.html` — ADAPT chapter and ADAPTS artwork
-- `works/liven.html` — LIVEN chapter and renewable-energy puzzle
-- `about.html` — shared concept, four stages, visual identity and licences
-- `css/` — reset, variables, global layout, homepage and artwork styles
-- `js/content.js` — canonical project and chapter content
-- `js/navigation.js` — persistent navigation and footer
-- `js/site.js` — page rendering, artwork loading states and progressive reveal
-- `artworks/` — four isolated p5.js packages
-- `assets/fonts/` — self-hosted Stack Sans Notch variable font and OFL licence
+Older shell modules and source directories remain for reference but are not loaded by the final entry point.
 
-## How to run
+## Sources and visual specification
 
-The site uses JavaScript modules, so it must be served through HTTP.
+Figma `0Lq7wYIzEhyDNLO5r8iFDj`: MAIN SITE 1:3, COMPONENT 19:560, Navigation Bar 19:509, SCROLLING BAR 30:617, TEST ZONE 19:561 and ARTWORK SCREENSHOT 19:562. The opening uses the original custom vector letterforms, angled CSS labels, #d26c00 orange, #1d39b7 blue, and self-hosted Stack Sans Notch. No Figma screenshot is used by the site.
 
-1. Open a terminal inside the `code` directory.
-2. Start any standard static web server, for example:
+The authoritative artwork sources are under `HEAL-Latest-2026-09-10/UPDATES`: STAGE 1 - HARM.zip, STAGE 2 - EXHAUST.zip, the newer unpacked STAGE 3 - ADAPT folder, and STAGE 4 - LIVEN.zip. ADAPT's sketch and environment pack replace the older repository variant. HARM, EXHAUST and LIVEN sketches already matched these updates. Original UPDATES folders and archives remain intact.
 
-   ```bash
-   python -m http.server 8000
-   ```
+Source hashes, extracted references, Figma measurements, the pre-integration backup and QA evidence are in `design-audit/final-heal/` at repository root. `source-manifest.json` records the source versions before integration edits.
 
-3. Open `http://localhost:8000/index.html` in a browser.
+## Interaction and accessibility
 
-Do not open the site directly with a `file://` URL.
+The catalogue uses one magnetic anchor per chapter. A chapter shows its title, brief and real p5 preview together. Primary interaction is reserved for fullscreen, entered with the transparent preview button (Enter/Space supported). A native modal dialog expands the same iframe without reparenting/reloading, isolates focus and suspends background scrolling. Close/Esc restores the preview trigger; Next closes before navigating. The current visible preview runs muted at 24fps; other previews pause. Fullscreen restores normal source frame rates and interaction.
 
-## How to navigate
+At a chapter anchor, vertical wheel input accumulates to a viewport-dependent 54–108px release threshold; editorial anchors use 28px. Accepted intent starts a continuous trajectory immediately, without a raw wheel jump or delayed second acceleration. Native touch/keyboard movement can hand off to proximity settling (32% artwork / 22% editorial range) after movement ends. The curve carries compatible current velocity into a brief acceleration and long gentle deceleration. Distance and velocity determine timing: roughly 280–440ms for small corrections, 650–750ms for adjacent travel, and up to 940ms for long navigation. Strong input retimes or reverses the current trajectory without queuing destinations. Bounds are cached and one requestAnimationFrame loop owns programmed travel. Previews keep their last composition while rendering pauses during page travel, then resume at rest. The URL changes at settlement; navigation and the progress rail follow actual visible overlap.
 
-- Select **ENTER THE JOURNEY** on the homepage to begin with HARM.
-- Use the persistent H / E / A / L chapter navigation to move directly between works.
-- Each work page includes journey progress and previous/next navigation.
-- On mobile, select **MENU** to open the full chapter navigation. Press Escape to close it.
-- After LIVEN, **COMPLETE THE JOURNEY** opens the About page.
+Catalogue touch scrolling is not intercepted: settling waits for touch release and the end of momentum. In fullscreen, canvas gestures remain owned by the source sketches and cannot move the background catalogue. Longer editorial sections retain a freely readable internal scroll range. Browser keyboard scrolling remains available, and page-scroll keys inside non-scrolling artwork iframes are relayed to the controller. Forms, sliders, buttons, dialogs, horizontal wheel input and pinch zoom retain their own behaviour. Reduced motion keeps functional settling with immediate alignment.
 
-The website navigation is keyboard accessible with Tab, Shift+Tab, Enter and Space. Keyboard input inside a focused artwork iframe is handled by that artwork.
+All four UPDATES artworks use a 1920 × 1080 coordinate system. The site measures the available viewport after a small navigation/rail safe area and fits a 16:9 iframe at `min(availableWidth/1920, availableHeight/1080)`. Each source retains its native proportional canvas scaling and pointer mapping. Compact HARM/ADAPT DOM controls receive scoped scaling corrections. The full composition stays visible at normal browser zoom; unused portrait space remains available for scrolling. Background colour follows the source artwork behind transparent navigation.
 
-## Artwork controls
+Sound starts off. A small keyboard icon opens pause, fullscreen, reset, information and equivalent keyboard/touch controls on demand. Native artwork interactions and artwork text remain intact. Escape closes this menu; Escape from an artwork focuses its menu button. The surrounding website captions and instruction bars are removed.
 
-### H — HARM
+The ending adapter uses HARM's `MACHINE_SOUND_COMPLETE_BURNS` (20, matching the source full machine indicator and completion cue), EXHAUST's original capped 21-action destruction counter, ADAPT's completed state plus actual `globalRecovery === 1`, and LIVEN's original `earthIsRestored()`. No ending uses a website timer or scroll position. Completion reveals a focused, announced geometric message with Restart/Next while keeping natural scrolling available. On tall portrait screens the message moves below the complete artwork when space permits.
 
-- Click a coal piece to burn it.
-- Drag coal into the hopper to burn it.
-- Hover over a formed house or factory to create demand.
-- Move the pointer to influence the shared air field.
-- Use **MIX** to adjust the six semantic sound channels.
-- `M` mutes or unmutes the artwork.
-- `R` resets the artwork.
-- `S` saves a PNG.
+Restart invokes `resetScene`, `regenerateArtwork`, ADAPT's reset command, or `regenerateScene` respectively. In ADAPT, Reset preserves the author's guided recovery behaviour; supplying SUN or WIND takes manual control. Next uses the same in-page navigation, ending at HEAL after LIVEN. The adapter does not change source gameplay or original completion rules.
 
-### E — EXHAUST
+Reduced motion removes floating geometry and interface transitions and opens artworks as still compositions. The PLAY ARTWORK control or a deliberate interaction resumes the current artwork. Mobile keeps the authored landscape composition, provides large controls in the optional menu, and uses the same progress diamonds horizontally. Browser fullscreen is optional; browser zooming is never required for fitting.
 
-- Press the central **FOSSIL ENERGY** control to launch guided pollutant particles at the floating natural forms.
-- Select **!** or press `I` for project information; press Escape to close it.
-- Use **MUTE** to control the generative ambience.
-- `R` regenerates the artwork.
+## Known source limitation
 
-### A — ADAPT
+The six HARM recordings referenced by the newest package were not supplied in any project folder. The visual artwork works, and sound is explicitly unavailable without failed requests or replacement audio. See `artworks/designed-sounds/README.md` for the exact filenames. To restore the original sound, add all six recordings there, set `RECORDINGS_AVAILABLE` in `artworks/harm/sound.js` to true, and update HARM's availability/mute guard in `artworks/exhibition-bridge.js`.
 
-- Select **START REGENERATION** to follow a guided clean-energy sequence.
-- Select **SUN** or **WIND** on the artwork, or press `1` / `2`.
-- Drag across the field and use both sources; the visible recovery indicator tracks progress toward 100%.
-- Use the optional **SOUND** control for interaction and completion cues.
-- `R` resets the artwork.
-- `S` saves a PNG.
-- Once the connected clean-energy network is ready, select **CONTINUE TO LIVEN** to enter the final chapter.
+## Credits and validation
 
-### L — LIVEN
+RMIT COMM2754 — Digital Media Specialisation 1. HARM: Ngo Dac Phu; EXHAUST: Luong Duc Hung; ADAPT: Nguyen Gia Toan Phu Nghia; LIVEN: Nguyen Tran Phuc Duong. Member-to-chapter credits follow the supplied group documentation. About links SDG 7 to the United Nations source.
 
-- Drag renewable-energy pieces into the matching Earth slots.
-- Trash pieces can be moved but cannot restore the planet.
-- `R` regenerates the scene.
-- `S` saves a PNG.
+See `THIRD-PARTY-LICENSES.md` for dependency/font licences and repository-root `design-qa.md` for the final visual and functional checks. Fullscreen revision screenshots, viewport measurements, comparisons and the previous QA report are in repository-root `design-audit/fullscreen/`.
 
-## Browser requirements
+Magnetic-scroll checks and limitations are recorded in `design-audit/magnetic-scroll/qa-report.md` at repository root. Native touch injection is unavailable in the preview browser: touch lifecycle/momentum were simulated, with no physical phone, Windows Precision Touchpad or Mac trackpad claim. All four Next links were exercised with temporary completion fixtures; source completion thresholds remain covered by the bridge tests.
 
-Use a current version of Chrome, Edge, Firefox or Safari with JavaScript enabled. The layout supports desktop, laptop, tablet and mobile viewports in portrait and landscape. Reduced-motion preferences are respected.
+Motion-polish evidence, reference study and performance limits: `design-audit/motion-polish/qa-report.md` at repository root. 54 targeted tests pass. The source reference uses fixed overlapping pages; HEAL preserves continuous fullscreen scrolling and its own visual design.
 
-## Directory structure
 
-```text
-code/
-├── index.html
-├── about.html
-├── README.md
-├── LICENSE
-├── THIRD-PARTY-LICENSES.md
-├── works/
-│   ├── harm.html
-│   ├── exhaust.html
-│   ├── adapt.html
-│   └── liven.html
-├── css/
-│   ├── reset.css
-│   ├── variables.css
-│   ├── site.css
-│   ├── home.css
-│   └── artwork.css
-├── js/
-│   ├── content.js
-│   ├── navigation.js
-│   └── site.js
-├── artworks/
-│   ├── harm/
-│   ├── exhaust/
-│   ├── adapt/
-│   └── liven/
-└── assets/
-```
+## Living motion system
 
-## Content configuration
+`js/living-motion.js` and `css/living-motion.css` provide 12 original HEAL-derived geometric fragments (six on phones), independent drift, bounded scroll response, a staged logo entrance, grouped HEAL/About reveals, and sequenced completion actions. One section controller still owns all page settling; no extra animation library or native mandatory snap was added.
 
-Canonical shared copy and artwork controls live in `js/content.js`. The following fields intentionally remain empty because final information was not supplied:
+MOTION ON/OFF follows the system preference until the visitor explicitly chooses a mode for the session. Reduced motion stops continuous motion and shows all reveal content. Restart commands remain reliable when the source is temporarily suspended during settling. See the living-exhibition section in `design-qa.md` for validation and limits.
 
-- `project.quote`
-- `project.callToAction`
-- `project.members`
-- `project.credits`
-- each chapter's `credit`
+## Catalogue and installation implementation
 
-Empty fields are omitted from production rendering. Add approved final content to these fields before submission; do not add placeholder copy directly to the HTML pages.
+`js/stage-intros.js` now provides concise brief copy, one chapter stop, and the approach reveal. `css/stage-intros.css` lays out title, brief and preview together; `js/installation.js` manages native-dialog expansion/return, scroll isolation and focus. The preview iframe stays in its original DOM position throughout.
 
-## Third-party and open-source code
-
-The artwork packages use local copies of p5.js, and the full system uses a local copy of Stack Sans Notch. Versions and licensing are listed in `THIRD-PARTY-LICENSES.md`. The website does not require an internet connection during normal use.
-
-## Licence
-
-The website code is provided under the GNU General Public License version 3. See `LICENSE`. Third-party libraries remain under their respective licences.
-
-## Credits
-
-Group member names, student numbers and final individual artwork credits were not supplied and are therefore not displayed. Add approved credits through `js/content.js` before final submission.
+The chapter fills at least one dynamic viewport. Smaller screens may scroll internally to preserve readable type and the complete preview. Fullscreen uses the full browser viewport with proportional artwork fitting and clear Close/controls; optional browser-level fullscreen is not required. Reduced motion uses a static chapter composition and a short installation fade. Evidence: repository-root `design-audit/catalogue-installations/`. 71 targeted checks pass.

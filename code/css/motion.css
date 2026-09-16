@@ -1,0 +1,108 @@
+/* HEAL motion: existing offset plates, letterforms and diamond geometry. */
+:root {
+  --ease-fast: cubic-bezier(.2,.8,.3,1);
+  --ease-ui: cubic-bezier(.25,.9,.3,1);
+  --motion-press: 120ms;
+  --motion-fast: 180ms;
+  --motion-medium: 240ms;
+  --motion-slow: 360ms;
+}
+
+/* Translate layers independently; preserve each authored angle and scale. */
+.scroll-hint {
+  position:absolute;left:50%;top:-18px;transform:translateX(-50%);
+  white-space:nowrap;color:#d8dcff;opacity:.75;
+  font-size:clamp(11px,.85vw,13px);font-weight:450;line-height:1.3;letter-spacing:.025em;
+}
+.enter-arrow svg { animation:scroll-invitation 3.2s ease-in-out infinite; }
+@keyframes scroll-invitation {
+  0%,100% { transform:translateY(-2px);opacity:.75; }
+  55% { transform:translateY(5px);opacity:1; }
+  80% { transform:translateY(7px);opacity:.55; }
+}
+.motion-suspended .enter-arrow svg { animation-play-state:paused; }
+@media(prefers-reduced-motion:reduce) {
+  html:not([data-motion="full"]) .enter-arrow svg { animation:none; }
+}
+.angled-label span,.angled-label::before,.angled-label::after {
+  transition: translate var(--motion-medium) var(--ease-ui);
+}
+.angled-label span,.angled-label:hover span { transform: rotate(var(--label-angle,-7.17deg)); }
+@media (min-width:701px) { .label-liven { --label-angle: -6.53deg; } }
+.angled-label:focus-visible span { translate: 2px -3px; }
+.angled-label:focus-visible::before { translate: 3px 2px; }
+.angled-label:focus-visible::after { translate: -2px -1px; }
+
+.journey-nav {
+  transition: opacity var(--motion-slow) var(--ease-ui), transform var(--motion-slow) var(--ease-ui), visibility var(--motion-slow);
+}
+.journey-nav nav a,.nav-brand,.enter-arrow,.text-link,.group-list a,
+.artwork-tools :is(button,a,summary),.ending-actions :is(a,button) {
+  transition: translate var(--motion-fast) var(--ease-fast), color var(--motion-medium) var(--ease-ui),
+    background-color var(--motion-medium) var(--ease-ui), border-color var(--motion-medium) var(--ease-ui);
+}
+.journey-nav nav :is(b,span) {
+  transition: translate var(--motion-medium) var(--ease-ui), opacity var(--motion-medium) var(--ease-ui);
+}
+.journey-nav nav a::after,.journey-nav nav a[aria-current]::after {
+  transform: scaleX(var(--chapter-presence,0));
+  transition: transform var(--motion-fast) var(--ease-ui);
+}
+.journey-nav nav a:focus-visible::after { transform: scaleX(1); }
+.journey-nav nav a:focus-visible span { translate: 2px 0; }
+.journey-nav nav a:focus-visible b { translate: 0 -2px; }
+
+/* The line uses actual page progress without another lagging animation loop. */
+.rail-line>span { transition: none; }
+.journey-rail a::before { transition: translate var(--motion-fast) var(--ease-fast); }
+.journey-rail a::after {
+  transition: background-color var(--motion-medium) var(--ease-ui), scale var(--motion-medium) var(--ease-ui);
+}
+.journey-rail a[aria-current]::after { scale: 1.06; }
+.journey-rail a:focus-visible::before { translate: 0 -2px; }
+.journey-rail a span { transition: opacity var(--motion-fast) var(--ease-ui), translate var(--motion-fast) var(--ease-ui); }
+
+.ending-actions :is(a,button) span {
+  display: inline-block;
+  transition: translate var(--motion-medium) var(--ease-ui), rotate var(--motion-medium) var(--ease-ui);
+}
+.ending-actions a:focus-visible span { translate: 0 4px; }
+.ending-actions button:focus-visible span { rotate: -18deg; }
+.artwork-ending {
+  animation-duration: var(--motion-slow);
+  animation-timing-function: var(--ease-ui);
+  transition: opacity var(--motion-medium) var(--ease-ui), translate var(--motion-medium) var(--ease-ui);
+}
+.chapter.is-departing .artwork-ending {
+  animation: none;
+  opacity: 0;
+  translate: 0 -6px;
+  pointer-events: none;
+}
+.chapter.is-departing .ending-actions :is(a,button) { pointer-events: none; }
+
+@media (hover:hover) and (pointer:fine) {
+  .angled-label:hover span { translate: 2px -3px; }
+  .angled-label:hover::before { translate: 3px 2px; }
+  .angled-label:hover::after { translate: -2px -1px; }
+  .journey-nav nav a:hover::after { transform: scaleX(1); }
+  .journey-nav nav a:hover span { translate: 2px 0; }
+  .journey-nav nav a:hover b { translate: 0 -2px; }
+  .nav-brand:hover { translate: 0 -2px; }
+  .enter-arrow:hover { transform: none; translate: 0 4px; }
+  .text-link:hover,.group-list a:hover { translate: 2px 0; }
+  .journey-rail a:hover::before { translate: 0 -2px; }
+  .artwork-tools :is(button,a,summary):hover { translate: 0 -1px; }
+  .ending-actions a:hover span { translate: 0 4px; }
+  .ending-actions button:hover span { rotate: -18deg; }
+}
+
+.angled-label:active span { translate: 1px 1px; transition-duration: var(--motion-press); }
+.angled-label:active::before { translate: 0 0; transition-duration: var(--motion-press); }
+.angled-label:active::after { translate: 1px 1px; transition-duration: var(--motion-press); }
+.journey-nav a:active,.enter-arrow:active,.text-link:active,
+.artwork-tools :is(button,a,summary):active,.ending-actions :is(a,button):active {
+  translate: 0 2px;
+  transition-duration: var(--motion-press);
+}
+

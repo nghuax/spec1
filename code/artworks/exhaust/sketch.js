@@ -10,7 +10,7 @@ const INITIAL_BUTTON_CLEARANCE = 360;
 const FOSSIL_CORE_RADIUS = 142;
 
 const STACK_SANS_NOTCH_CSS_URL =
-  "https://fonts.googleapis.com/css2?family=Stack+Sans+Notch:wght@400&display=swap";
+  "../../css/fonts.css";
 
 const SUBTITLES = [
   "Click the button to use fossil energy!",

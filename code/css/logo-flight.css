@@ -1,0 +1,18 @@
+/* Keep the original semantic headings/link and their layout boxes as anchors. */
+.logo-flight-ready :is(#landing-title,.nav-brand,#heal-title) > svg { visibility:hidden; }
+.logo-flight-ready .landing-mark { translate:none;opacity:1; }
+.logo-flight-ready #heal-title { translate:none;transition-property:opacity; }
+/* Stable nav target while the existing opacity reveal continues for its labels. */
+.logo-flight-ready .journey-nav { transform:none;transition-property:opacity,visibility; }
+.logo-flight-ready .nav-brand { translate:none;transition-property:color,background-color,border-color; }
+.heal-logo-flight {
+  position:fixed;left:0;top:0;width:1513px;height:544.5px;z-index:32;
+  transform-origin:0 0;pointer-events:none;visibility:hidden;
+}
+.heal-logo-flight[data-positioned] { visibility:visible; }
+.heal-logo-flight svg { display:block;width:100%;height:100%; }
+body.installation-open .heal-logo-flight { visibility:hidden; }
+@media print {
+  .heal-logo-flight { display:none; }
+  .logo-flight-ready :is(#landing-title,.nav-brand,#heal-title) > svg { visibility:visible; }
+}

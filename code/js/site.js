@@ -1,5 +1,6 @@
 import { getChapter, getChapterIndex, siteContent } from './content.js';
 import { renderFooter, renderNavigation } from './navigation.js';
+import { renderExhibition } from './exhibition.js';
 
 function route(root, target) {
   return `${root}/${target}`;
@@ -504,6 +505,10 @@ function setupReveal() {
 function init() {
   renderNavigation();
   renderFooter();
+  if (document.body.hasAttribute('data-exhibition')) {
+    renderExhibition();
+    return;
+  }
   renderHome();
   renderArtworkPage();
   renderAbout();

@@ -13,7 +13,7 @@ Official licence text: <https://github.com/processing/p5.js/blob/main/license.tx
 | p5.js | 2.3.2 | `artworks/exhaust/p5.js` | EXHAUST |
 | p5.sound | 0.4.1 | `artworks/exhaust/p5.sound.min.js` | EXHAUST |
 | p5.js | 1.9.0 | `artworks/adapt/p5.js` | ADAPT |
-| p5.js | 1.11.13 | `artworks/liven/p5.min.js` | LIVEN |
+| p5.js | 1.11.10 | `artworks/liven/assets/vendor/p5.min.js` | LIVEN |
 
 The p5.js library is not owned by the HEAL group. No ownership claim is made over it. The copies are kept local so that the artworks can run without a network connection and are not merged into the website JavaScript.
 
@@ -36,4 +36,4 @@ The font is redistributed without modification. Its licence remains separate fro
 
 ## Artwork and site code
 
-The HEAL website code is covered by the GNU General Public License version 3 in `LICENSE`. The supplied student artwork source remains attributed to its original group creators; final individual credit details must be added by the group when approved.
+The HEAL website code is covered by the GNU General Public License version 3 in `LICENSE`. The supplied artwork source remains attributed to its group creators: Ngo Dac Phu (HARM), Luong Duc Hung (EXHAUST), Nguyen Gia Toan Phu Nghia (ADAPT), and Nguyen Tran Phuc Duong (LIVEN). Artwork previews and the ADAPT process images are captures from the supplied group files. The original package notices remain in each artwork directory. HARM’s missing recording filenames are documented in `artworks/designed-sounds/README.md`.

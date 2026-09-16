@@ -175,6 +175,28 @@ test('asset geometry is deterministic and both explicit states use the same rend
   }
 });
 
+test('UPDATES solar panels respond to energy before full restoration', () => {
+  const app = environmentRuntime();
+  for (const family of ['solarHouse', 'solarArray']) {
+    const dormant = app.draw(family, { recovery: 0.2, energy: 0 });
+    const powered = app.draw(family, { recovery: 0.2, energy: 1 });
+    assert.deepEqual(powered.shapes, dormant.shapes, 'Power must not move placement geometry');
+    assert.notDeepEqual(powered.commands, dormant.commands, `${family} must show activation`);
+  }
+});
+
+test('UPDATES rotor rotation leaves support geometry stationary', () => {
+  const app = environmentRuntime();
+  for (const [family, motion] of [['windTurbine', {angle: 1.2}]]) {
+    const still = app.draw(family, {recovery: 1});
+    const moving = app.draw(family, {recovery: 1, ...motion});
+    assert.deepEqual(still.shapes, moving.shapes);
+    assert.notDeepEqual(still.commands, moving.commands);
+    const supportIndex = still.commands.findIndex(([name]) => name === 'beginShape' || name === 'triangle');
+    assert.deepEqual(still.commands.slice(0, supportIndex + 1), moving.commands.slice(0, supportIndex + 1));
+  }
+});
+
 test('wildlife returns only after recovery and the controlled pollution cluster disappears', () => {
   const app = environmentRuntime();
   for (const recovery of [0, 0.5, 0.65]) {

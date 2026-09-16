@@ -1,4 +1,5 @@
 import { siteContent } from './content.js';
+import { stages } from './exhibition-content.js';
 
 function route(root, target) {
   return `${root}/${target}`;
@@ -6,10 +7,13 @@ function route(root, target) {
 
 function chapterLink(chapter, root, currentChapter) {
   const isCurrent = chapter.id === currentChapter;
+  const exhibition = document.body.hasAttribute('data-exhibition');
+  const before = exhibition && stages.findIndex(s => s.id === chapter.id) < stages.findIndex(s => s.id === currentChapter);
   return `
-    <a class="site-nav__chapter" href="${route(root, `works/${chapter.id}.html`)}"
+    <a class="site-nav__chapter ${exhibition ? 'exhibition-progress' : ''} ${before ? 'is-before' : ''}" href="${route(root, `works/${chapter.id}.html`)}"
+      ${exhibition ? `aria-label="Stage ${chapter.number}: ${chapter.title}" title="${chapter.title}"` : ''}
       ${isCurrent ? 'aria-current="page"' : ''}>
-      <span class="site-nav__letter" aria-hidden="true">${chapter.letter}</span>
+      <span class="site-nav__letter" aria-hidden="true">${exhibition ? chapter.number : chapter.letter}</span>
       <span class="site-nav__name">${chapter.title}</span>
     </a>`;
 }
@@ -21,7 +25,8 @@ export function renderNavigation() {
   const root = document.body.dataset.root || '.';
   const currentChapter = document.body.dataset.chapter || '';
   const page = document.body.dataset.page || '';
-  const links = siteContent.chapters
+  const exhibition = document.body.hasAttribute('data-exhibition');
+  const links = (exhibition ? stages : siteContent.chapters)
     .map((chapter) => chapterLink(chapter, root, currentChapter))
     .join('');
 
@@ -33,7 +38,7 @@ export function renderNavigation() {
         <span class="site-nav__toggle-mark" aria-hidden="true"></span>
       </button>
       <div class="site-nav__links" id="mobile-navigation">
-        <div class="site-nav__journey" aria-label="HEAL chapters">${links}</div>
+        <div class="site-nav__journey" aria-label="${exhibition ? 'Project stage progress' : 'HEAL chapters'}">${links}</div>
         <a class="site-nav__about" href="${route(root, 'about.html')}"
           ${page === 'about' ? 'aria-current="page"' : ''}>ABOUT</a>
       </div>
@@ -104,7 +109,7 @@ export function renderFooter() {
   const root = document.body.dataset.root || '.';
   host.innerHTML = `
     <div class="site-footer__identity">
-      <span>HEAL</span>
+      <span>${document.body.hasAttribute('data-exhibition') ? 'HEAL / DAMAGE TO RECOVERY' : 'HEAL'}</span>
       <span>COMM2754</span>
       <span>RMIT UNIVERSITY VIETNAM</span>
       <span>2026</span>
