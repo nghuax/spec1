@@ -8,6 +8,15 @@
   animation:ending-arrive 360ms var(--ease-ui) 220ms both;
 }
 .artwork-ending::before,.artwork-ending::after { content:none; }
+.artwork-ending .ending-close {
+  position:absolute;top:6px;right:6px;width:36px;height:36px;
+  padding:0;border:1px solid transparent;background:transparent;color:#101333;
+  font:500 26px/1 'Stack Sans Notch',sans-serif;cursor:pointer;
+  transition:background-color 200ms var(--ease-ui),transform 200ms var(--ease-ui);
+}
+.artwork-ending .ending-close:hover { background:#dedbf5; }
+.artwork-ending .ending-close:active { transform:scale(.94); }
+.artwork-ending .ending-close:focus-visible { outline:2px solid #493cf2;outline-offset:1px; }
 .artwork-ending .ending-content { text-align:center; }
 .ending-sequence .ending-content { min-height:clamp(290px,22vw,390px); }
 .artwork-ending .ending-message {
@@ -62,3 +71,4 @@ html[data-motion="reduced"] .artwork-ending { animation:none; }
 @media(max-width:600px) {
   .ending-sequence .ending-actions { min-height:106px;align-content:center; }
 }
+.artwork-ending { padding-top:max(44px,3.5vw); }

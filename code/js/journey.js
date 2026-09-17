@@ -37,6 +37,7 @@ document.querySelector('[data-chapters]').innerHTML = stages.map((stage,i) => `
 
       </div><div class="keyboard-controls">${keyboardControls[stage.id]}<button data-action="reset">RESET</button><button data-action="info">ARTWORK INFO</button><a href="#${stages[i+1]?.id || 'heal'}">CONTINUE ↓</a></div><output aria-live="polite" data-artwork-status></output></div></details>
       <div class="artwork-ending" role="region" aria-labelledby="${stage.id}-ending" aria-describedby="${stage.id}-ending-copy" tabindex="-1" hidden>
+        <button type="button" class="ending-close" data-action="close-ending" aria-label="Close completion popup">×</button>
         <div class="ending-content"><p id="${stage.id}-ending" class="ending-message"></p><div id="${stage.id}-ending-copy"><p class="ending-subtitle" hidden></p><p class="ending-detail"></p></div></div>
         <div class="ending-actions"><button type="button" data-action="info" data-ending-final>INFORMATION</button><button type="button" data-action="reset" data-ending-final>RESTART</button><button type="button" data-action="continue-ending">CONTINUE</button></div>
       </div>
@@ -274,6 +275,14 @@ function finishRestart(frame) {
 }
 
 frames.forEach(frame => {
+  const dismissEnding=()=>{
+    frame.ending.dismiss();
+    if(installation.frame===frame)frame.iframe.focus();
+  };
+  frame.section.querySelector('.artwork-ending').addEventListener('keydown',event=>{
+    if(event.key!=='Escape')return;
+    event.preventDefault();event.stopPropagation();dismissEnding();
+  });
   frame.section.querySelector('.artwork-tools').addEventListener('keydown', event => {
     if(event.key!=='Escape') return;
     event.preventDefault();
@@ -292,6 +301,7 @@ frames.forEach(frame => {
       load(frame); return;
     }
     if(action === 'close') { installation.close(); return; }
+    if(action === 'close-ending') { dismissEnding(); return; }
     if(action === 'continue-ending') { frame.ending.advance(); return; }
     if(!frame.ready) { load(frame); return; }
     if(action === 'sound') { frame.muted = !frame.muted; command(frame,'mute',{muted:frame.muted}); }
@@ -347,20 +357,23 @@ window.addEventListener('message', event => {
     const completionPanel=frame.section.querySelector('.artwork-ending');
     if(data.completed && frame.completed && frame.endingInfoOpen !== Boolean(data.infoOpen)) {
       frame.endingInfoOpen=Boolean(data.infoOpen);
-      completionPanel.hidden=frame.endingInfoOpen;
+      frame.ending.setInformationOpen(frame.endingInfoOpen);
       if(frame.endingInfoOpen && installation.frame===frame) frame.iframe.focus();
-      if(!frame.endingInfoOpen && installation.frame===frame) completionPanel.querySelector('[data-action="info"]').focus({preventScroll:true});
+      if(!completionPanel.hidden && installation.frame===frame) completionPanel.querySelector('[data-action="info"]').focus({preventScroll:true});
     }
     if(data.completed && !frame.completed) {
       frame.completed=true;
       const ending=frame.section.querySelector('.artwork-ending');
-      ending.hidden=false;
-      measure();
-      if(installation.frame===frame) {
-        frame.section.querySelector('.artwork-tools').open=false;
-        document.querySelector('[data-announcement]').textContent=`${frame.section.id.toUpperCase()} complete. ${endings[frame.section.id][0].message}`;
-        ending.focus({preventScroll:true});
-      }
+      frame.endingInfoOpen=Boolean(data.infoOpen);
+      frame.ending.setInformationOpen(frame.endingInfoOpen);
+      frame.ending.complete(()=>{
+        measure();
+        if(installation.frame===frame) {
+          frame.section.querySelector('.artwork-tools').open=false;
+          document.querySelector('[data-announcement]').textContent=`${frame.section.id.toUpperCase()} complete. ${endings[frame.section.id][0].message}`;
+          ending.focus({preventScroll:true});
+        }
+      });
     }
     if(!data.completed) {
       if(frame.completed)frame.ending.reset();

@@ -14,6 +14,7 @@ export class EndingSequence {
   constructor(panel, pages, preference, continueJourney) {
     Object.assign(this, {panel, pages, preference, continueJourney});
     this.index=0; this.busy=false; this.generation=0;
+    this.available=false; this.dismissed=false; this.infoOpen=false; this.revealTimer=null;
     this.content=panel.querySelector('.ending-content');
     panel.classList.toggle('ending-sequence',pages.length>1);
     this.button=panel.querySelector('[data-action="continue-ending"]');
@@ -30,9 +31,31 @@ export class EndingSequence {
     this.panel.querySelector('.ending-detail').textContent=page.detail;
   }
   reset() {
+    clearTimeout(this.revealTimer); this.revealTimer=null;
+    this.available=false; this.dismissed=false; this.infoOpen=false;
     this.generation++; this.animation?.cancel();
     this.index=0; this.busy=false; this.button.removeAttribute('aria-disabled');
     this.render();
+    this.syncVisibility();
+  }
+  complete(onReveal) {
+    if(this.available || this.revealTimer!==null || this.dismissed)return;
+    this.revealTimer=setTimeout(()=>{
+      this.revealTimer=null; this.available=true; this.syncVisibility();
+      if(!this.panel.hidden)onReveal();
+    },2000);
+  }
+  syncVisibility() {
+    this.panel.hidden=!this.available || this.dismissed || this.infoOpen;
+  }
+  setInformationOpen(open) {
+    this.infoOpen=open;this.syncVisibility();
+  }
+  dismiss() {
+    clearTimeout(this.revealTimer); this.revealTimer=null;
+    this.dismissed=true;this.generation++;this.animation?.cancel();
+    this.busy=false;this.button.removeAttribute('aria-disabled');
+    this.syncVisibility();
   }
   async fade(frames, duration) {
     this.animation=this.content.animate(frames,{duration:this.preference.matches?0:duration,easing:'cubic-bezier(.22,.7,.2,1)',fill:'both'});
