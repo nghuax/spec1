@@ -25,6 +25,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Version scripts, styles and artwork pages
+        run: node scripts/prepare-pages.cjs "$GITHUB_SHA"
+
       - name: Validate exhibition before publishing
         run: node --test tests/*.test.cjs
 
