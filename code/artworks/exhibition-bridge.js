@@ -22,7 +22,16 @@
     if(stage==='exhaust' && projectMuted!==value) toggleProjectMute();
     if(stage==='adapt' && audioMuted!==value) adaptCommand('sound');
     if(stage==='liven' && soundMuted!==value) {toggleSoundMute();window.livenUI?.sync();}
+    if(!value) {
+      if(stage==='exhaust' && typeof unlockProjectAudio==='function')unlockProjectAudio();
+      if(stage==='adapt' && typeof ensureAudioEnabled==='function')ensureAudioEnabled();
+    }
   }
+  // Only the same-origin parent can call this directly from its user gesture.
+  window.healExhibitionAudio=value=>{
+    wantedMute=Boolean(value);
+    if(ready) {mute(active && mode==='full'?wantedMute:true);publish(true);}
+  };
   function setActive(value, nextMode='full') {
     mode=nextMode;
     document.body.dataset.healMode=mode;

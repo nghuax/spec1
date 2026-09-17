@@ -73,7 +73,13 @@ const sectionScroll = new SectionScroll({ reducedMotion: reduceMotion, onChange:
   update();
 } });
 
-const installation = new Installation({frames,preference:reduceMotion,scroll:sectionScroll,fit:measure,onChange:()=>frames.forEach(activity)});
+const installation = new Installation({frames,preference:reduceMotion,scroll:sectionScroll,fit:measure,onChange:()=>frames.forEach(activity),onAudio:(frame,muted)=>{
+  frame.muted=muted;
+  // Same-origin direct call preserves the gesture for browser audio unlock.
+  const audio=frame.iframe.contentWindow?.healExhibitionAudio;
+  if(typeof audio==='function')audio(muted);
+  else command(frame,'mute',{muted});
+}});
 stages.forEach((stage,i)=>{
   const frame=frames.get(stage.id);
   frame.ending=new EndingSequence(frame.section.querySelector('.artwork-ending'),endings[stage.id],reduceMotion,()=>navigate(stages[i+1]?.id || 'heal'));

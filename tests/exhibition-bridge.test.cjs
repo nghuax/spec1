@@ -27,6 +27,8 @@ function fixture(stage = 'liven') {
     fossilEnergyButton: { elt: { addEventListener() {} } },
     informationButton: { elt: { addEventListener() {} } },
     stopActiveProjectSounds() {},
+    toggleProjectMute:()=>{context.projectMuted=!context.projectMuted;},
+    unlockProjectAudio:()=>{calls.unlock=(calls.unlock||0)+1;},
     launchFossilParticles: () => { context.environmentDestructionClicks=Math.min(21,context.environmentDestructionClicks+1); },
     regenerateArtwork: () => { calls.reset++;context.environmentDestructionClicks=0;context.artworkComplete=false; },
     resetScene: () => { calls.reset++;context.burnCount=0;context.completionShown=false;context.pollution=0; },
@@ -191,6 +193,22 @@ test('fullscreen wheel stays with the installation rather than moving the catalo
   const f=fixture();f.send({action:'activity',active:true,mode:'full'});const count=f.messages.length;
   let prevented=false;f.events.wheel({deltaX:0,deltaY:120,deltaMode:0,target:{closest:()=>null},preventDefault(){prevented=true;}});
   assert.equal(f.messages.length,count);assert.equal(prevented,false);
+});
+
+test('fullscreen entry unmutes, exit mutes immediately, and re-entry enables sound again',()=>{
+  for(const stage of ['harm','exhaust','liven']) {
+    const f=fixture(stage);
+    f.send({action:'activity',active:true,mode:'full'});
+    f.context.window.healExhibitionAudio(false);
+    assert.equal(f.messages.at(-1).muted,false,stage+' opens with sound');
+    f.context.window.healExhibitionAudio(true);
+    assert.equal(f.messages.at(-1).muted,true,stage+' closes silently');
+    f.send({action:'activity',active:true,mode:'preview'});
+    f.send({action:'activity',active:true,mode:'full'});
+    f.context.window.healExhibitionAudio(false);
+    assert.equal(f.messages.at(-1).muted,false,stage+' reopens with sound');
+    if(stage==='exhaust')assert.ok(f.calls.unlock>0);
+  }
 });
 
 test('cached navigation restores one publisher and requests current parent lifecycle without resetting progress',()=>{

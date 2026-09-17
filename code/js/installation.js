@@ -6,8 +6,8 @@ export function expansionTransform(first,last) {
 }
 
 export class Installation {
-  constructor({frames,preference,scroll,fit,onChange}) {
-    Object.assign(this,{frames,preference,scroll,fit,onChange});
+  constructor({frames,preference,scroll,fit,onChange,onAudio=()=>{}}) {
+    Object.assign(this,{frames,preference,scroll,fit,onChange,onAudio});
     this.frame=null;this.phase='closed';this.animations=[];
     for(const frame of frames.values()) {
       frame.dialog=frame.section.querySelector('.chapter-inner');
@@ -62,6 +62,8 @@ export class Installation {
     }
     this.fit();
     this.setPhase('opening');
+    // Run within the opening click/keypress so the source can unlock audio.
+    this.onAudio(frame,false);
     const last=frame.iframe.getBoundingClientRect();
     frame.dialog.querySelector('.installation-close').focus({preventScroll:true});
     this.pending=this.animate(frame,first,last,true).then(()=>{
@@ -74,6 +76,7 @@ export class Installation {
   close({focus=true}={}) {
     if(!this.frame)return Promise.resolve();
     if(this.closing)return this.closing;
+    this.onAudio(this.frame,true);
     this.closing=this.finishClose(focus).finally(()=>{this.closing=null;});
     return this.closing;
   }
