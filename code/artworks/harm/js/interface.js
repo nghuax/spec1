@@ -19,40 +19,6 @@ function isInfoCloseHit(px, py) {
   return px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
 }
 
-function drawStageTitleCard() {
-  push();
-  translate(30, 32);
-  noStroke();
-
-  // Offset paper plate behind the main card.
-  fill(248, 248, 246);
-  polygon([[42,-14],[452,-27],[476,120],[58,138]]);
-
-  // Deep shadow layer gives the stacked-paper depth seen in the group reference.
-  fill(0, 0, 0, 225);
-  polygon([[14,22],[486,8],[508,154],[38,178]]);
-
-  // Small violet folded accent.
-  fill(C.violet);
-  polygon([[88,130],[158,122],[108,176]]);
-
-  // Main electric-blue stage plate.
-  fill(C.blue);
-  polygon([[0,0],[464,-12],[444,142],[16,164]]);
-
-  fill(C.paper);
-  textAlign(LEFT, TOP);
-  textStyle(BOLD);
-  textSize(25);
-  text('STAGE 1', 78, 25);
-  textAlign(CENTER, TOP);
-  textSize(58);
-  // Center the project name optically inside the electric-blue plate.
-  text('HARM', 232, 60);
-
-  pop();
-}
-
 function syncSampleUIState() {
   const sampleUI = document.getElementById('sample-ui');
   const infoButton = document.getElementById('info-ui');
@@ -140,7 +106,7 @@ function drawInformationOverlay() {
   textAlign(LEFT, CENTER);
   textStyle(BOLD);
   textSize(44);
-  text('ABOUT HARM', x + 42, y + headerH * 0.54);
+  text('HARM / RESEARCH', x + 42, y + headerH * 0.54);
 
   // Close control — same stacked-paper language as the right-side buttons.
   // The face stays blue; hover is communicated by lift, shadow, and a lime X.
@@ -177,90 +143,27 @@ function drawInformationOverlay() {
   noStroke();
   pop();
 
-  // Body columns.
+  // Research replaces instructions and course metadata; retain the original palette.
   const leftX = x + pad;
-  const leftW = 720;
-  const gap = 50;
-  const rightX = leftX + leftW + gap;
-  const rightW = w - pad * 2 - leftW - gap;
-  const topY = bodyY + 34;
-
-  // LEFT — project statement.
-  fill(6, 10, 18);
-  textAlign(LEFT, TOP);
-  textStyle(NORMAL);
-  textSize(24);
-  textLeading(35);
-  text(
-    'From fast coal-powered electricity to an atmosphere under pressure.\n' +
-    'HARM visualises how energy demand can be met immediately while pollution quietly accumulates across the same environment.',
-    leftX, topY, leftW - 20, 150
-  );
-
-  // SDG 7 inset card exactly follows the sample structure.
-  const sdgX = leftX;
-  const sdgY = topY + 158;
-  const sdgW = leftW - 14;
-  const sdgH = 232;
-  fill(207, 216, 230);
-  rect(sdgX, sdgY, sdgW, sdgH);
-  fill(C.orange);
-  rect(sdgX, sdgY, 5, sdgH);
-
-  fill(35, 63, 184);
-  textStyle(BOLD);
-  textSize(18);
-  text('SDG 7 · AFFORDABLE & CLEAN ENERGY', sdgX + 30, sdgY + 28);
-
-  fill(10, 14, 22);
-  textStyle(NORMAL);
-  textSize(18);
-  textLeading(29);
-  text(
-    'Reliable, affordable and sustainable energy supports everyday life. HARM contrasts the speed and convenience of fossil-fuel power with the environmental cost that builds through smoke, carbon and atmospheric pressure.',
-    sdgX + 30, sdgY + 78, sdgW - 60, 138
-  );
-
-  // RIGHT — interaction guide.
-  fill(35, 63, 184);
-  textStyle(BOLD);
-  textSize(18);
-  text('POWER THE FIELD', rightX, topY + 2);
-
-  fill(8, 12, 20);
-  textStyle(NORMAL);
-  textSize(18);
-  textLeading(29);
-
-  drawAboutStep(rightX + 10, topY + 50, '1.', 'Click or drag coal', 'into the machine. Power arrives quickly and the grid begins to activate.', rightW - 20);
-  drawAboutStep(rightX + 10, topY + 139, '2.', 'Hover houses or factories', 'to create electricity demand and watch energy move across the island system.', rightW - 20);
-  drawAboutStep(rightX + 10, topY + 228, '3.', 'Watch AIR LOAD rise', 'as smoke and atmospheric pressure accumulate overhead and HARM spreads.', rightW - 20);
-
-  fill(8, 12, 20);
-  textStyle(NORMAL);
-  textSize(18);
-  textLeading(29);
-  text(
-    'The circular arrow resets and replays the system. The speaker opens the six-track sound mix. The ! button opens this project guide again.',
-    rightX, topY + 326, rightW - 12, 88
-  );
-
-  // Footer divider and compact project metadata.
-  const dividerY = y + h - 142;
-  fill(160, 166, 176, 120);
-  rect(x + pad, dividerY, w - pad * 2, 2);
-
-  fill(42, 47, 64);
-  textAlign(LEFT, TOP);
-  textStyle(BOLD);
-  textSize(16);
-  text('HARM — STAGE 1    ·    COMM2754    ·    SDG 7    ·    R reset & replay    ·    speaker sound mix    ·    ! guide', x + pad, dividerY + 26);
-
-  textStyle(BOLD);
-  textSize(20);
-  fill(236, 82, 8);
-  text('NGO DAC PHU', x + pad, dividerY + 66);
-  text('SID: S3936790', x + pad + 330, dividerY + 66);
+  const contentW = w - pad * 2;
+  const topY = bodyY + 30;
+  fill(12,16,27); textAlign(LEFT,TOP); textStyle(NORMAL);
+  textSize(24); textLeading(34);
+  text('With the way most of us live, we are constantly producing harmful substances into the air, the soil, and the water, polluting them and harming the very thing that gave us a place to live. There are several ways we are harming the Earth. and here are some of them.',
+    leftX,topY,contentW,110);
+  text('Fossil fuels have been a fundamental part of our lives ever since the Industrial Revolution took place. In 2025, we have burned more than twice the amount of coal, 5 times the amount of oil, and 7 times the amount of gas compared to 1950. However, as many benefits as fossil fuels give us, they also produce much CO2 in the air, which gets stuck in the atmosphere, causing the greenhouse effect on our planet.',
+    leftX,topY+126,contentW,120);
+  text('Each year, over 2 billion metric tons of unsustainable waste are thrown away worldwide',
+    leftX,topY+264,contentW,46);
+  fill(35,63,184);
+  text('(United Nations Environment Programme and International Solid Waste Association 2024).',
+    leftX,topY+306,contentW,32);
+  fill(12,16,27);
+  text('In developing countries, trash is also thrown into water sources, contaminating the water. This caused many people to not have access to clean drinking water, leading to serious health issues. We are producing much more trash than we have ever been.',
+    leftX,topY+340,contentW,120);
+  fill(160,166,176,120); rect(leftX,y+h-68,contentW,1);
+  fill(42,47,64); textSize(16); textStyle(NORMAL);
+  text('NGO DAC PHU   ·   SID: S3936790',leftX,y+h-46);
 
   rectMode(CENTER);
   pop();
@@ -289,12 +192,9 @@ function drawAboutStep(x, y, number, boldLead, rest, w) {
 // ------------------------------------------------------------
 
 function mousePressed() {
-  // One consistent click language for every intentional canvas press: coal,
-  // information control, empty field, etc. DOM sound controls sit above the canvas
-  // and stop propagation, so adjusting the mixer does not trigger this cue.
-  if (window.HarmSound) window.HarmSound.cues.uiClick(0.92);
 
   if (infoOpen) {
+    if (window.HarmSound) window.HarmSound.cues.uiClick(0.78);
     if (isInfoCloseHit(mouseX, mouseY)) {
       infoOpen = false;
       cursor(ARROW);
@@ -304,53 +204,20 @@ function mousePressed() {
 
   const i = findCoalAt(mouseX, mouseY);
   if (i >= 0) {
-    const c = coal[i];
-    dragState = {
-      index: i,
-      sx: mouseX,
-      sy: mouseY,
-      ox: c.x - mouseX,
-      oy: c.y - mouseY,
-      moved: false
-    };
-  }
-  return false;
-}
-
-function mouseDragged() {
-  if (dragState && dist(mouseX, mouseY, dragState.sx, dragState.sy) > 7) dragState.moved = true;
-  return false;
-}
-
-function mouseReleased() {
-  if (!dragState) return false;
-  const i = dragState.index;
-  const c = coal[i];
-  if (!c) {
-    dragState = null;
-    return false;
-  }
-
-  const h = machineHopperPoint();
-  const inHopper = dist(c.x, c.y, h.x, h.y) < 84;
-
-  if (inHopper || !dragState.moved) {
+    // Coal has its own short fracture texture; do not stack the generic Mouseclick.
     fractureCoal(i, consumeDemandTarget() || chooseTarget());
-    dragState = null;
-    return false;
+  } else {
+    if (window.HarmSound) window.HarmSound.cues.uiClick(0.86);
+    if (!beginPressure(mouseX, mouseY)) addArtRipple(mouseX, mouseY);
   }
-
-  c.lane = constrain(c.x, 75, W - 75);
-  c.phaseA = random(TWO_PI);
-  c.phaseB = random(TWO_PI);
-  c.swayA = random(10, 25);
-  c.swayB = random(5, 15);
-  c.speed = random(.80, 1.28);
-  dragState = null;
   return false;
 }
+
+function mouseDragged() { return false; }
+function mouseReleased() { releasePressure(); return false; }
 
 function keyPressed() {
+  if (keyCode === ESCAPE && infoOpen) { infoOpen = false; cursor(ARROW); return false; }
   if (key === 'i' || key === 'I') {
     infoOpen = !infoOpen;
     return false;
@@ -406,22 +273,6 @@ function setStatus(message, hold = 1.6, priority = 1) {
   if (statusEl) statusEl.textContent = formatSubtitleText(cleanMessage);
 }
 
-function groundPatch(x, y, w, r, p, reveal = 1) {
-  push();
-  drawingContext.globalAlpha = constrain(reveal * 1.08, 0, 1);
-  translate(x, y);
-  rotate(r);
-  noStroke();
-  fill(20, 20, 20, 12 + p * 20);
-  ellipse(5, 13, w * .82, 16);
-  const ground = lerpColor(color(234, 234, 230), color(124, 116, 94), constrain(p * .55, 0, 1));
-  const dirty = lerpColor(ground, color(96, 84, 66), constrain(max(0, p - .55) * 1.2, 0, 1));
-  fill(dirty);
-  polygon([[-w*.5,-7],[-w*.34,-23],[w*.35,-21],[w*.5,-3],[w*.38,16],[-w*.34,18]]);
-  pop();
-}
-
-
 function polygon(points) {
   beginShape();
   for (const p of points) vertex(p[0], p[1]);
@@ -459,4 +310,19 @@ function easeOutCubic(t) {
 function smooth01(t) {
   t = constrain(t, 0, 1);
   return t * t * (3 - 2 * t);
+}
+
+// Track completion for the final scene animation and autonomous pressure cycle.
+let completionShown = false;
+function updateCompletion() {
+  if (!completionShown && pollution >= 99.5) {
+    infoOpen = false;
+    completionShown = true;
+    completionAt = sceneTime;
+    if (window.HarmSound?.cues?.machineComplete) window.HarmSound.cues.machineComplete();
+    dragState = null;
+    pressure.nextAt = sceneTime + 1.2;
+    setStatus('100% · AIR POLLUTION HAS REACHED A CRITICAL LEVEL', 12, 3);
+  }
+
 }

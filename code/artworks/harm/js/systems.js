@@ -73,53 +73,66 @@ function fractureCoal(index, target) {
   const c = coal[index];
   if (!c) return;
 
-  // The machine begins operating as soon as coal is intentionally committed.
-  // The hum is quiet and will not restart if the machine is already running.
-  if (window.HarmSound && window.HarmSound.cues && window.HarmSound.cues.machineStart) {
-    window.HarmSound.cues.machineStart(constrain(0.82 + overdrive * 0.10, 0, 1));
+  // Fracture and machine response are now perceptually locked to the visual event.
+  // A tiny 16 ms separation preserves clarity without feeling delayed.
+  if (window.HarmSound?.cues?.coalFracture) {
+    window.HarmSound.cues.coalFracture(0.92);
   }
+  const machineStartIntensity = constrain(0.82 + overdrive * 0.10, 0, 1);
+  setTimeout(() => {
+    if (window.HarmSound?.cues?.machineStart) {
+      window.HarmSound.cues.machineStart(machineStartIntensity);
+    }
+  }, 16);
 
   coal[index] = spawnCoal(false, index);
 
-  const hopper = machineHopperPoint();
-  const pieces = 5 + floor(random(2));
-  for (let k = 0; k < pieces; k++) {
-    const tx = hopper.x + random(-12, 12);
-    const ty = hopper.y + random(-8, 8);
+  // Partition the original silhouette into four contiguous wedges.
+  // Their shared edges fit together at birth, then open into visible gaps.
+  const outline = COAL_SHAPE_POINTS[c.type];
+  const group = { remaining:4, target };
+  for (let k = 0; k < 4; k++) {
+    const start = floor(k * outline.length / 4);
+    const end = floor((k + 1) * outline.length / 4);
+    const points = [[0,0]];
+    for (let j = start; j <= end; j++) points.push(outline[j % outline.length].map(v => v * c.size));
+    const center = points.reduce((v,p) => [v[0]+p[0]/points.length,v[1]+p[1]/points.length], [0,0]);
+    const dx = center[0]*cos(c.rot)-center[1]*sin(c.rot);
+    const dy = center[0]*sin(c.rot)+center[1]*cos(c.rot);
+    const angle = atan2(dy, dx);
     fragments.push({
-      sx: c.x, sy: c.y,
-      x: c.x, y: c.y,
-      cx: lerp(c.x, tx, .48) + random(-90, 90),
-      cy: min(c.y, ty) - random(70, 145),
-      tx, ty,
-      t: 0,
-      speed: random(.028, .040) + (k === 0 ? .008 : 0),
-      size: c.size * random(.23, .38),
-      type: c.type,
-      rot: c.rot,
-      rv: random(-.05, .05),
-      leader: k === 0,
-      target
+      sx:c.x+dx, sy:c.y+dy, x:c.x+dx, y:c.y+dy,
+      ex:c.x+dx+cos(angle)*(28+k*5), ey:c.y+dy+sin(angle)*(28+k*5),
+      age:0, delay:.34+k*.065, duration:.95+k*.10,
+      t:0, rot:c.rot, rv:(k%2 ? 1 : -1)*(.5+k*.12),
+      points:points.map(p=>[p[0]-center[0],p[1]-center[1]]),
+      tone:k%2 ? '#C6BEB2' : '#EBE8E0', trail:[], group
     });
   }
-  feedPulse = 1;
 }
 
 function updateFragments(dt) {
   for (let i = fragments.length - 1; i >= 0; i--) {
     const f = fragments[i];
-    f.t += f.speed * dt * 60;
-    const q = ease(constrain(f.t, 0, 1));
-    const p = quadratic(f.sx, f.sy, f.cx, f.cy, f.tx, f.ty, q);
-    f.x = p.x;
-    f.y = p.y;
-    f.rot += f.rv * dt * 60;
-
+    f.age += dt;
+    if (f.age < f.delay) {
+      const q = easeOutCubic(min(1, f.age / .26));
+      f.x = lerp(f.sx,f.ex,q); f.y = lerp(f.sy,f.ey,q);
+    } else {
+      f.t = constrain((f.age-f.delay)/f.duration,0,1);
+      const hopper = machineHopperPoint();
+      const q = f.t*f.t;
+      const bend = min(180, dist(f.ex,f.ey,hopper.x,hopper.y)*.22 + 35);
+      const pt = quadratic(f.ex,f.ey,lerp(f.ex,hopper.x,.55),min(f.ey,hopper.y)-bend,hopper.x,hopper.y,q);
+      f.x=pt.x; f.y=pt.y;
+      f.rot += f.rv*dt;
+      f.trail.push({x:f.x,y:f.y});
+      if (f.trail.length>9) f.trail.shift();
+    }
     if (f.t >= 1) {
-      const leader = f.leader;
-      const target = f.target;
-      fragments.splice(i, 1);
-      if (leader) triggerBurn(target);
+      fragments.splice(i,1);
+      feedPulse = .55;
+      if (--f.group.remaining === 0) triggerBurn(f.group.target);
     }
   }
 }
@@ -129,7 +142,6 @@ function updateFragments(dt) {
 // ------------------------------------------------------------
 
 function triggerBurn(target) {
-  const previousBurnCount = burnCount;
   burnCount++;
   burnPulse = 1;
   feedPulse = 1;
@@ -141,23 +153,18 @@ function triggerBurn(target) {
 
   const emissionMul = 1 + overdrive * 1.85;
 
-  // The natural Microwave bell is isolated from normal operation and only
-  // becomes available when the machine's visual progress reaches 100%.
-  if (previousBurnCount < MACHINE_SOUND_COMPLETE_BURNS && burnCount >= MACHINE_SOUND_COMPLETE_BURNS &&
-      window.HarmSound && window.HarmSound.cues && window.HarmSound.cues.machineComplete) {
-    window.HarmSound.cues.machineComplete();
-  }
-
   machineHeat = min(1.45, machineHeat + .32 + overdrive * .28);
 
   // Every burn creates useful power and an environmental debt.
   // Rapid repeated burns deliberately make the emissions cost grow faster than the reward.
-  pollution = min(100, pollution + 3.8 * emissionMul);
+  pollution = min(100, burnCount / COMPLETION_BURNS * 100);
+  updateCompletion();
 
   // The first coal burns progressively construct the houses and factories.
   // This replaces the previous time-based self-assembly.
   const newlyFormingNode = unlockArchitectureForBurn(burnCount);
   const node = target || newlyFormingNode || chooseTarget();
+  recordGenerativeBurn(node);
   if (node) spawnEnergy(node);
 
   // Avoid one-click frame spikes. The machine gives a compact burst; the factories
@@ -311,7 +318,7 @@ function updateWorld(dt) {
     updateObjectExposure(h, 'house', dt, globalP);
 
     const houseCharge = constrain(h.charge, 0, 1.2);
-    if (burnCount > 0 && objectReady(h) && houseCharge > .18) {
+    if (burnCount > 0 && objectReady(h) && !h.detached[3] && formationProgress(h, 3) > .999 && houseCharge > .18) {
       if (!Number.isFinite(h.housePuffTimer)) h.housePuffTimer = random(1.0, 2.4);
       h.housePuffTimer -= dt;
       if (h.housePuffTimer <= 0 && smoke.length < MAX_SMOKE - 10) {
@@ -324,11 +331,11 @@ function updateWorld(dt) {
 
   for (const t of trees) {
     updateObjectExposure(t, 'tree', dt, globalP);
-    t.exposure = constrain((t.exposure || 0) + smokeLoad * (.030 + (t.localAir || 0) * .018) * dt, 0, 1);
-    t.soot = constrain((t.soot || 0) + smokeLoad * .020 * dt + globalP * .010 * dt, 0, 1);
-    const localDamage = getObjectDamageLevel(t);
-    const wilt = constrain(localDamage + smokeLoad * .72 + globalP * .16, 0, 1.7);
-    t.health = constrain(1 - wilt * 1.02, .015, 1);
+    // This stage concerns atmospheric pollution, not ecosystem destruction.
+    t.exposure = 0;
+    t.soot = 0;
+    t.stress = 0;
+    t.health = 1;
   }
 
   for (const po of poles) {
@@ -363,7 +370,7 @@ function updateWorld(dt) {
       const liveChimneys = [];
       for (let ci = 0; ci < origins.length; ci++) {
         const partIndex = ci === 0 ? 2 : 3;
-        if (formationProgress(f, partIndex) > .82) liveChimneys.push(ci);
+        if (!f.detached[partIndex] && formationProgress(f, partIndex) > .999) liveChimneys.push(ci);
       }
 
       // Idle stacks now breathe a little more continuously so factory plumes read as sustained
@@ -437,28 +444,13 @@ function updateObjectExposure(o, source, dt, globalP) {
 }
 
 function getObjectDamageLevel(o) {
-  return constrain((o.exposure || 0) * .64 + (o.soot || 0) * .20 + (o.stress || 0) * .52 + (o.localAir || 0) * .22, 0, 1);
+  // Keep all architecture and vegetation intact throughout HARM.
+  return 0;
 }
 
 function updateDamageParts(o, p, source) {
-  if (!o.damageThresholds) return;
-
-  // Factories remain visible and keep polluting.
-  // They can darken and look stressed, but they should not fall apart.
-  if (source === 'factory') return;
-
-  for (let i = 0; i < o.damageThresholds.length; i++) {
-    if (o.damageTriggered[i]) continue;
-    if (p >= o.damageThresholds[i]) {
-      o.damageTriggered[i] = true;
-      o.detached[i] = true;
-      const wp = damagePartWorldPoint(o, source, i);
-      emitDebris(wp.x, wp.y, source, o.s * random(.75, 1.20), i);
-      // The Plastic Bag cue now always has a visible partner: a short gust of
-      // wind-blown litter released from the same damaged object.
-      triggerDamageMoment(wp.x, wp.y, constrain(.46 + p * .32, 0, 1), source);
-    }
-  }
+  // Structural destruction belongs to another stage.
+  return;
 }
 
 function damagePartWorldPoint(o, source, i) {
@@ -479,10 +471,11 @@ function damagePartWorldPoint(o, source, i) {
 }
 
 function localToWorld(o, lx, ly) {
-  const cs = cos(o.rot), sn = sin(o.rot);
-  const x = lx * o.s;
-  const y = ly * o.s;
-  return { x: o.x + x * cs - y * sn, y: o.y + x * sn + y * cs };
+  const pose = objectVisualPosition(o);
+  const cs = cos(pose.rot), sn = sin(pose.rot);
+  const x = lx * o.s * pose.scale;
+  const y = ly * o.s * pose.scale;
+  return { x: pose.x + x * cs - y * sn, y: pose.y + x * sn + y * cs };
 }
 
 // ------------------------------------------------------------
@@ -553,7 +546,7 @@ function emitDamageWaste(x, y, intensity = 1, source = 'environment') {
     });
   }
 
-  while (damageWaste.length > 105) damageWaste.shift();
+  while (damageWaste.length > (completionShown ? 240 : 105)) damageWaste.shift();
 }
 
 function updateDamageWaste(dt) {
@@ -731,7 +724,13 @@ function damageMilestoneOrigin(index) {
   return { x: m.x + random(-20, 20), y: m.y + random(18, 42) };
 }
 
+let nextAtmosphericWasteAt = 0;
 function updateDamageMilestones() {
+  if (pollutionN() >= .28 && sceneTime >= nextAtmosphericWasteAt && damageWaste.length < 80) {
+    const origin = damageMilestoneOrigin(0);
+    emitDamageWaste(origin.x, origin.y, .35 + pollutionN() * .35, 'pollution');
+    nextAtmosphericWasteAt = sceneTime + lerp(6, 2.8, pollutionN());
+  }
   const p = pollutionN();
   const marks = [.28, .55, .78];
   const strengths = [.66, .80, .96];
@@ -749,18 +748,32 @@ function updateDamageMilestones() {
 // ------------------------------------------------------------
 
 function machineExhaustPoint() {
-  return { x: MACHINE.x + 84 * MACHINE.scale, y: MACHINE.y - 108 * MACHINE.scale };
+  return machineLocalToWorld(54, -160);
 }
 
 function factorySmokeOrigins(f) {
   const local = factoryChimneys(f.variant).filter(Boolean);
   if (!local.length) return [{ x: f.x + 60 * f.s, y: f.y - 190 * f.s }];
-  return local.map(c => localToWorld(f, c.x, c.y - c.h * .50));
+  const pose = factoryRenderPose(f);
+  const cs = cos(pose.rot), sn = sin(pose.rot);
+  return local.map(c => {
+    const x = c.x * pose.scale;
+    const y = (c.y - c.h * .50) * pose.scale;
+    return { x: pose.x + x * cs - y * sn, y: pose.y + x * sn + y * cs };
+  });
 }
 
 
 function houseSmokeOrigin(h) {
-  return localToWorld(h, 34, -58);
+  const c = houseChimney(h.variant);
+  const pose = objectVisualPose(h);
+  const hovered = hoveredNode && hoveredNode.id === h.id && !dragState;
+  const progress = hovered ? constrain((sceneTime - hoverStarted) / DEMAND_HOLD, 0, 1) : 0;
+  const motion = houseMotionAccent(h, max(h.demandReady || 0, h.demandFlash * .65, progress), hovered);
+  const angle = h.rot + pose.rot + motion.bodyLean + (hovered ? sin(sceneTime * 3 + h.seed) * .0026 : 0);
+  const size = h.s * motion.stretch * (pose.scale || 1);
+  return {x:h.x+pose.x+(c.x*cos(angle)-c.top*sin(angle))*size,
+    y:h.y+pose.y+motion.bodyBob+(c.x*sin(angle)+c.top*cos(angle))*size};
 }
 
 function emitHouseSmoke(h, strength = 1) {
@@ -892,13 +905,15 @@ function updateSmoke(dt) {
       if (!Number.isFinite(s.cachedShared) || ((perfFrame + i) & 1) === 0) {
         s.cachedShared = (noise(s.plumeSeed * .0017, sceneTime * .062 + rise * .0012) - .5) * 2;
         s.cachedMicro = (noise(s.seed * .0019 + 8.2, sceneTime * .10) - .5) * 2;
+        s.cachedGenerative = genAirFlow(s.x, s.y);
       }
       const sharedField = s.cachedShared || 0;
       const microField = s.cachedMicro || 0;
       const targetVX = smokeWind * (.10 + windMix * .86)
         + (s.plumeBias || 0) * windMix
         + sharedField * (.018 + highMix * .060)
-        + microField * .010;
+        + microField * .010
+        + (s.cachedGenerative || 0) * highMix * .16;
       const targetVY = lerp(-1.08, -.34, smooth01(map(lifeN, .08, .86, 0, 1)));
 
       s.vx = lerp(s.vx, targetVX, constrain(dt * lerp(.92, 1.35, windMix), .004, .08));
@@ -928,9 +943,11 @@ function updateSmoke(dt) {
     const windMix = smooth01(map(rise, 18, 120, 0, 1));
     if (!Number.isFinite(s.cachedShared) || ((perfFrame + i) & 1) === 0) {
       s.cachedShared = (noise(s.seed * .0012 + 19, sceneTime * .070) - .5) * 2;
+      s.cachedGenerative = genAirFlow(s.x, s.y);
     }
     const sharedField = s.cachedShared || 0;
-    const targetVX = smokeWind * (.08 + windMix * .55) + sharedField * (.010 + windMix * .028);
+    const targetVX = smokeWind * (.08 + windMix * .55) + sharedField * (.010 + windMix * .028)
+      + (s.cachedGenerative || 0) * windMix * .12;
     const targetVY = lerp(-.98, -.30, smooth01(map(lifeN, .10, .84, 0, 1)));
 
     s.vx = lerp(s.vx, targetVX, constrain(dt * 1.10, .005, .08));
@@ -1137,7 +1154,7 @@ function updateGlobal(dt) {
   fieldAvg = pollutionField.length ? fieldAvg / pollutionField.length : 0;
   const persistenceFloor = fieldAvg * 82;
   const recovery = burnTimes.length ? .004 : .018;
-  pollution = constrain(max(persistenceFloor, pollution - dt * recovery), 0, 100);
+  pollution = completionShown ? 100 : constrain(max(persistenceFloor, pollution - dt * recovery), 0, 100);
 
   const p = pollution / 100;
   updateDamageMilestones();
@@ -1145,9 +1162,10 @@ function updateGlobal(dt) {
   smokeCeiling = lerp(smokeCeiling, target, .018);
 
   if (sceneTime > statusUntil) {
-    if (pollution > 88) setStatus('CRITICAL AIR LOAD · POLLUTION NOW DOMINATES THE ATMOSPHERE', 2.1, 1);
-    else if (pollution > 68) setStatus('HIGH AIR LOAD · THE GRID STAYS ACTIVE WHILE THE LANDSCAPE WEAKENS', 2.1, 1);
-    else if (pollution > 42) setStatus('RISING AIR LOAD · POWER CONTINUES AS THE ENVIRONMENT DRIES AND DEGRADES', 2.1, 1);
+    if (completionShown) setStatus('THE MACHINE BREATHES ON ITS OWN · OPTIONAL: HOLD AND RELEASE THE MACHINE, OR SPACE', 4, 1);
+    else if (pollution > 88) setStatus('CRITICAL AIR LOAD · POLLUTION NOW DOMINATES THE ATMOSPHERE', 2.1, 1);
+    else if (pollution > 68) setStatus('HIGH AIR LOAD · THE GRID STAYS ACTIVE WHILE SMOKE BUILDS UP', 2.1, 1);
+    else if (pollution > 42) setStatus('RISING AIR LOAD · POWER CONTINUES AS WASTE AND EMISSIONS ACCUMULATE', 2.1, 1);
     else if (demandQueue.length) setStatus('POWER DEMAND IS WAITING · EACH NEW BURN ALSO ADDS POLLUTION', 2.0, 1);
     else if (burnCount > 0) setStatus('THE GRID IS ACTIVE · THE ENVIRONMENTAL COST REMAINS IN THE AIR', 2.0, 1);
   }

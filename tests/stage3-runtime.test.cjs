@@ -13,7 +13,7 @@ function runtime() {
   let seed = 73;
   const events = [];
   const context = vm.createContext({
-    console, URLSearchParams,
+    console, URLSearchParams, HEALMaster: { bus: context => context.destination },
     width: 1920, height: 1080,
     PI: Math.PI, TWO_PI: Math.PI * 2,
     min: Math.min, max: Math.max, round: Math.round, floor: Math.floor,
@@ -42,7 +42,6 @@ function runtime() {
       constructor(type, options) { this.type = type; this.detail = options.detail; }
     }
   });
-  vm.runInContext(readFileSync(path.join(__dirname, '../code/artworks/adapt/composition.js'), 'utf8'), context);
   vm.runInContext(sketch, context, { filename: sketchPath });
   // Sound rendering is covered by browser QA; preserve the real state logic.
   vm.runInContext(`
@@ -127,14 +126,14 @@ test('particle updates advance live effects and remove expired effects', () => {
 
 test('guided regeneration supplies sunlight before wind and stops on manual takeover', () => {
   const app = runtime();
-  app.run(`modules = [{sun: 0, wind: 0}, {sun: 0, wind: 0}]; experienceMode = 'guided'; updateGuidedSequence(6);`);
+  app.run(`modules = [{sun: 0, wind: 0}, {sun: 0, wind: 0}]; experienceMode = 'guided'; updateGuidedSequence(6 / PROGRESSION_PACE);`);
   assert.equal(app.run('modules.every((habitat) => habitat.sun > 0 && habitat.wind === 0)'), true);
-  app.run('updateGuidedSequence(6);');
+  app.run('updateGuidedSequence(6 / PROGRESSION_PACE);');
   assert.equal(app.run('modules.every((habitat) => habitat.sun === 1 && habitat.wind > 0)'), true);
   const before = app.state('modules');
-  app.run('experienceMode = "manual"; updateGuidedSequence(4);');
+  app.run('experienceMode = "manual"; updateGuidedSequence(4 / PROGRESSION_PACE);');
   assert.deepEqual(app.state('modules'), before);
-  app.run('experienceMode = "guided"; updateGuidedSequence(4);');
+  app.run('experienceMode = "guided"; updateGuidedSequence(4 / PROGRESSION_PACE);');
   assert.equal(app.run('modules.every((habitat) => habitat.sun === 1 && habitat.wind === 1)'), true);
 });
 
@@ -207,10 +206,10 @@ test('sound mix clamps levels and survives regeneration without overriding mute'
   app.run("setSoundMixLevel('windPaper', 0); setSoundMixLevel('solarEnergy', 125); setSoundMixLevel('confirmation', NaN); toggleSound(); regenerate();");
   assert.equal(app.run('soundMixLevels.windPaper'), 0);
   assert.equal(app.run('soundMixLevels.solarEnergy'), 100);
-  assert.equal(app.run('soundMixLevels.confirmation'), 58);
+  assert.equal(app.run('soundMixLevels.confirmation'), 60);
   app.run('resetSoundMix()');
-  assert.equal(app.run('soundMixLevels.windPaper'), 30);
-  assert.equal(app.run('soundMixLevels.solarEnergy'), 24);
+  assert.equal(app.run('soundMixLevels.windPaper'), 60);
+  assert.equal(app.run('soundMixLevels.solarEnergy'), 60);
   assert.equal(app.run('audioMuted'), true);
 });
 

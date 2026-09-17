@@ -9,18 +9,18 @@ const H = 1080;
 const RENDER_DENSITY = Math.min((window.devicePixelRatio || 1), 2);
 
 const C = {
-  ink: '#06070C',
+  ink: '#141414',
   grey: '#8F96A3',
   paper: '#F4F1EC',
-  blue: '#2F39FF',
-  violet: '#745BFF',
-  orange: '#FF7B1F',
-  lime: '#C3F52B',
+  blue: '#2930FF',
+  violet: '#FF7900',
+  orange: '#FF7900',
+  lime: '#B3FF36',
   light: '#D8DBE3',
-  skyClean: '#08102A',
+  skyClean: '#12141C',
   skyMid: '#131A37',
   skyDirty: '#241E28',
-  treeFresh: '#C3F52B',
+  treeFresh: '#B3FF36',
   treeDry: '#A6B73E',
   treeYellow: '#B8952E',
   treeBrown: '#6F4B24',
@@ -141,10 +141,9 @@ const TREE_PLATE_POINTS = [
   [[-.50,-.12],[-.29,-.50],[.15,-.52],[.50,-.20],[.43,.24],[.05,.49],[-.40,.34]]
 ];
 
-const MACHINE = { x: 470, y: 702, scale: 0.70 };
-// The machine indicator is visually full at 20 burns (8 illuminated cells).
-// Sound uses the same threshold, so the Microwave bell is reserved for true 100%.
-const MACHINE_SOUND_COMPLETE_BURNS = 20;
+const MACHINE = { x: 700, y: 710, scale: 1.12 }; // lifted ~38 px (~1 cm at 96 dpi) for cleaner vertical balance
+// Seven completed coal transfers fill the scene and unlock the final breathing phase.
+const COMPLETION_BURNS = 7;
 const MAX_COAL = 7;
 const MAX_SMOKE = 620;
 const MAX_CARBON = 220;
@@ -154,6 +153,126 @@ const MAX_ENERGY = 12;
 const MAX_STAINS = 90;
 const DEMAND_HOLD = 0.45;
 const DEMAND_COOLDOWN = 1.75;
+
+// ------------------------------------------------------------
+// ORGANIC RANDOM WORLD MOTION
+// Smooth noise-driven wandering keeps the composition alive without jitter.
+// Every reset creates different motion seeds/speeds, while bounded amplitudes
+// prevent objects from drifting out of their visual zones.
+// ------------------------------------------------------------
+
+function artCompositionField(o) {
+  if (!o) return { x: 0, y: 0, scale: 1, rot: 0 };
+  const type = o.motionType || o.kind || 'generic';
+  const t = sceneTime;
+  const seed = o.seed || 0;
+
+  // Slow chapters keep the work alive, but this pass is calmer and more curated.
+  const cluster = sin(t * .15 + seed * .002) * .5 + .5;
+  const flow = sin(t * .23 + seed * .006 + 2.1) * .5 + .5;
+  const breath = sin(t * .30 + seed * .009 + 4.2) * .5 + .5;
+
+  const cx = W * .50;
+  const cy = type === 'factory' ? H * .45 : type === 'house' ? H * .73 : H * .61;
+  let vx = cx - o.x;
+  let vy = cy - o.y;
+  const mag = max(1, sqrt(vx * vx + vy * vy));
+  vx /= mag;
+  vy /= mag;
+
+  const range = type === 'tree' ? 24 : type === 'house' ? 20 : type === 'factory' ? 20 : type === 'pole' ? 10 : 16;
+  const pull = (cluster - .48) * range;
+  const lane = sin(t * .46 + o.x * .006 + seed * .018);
+  const wave = cos(t * .38 + o.y * .007 + seed * .014);
+
+  return {
+    x: vx * pull + lane * range * .30 * flow,
+    y: vy * pull * .40 + wave * range * .18 * flow,
+    rot: lane * (.003 + range * .00004) * flow,
+    scale: 1 + (breath - .5) * .035 + (cluster - .5) * .010
+  };
+}
+
+function objectMotionProfile(o) {
+  const type = o && o.motionType ? o.motionType : (o && o.kind ? o.kind : 'generic');
+  // v26 loosen pass: houses and trees drift more noticeably so the world feels
+  // a little more alive and slightly chaotic, while factories/poles remain calmer
+  // to preserve the main composition and keep the machine as the anchor.
+  if (type === 'tree') return { ax: 20, ay: 11.5, rot: .0115, orbit: 4.2, flutter: 2.3 };
+  if (type === 'house') return { ax: 17.5, ay: 9.5, rot: .0095, orbit: 3.5, flutter: 1.9 };
+  if (type === 'factory') return { ax: 11, ay: 6, rot: .0065, orbit: 2.2, flutter: 1.4 };
+  if (type === 'pole') return { ax: 7, ay: 3.5, rot: .005, orbit: 1.4, flutter: 1.0 };
+  return { ax: 10, ay: 6, rot: .0075, orbit: 2.1, flutter: 1.4 };
+}
+
+function objectVisualPose(o) {
+  if (!o) return { x: 0, y: 0, rot: 0, scale: 1 };
+  const cfg = objectMotionProfile(o);
+  const amp = o.motionAmp || 1;
+  const sx = o.motionSpeedX || .12;
+  const sy = o.motionSpeedY || .105;
+  const nx = o.motionSeedX || (o.seed * .013 + 17.3);
+  const ny = o.motionSeedY || (o.seed * .019 + 61.9);
+  const phase = o.motionPhase || 0;
+  const comp = artCompositionField(o);
+  const gen = generativeObjectMotion(o);
+
+  // Multi-octave wandering: broad drift + faster local turn + orbit + micro flutter.
+  // All layers use smooth noise so the movement feels improvised rather than jittery.
+  const speedWarp = .72 + noise(nx + 311.4, sceneTime * .055) * .72;
+  const tx = sceneTime * sx * speedWarp;
+  const ty = sceneTime * sy * (.82 + noise(ny + 402.7, sceneTime * .048) * .58);
+
+  const n1 = (noise(nx, tx) - .5) * 2;
+  const n2 = (noise(ny, ty) - .5) * 2;
+  const n3 = (noise(nx + 91.7, tx * .54) - .5) * 2;
+  const n4 = (noise(ny + 137.2, ty * .61) - .5) * 2;
+  const fastX = (noise(nx + 501.2, sceneTime * sx * 2.1) - .5) * 2;
+  const fastY = (noise(ny + 602.6, sceneTime * sy * 2.0) - .5) * 2;
+
+  const orbitA = sceneTime * (.38 + sx * 2.5) + phase;
+  const orbitB = sceneTime * (.31 + sy * 2.2) + phase * .73;
+  const breathe = 1 + sin(sceneTime * (.72 + sx * 1.8) + phase) * .012 * amp
+    + fastY * .006 * amp;
+
+  const arrival = objectArrival(o);
+  const looseType = o && (o.motionType === 'tree' || o.motionType === 'house');
+  const settle = o.entryDX !== undefined ? .24 : (looseType ? .66 : .52);
+  return {
+    x: arrival.x + settle * ((n1 * .66 + n3 * .21 + fastX * .13) * cfg.ax * amp
+      + cos(orbitA) * cfg.orbit * amp + comp.x + gen.x),
+    y: arrival.y + settle * ((n2 * .66 + n4 * .21 + fastY * .13) * cfg.ay * amp
+      + sin(orbitB) * cfg.orbit * .62 * amp + comp.y + gen.y),
+    rot: (n3 * .48 + fastX * .18 + sin(orbitA * .78) * .34) * cfg.rot * amp + comp.rot + gen.rot,
+    scale: constrain(breathe * comp.scale, .94, 1.07)
+  };
+}
+
+function objectVisualPosition(o) {
+  const p = objectVisualPose(o);
+  return { x: o.x + p.x, y: o.y + p.y, rot: o.rot + p.rot, scale: p.scale || 1 };
+}
+
+function machineVisualPose() {
+  const seed = (sceneSeed % 100000) * .00019;
+  const speedWarp = .78 + noise(seed + 190.4, sceneTime * .06) * .68;
+  const nx = (noise(seed + 12.7, sceneTime * .105 * speedWarp) - .5) * 2;
+  const ny = (noise(seed + 48.3, sceneTime * .091 * speedWarp) - .5) * 2;
+  const nxSlow = (noise(seed + 106.1, sceneTime * .041) - .5) * 2;
+  const nFast = (noise(seed + 208.8, sceneTime * .22) - .5) * 2;
+  const a = sceneTime * .64 + seed * 7;
+  const chapter = sin(sceneTime * .18 + 1.4) * .5 + .5;
+  const sweep = sin(sceneTime * .42 + seed * 11);
+  return {
+    // The hero machine should feel alive, not loose. Keep motion sub-pixel-to-small
+    // at normal viewing size and let combustion pulses provide the stronger motion.
+    x: (nx * .66 + nxSlow * .22 + nFast * .12) * 22 + cos(a) * 6 + sweep * 7 * chapter,
+    y: ny * 12 + sin(a * .82) * 4 + cos(sceneTime * .31 + seed * 4) * 3 * chapter,
+    rot: nxSlow * .008 + nFast * .003 + sweep * .0025 * chapter,
+    scale: constrain(1 + sin(sceneTime * .86 + seed * 20) * .008 + nFast * .003 + (chapter - .5) * .010, .975, 1.025)
+  };
+}
+
 
 // The built environment no longer assembles on its own.
 // Early coal burns progressively unlock architecture in curated waves.
@@ -169,7 +288,7 @@ const FIELD_COLS = 18;
 const FIELD_ROWS = 10;
 const FIELD_DIFFUSION = 0.050;
 const FIELD_DECAY = 0.0017;
-const MAX_AMBIENT_FRAGMENTS = 56;
+const MAX_AMBIENT_FRAGMENTS = 76;
 
 const INFO_UI = { x: 1810, y: 138, r: 32 };
 let infoOpen = false;
@@ -211,6 +330,7 @@ let demandQueue = [];
 let burnTimes = [];
 let overdrive = 0;
 let overdrivePulse = 0;
+let completionAt = -Infinity; // v25: timestamp for the short 100% visual transformation
 
 let dragState = null;
 let hoveredCoal = -1;
@@ -262,6 +382,9 @@ function buildGrain() {
 }
 
 function resetScene() {
+  completionShown = false;
+  resetPressure();
+  nextAtmosphericWasteAt = 0;
   if (window.HarmSound) {
     window.HarmSound.stopAll();
     if (typeof window.HarmSound.resetMachineCycle === 'function') window.HarmSound.resetMachineCycle();
@@ -284,6 +407,7 @@ function resetScene() {
   smokeWindMouse = 0;
   overdrive = 0;
   overdrivePulse = 0;
+  completionAt = -Infinity;
   burnTimes = [];
   demandQueue = [];
 
@@ -310,12 +434,18 @@ function resetScene() {
   statusUntil = 0;
   statusPriority = 0;
   lastHudPercent = -1;
-  lastHudWarning = false;
+  lastHudWarning = null;
 
   buildWorld();
+  initGenerativeRefinement();
+  worldDrawOrder.forEach(item => { item.y = item.ref ? item.ref.y : MACHINE.y; });
+  worldDrawOrder.sort((a,b) => a.y-b.y);
   buildAmbientFragments();
   for (let i = 0; i < MAX_COAL; i++) coal.push(spawnCoal(true, i));
 
-  setStatus('DRAG COAL INTO THE MACHINE · EACH BURN POWERS THE GRID, BUT AIR LOAD KEEPS RISING', 6.0, 2);
+  setStatus('CLICK COAL · WATCH IT SPLIT AND FLOW INTO THE MACHINE', 6.0, 2);
+  if (window.HarmSound && typeof window.HarmSound.restartSceneSoundscape === 'function') {
+    window.HarmSound.restartSceneSoundscape();
+  }
 }
 

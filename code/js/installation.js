@@ -66,7 +66,8 @@ export class Installation {
     frame.dialog.querySelector('.installation-close').focus({preventScroll:true});
     this.pending=this.animate(frame,first,last,true).then(()=>{
       this.setPhase('open');
-      frame.dialog.querySelector('.installation-close').focus({preventScroll:true});
+      const ending=frame.dialog.querySelector('.artwork-ending');
+      (ending && !ending.hidden ? ending : frame.dialog.querySelector('.installation-close')).focus({preventScroll:true});
     });
     return this.pending;
   }

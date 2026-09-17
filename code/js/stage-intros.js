@@ -2,16 +2,16 @@ const clamp = value => Math.max(0,Math.min(1,value));
 const smooth = value => { const t=clamp(value);return t*t*(3-2*t); };
 
 export const stageBriefs = {
-  harm: {statement:'The way we power life shapes the world around us.',body:'Fossil energy keeps communities moving, but every use leaves pollution behind.',thread:'FOSSIL ENERGY → ENVIRONMENTAL COST'},
-  exhaust: {statement:'What we release doesn’t stay in one place.',body:'Pollution builds across the air, land and water we all share, putting more pressure on nature.',thread:'POLLUTION → SHARED IMPACT'},
-  adapt: {statement:'Change starts with what powers our everyday lives.',body:'Shifting toward renewable energy can reduce pollution and help damaged environments recover.',thread:'RENEWABLE ENERGY → POSITIVE CHANGE'},
-  liven: {statement:'Cleaner energy can reshape the places we call home.',body:'When renewable energy becomes part of our communities, recovery becomes something we can see, share and build on.',thread:'CLEAN ENERGY → STRONGER COMMUNITIES'}
+  harm: {statement:'The way we live life shapes the world around us.',body:'Current power usage is heavily polluting the Earth.'},
+  exhaust: {statement:'What we release, destroys.',body:'Pollution builds across the environment, destroying everything that matters to us.'},
+  adapt: {statement:'Change starts with what powers our everyday lives.',body:'Shifting toward renewable energy can reduce pollution and help damaged environments recover.'},
+  liven: {statement:'There is still time to turn back.',body:'When renewable energy becomes part of our communities, recovery becomes something we can see, share and build on.'}
 };
 
 export function briefMarkup(stage) {
   const brief=stageBriefs[stage.id];
   return `<div class="chapter-copy">
-    <div class="stage-brief"><span class="brief-header-tab" aria-hidden="true"></span><span class="brief-corner-marks" aria-hidden="true"></span><h3>${brief.statement}</h3><p>${brief.body}</p><p class="stage-thread">${brief.thread}</p></div>
+    <div class="stage-brief"><span class="brief-header-tab" aria-hidden="true"></span><span class="brief-corner-marks" aria-hidden="true"></span><h3>${brief.statement}</h3><p>${brief.body}</p></div>
   </div>`;
 }
 

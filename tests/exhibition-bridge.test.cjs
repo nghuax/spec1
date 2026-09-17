@@ -21,22 +21,22 @@ function fixture(stage = 'liven') {
     location: { pathname: `/repo/artworks/${stage}/index.html`, search: '?exhibition=heal', origin: 'http://localhost' },
     parent, frameCount: 1, soundMuted: false, soundPanelOpen: false,
     dragging: null, renewablePieces: pieces, renewableSlots: slots, trashSlots: [],
-    burnCount: 0, MACHINE_SOUND_COMPLETE_BURNS: 20, dragState: null,
+    burnCount: 0, completionShown:false, pollution:0, artworkComplete:false, displayedEnvironmentProgress:0, dragState: null,
     HarmSound: { stopAll() {} },
-    environmentDestructionClicks: 0, projectMuted: true,
+    environmentDestructionClicks: 0, informationPanelOpen:false,projectMuted: true,
     fossilEnergyButton: { elt: { addEventListener() {} } },
     informationButton: { elt: { addEventListener() {} } },
     stopActiveProjectSounds() {},
     launchFossilParticles: () => { context.environmentDestructionClicks=Math.min(21,context.environmentDestructionClicks+1); },
-    regenerateArtwork: () => { calls.reset++;context.environmentDestructionClicks=0; },
-    resetScene: () => { calls.reset++;context.burnCount=0; },
+    regenerateArtwork: () => { calls.reset++;context.environmentDestructionClicks=0;context.artworkComplete=false; },
+    resetScene: () => { calls.reset++;context.burnCount=0;context.completionShown=false;context.pollution=0; },
     document: {
       body: { dataset: {} }, querySelector: selector => selector === 'canvas' ? {} : null,
       querySelectorAll: () => panels,
       getElementById: () => null, addEventListener: (name, fn, capture) => { (capture?keyCaptures:keys)[name] = fn; }
     },
     getComputedStyle: element=>({display:element.hidden?'none':'block',visibility:'visible'}),
-    window: { addEventListener: (name, fn) => { events[name] = fn; }, livenUI: { sync() {} } },
+    window: { HarmSound:{muted:true,setMuted(value){this.muted=value;}}, addEventListener: (name, fn) => { events[name] = fn; }, livenUI: { sync() {} } },
     noLoop: () => calls.stop++, loop: () => calls.loop++, frameRate: value=>calls.fps=value, stopAllSounds() {},
     toggleSoundMute: () => { context.soundMuted = !context.soundMuted; },
     earthIsRestored: () => pieces.every(piece => piece.placed),
@@ -131,12 +131,12 @@ test('iframe navigation keys relay while controls, horizontal wheels and pinch z
   assert.equal(f.messages.at(-1).deltaY,900);
 });
 
-test('HARM ends at the source full-machine threshold and resets only that artwork', () => {
+test('HARM follows critical-pollution completion and resets only that artwork', () => {
   const f=fixture('harm');
   f.context.burnCount=19;
   f.send({action:'activity',active:true});
   assert.equal(f.messages.at(-1).completed,false);
-  f.context.burnCount=20;
+  f.context.completionShown=true;f.context.pollution=100;
   f.send({action:'activity',active:true});
   assert.equal(f.messages.at(-1).completed,true);
   f.send({action:'activity',active:false});
@@ -148,12 +148,15 @@ test('HARM ends at the source full-machine threshold and resets only that artwor
   assert.equal(f.calls.reset,1);
 });
 
-test('EXHAUST requires all 21 original pollution actions, then resets its counter', () => {
+test('EXHAUST waits for source destruction completion rather than a click count', () => {
   const f=fixture('exhaust');
   f.send({action:'activity',active:true});
   for(let i=0;i<20;i++)f.send({action:'pollute'});
   assert.equal(f.messages.at(-1).completed,false);
   f.send({action:'pollute'});
+  assert.equal(f.messages.at(-1).completed,false);
+  f.context.artworkComplete=true;
+  f.send({action:'activity',active:true});
   assert.equal(f.messages.at(-1).completed,true);
   f.send({action:'reset'});
   assert.equal(f.context.environmentDestructionClicks,0);

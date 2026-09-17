@@ -146,6 +146,9 @@ body.installation-open .heal-atmosphere { opacity:0; }
 .living-motion-ready [data-reveal] { transition:opacity var(--motion-reveal) var(--ease-section) var(--reveal-delay,0ms),translate var(--motion-reveal) var(--ease-section) var(--reveal-delay,0ms); }
 .living-motion-ready [data-reveal]:not(.is-revealed) { opacity:0; translate:0 10px; }
 .living-motion-ready [data-reveal]:focus-within { opacity:1; translate:none; transition:none; }
+.conclusion-message [data-reveal] { --motion-reveal:460ms; }
+.conclusion-action [data-reveal] { --motion-reveal:580ms; }
+body:is([data-state="heal"],[data-state="cta"]) .heal-atmosphere { opacity:.48; }
 .journey-rail { transition:opacity var(--motion-slow) var(--ease-ui),transform var(--motion-slow) var(--ease-ui),visibility var(--motion-slow); }
 
 /* A short pause, the message, then actions; no page or canvas scaling. */

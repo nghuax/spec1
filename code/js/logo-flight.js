@@ -14,6 +14,7 @@ export function logoPose(y, geometry, reduced = false) {
     return reduced ? Number(value >= .5) : ease(value);
   };
   if (y < landingEnd) return mix(landing, nav, progress(0, landingEnd));
+  if (!final) return nav;
   const finalOnScreen = { ...final, y: final.y - y };
   if (y < finalStart) return nav;
   // Fly directly to the resting banner position, without chasing a moving
@@ -27,7 +28,7 @@ export function logoPose(y, geometry, reduced = false) {
 export class LogoFlight {
   constructor(preference, markup) {
     this.preference = preference;
-    this.sources = ['#landing-title svg', '.nav-brand svg', '#heal-title svg'].map(selector => document.querySelector(selector));
+    this.sources = ['#landing-title svg', '.nav-brand svg'].map(selector => document.querySelector(selector));
     this.visual = document.createElement('div');
     this.visual.className = 'heal-logo-flight';
     this.visual.setAttribute('aria-hidden', 'true');
@@ -46,14 +47,9 @@ export class LogoFlight {
       return { x: rect.left + (rect.width - width) / 2,
         y: rect.top + (rect.height - width / ratio) / 2 + (fixed ? 0 : window.scrollY), width };
     };
-    const [landing, nav, final] = this.sources.map((source, index) => read(source, index === 1));
-    const heal = bounds.find(bound => bound.id === 'heal');
-    const about = bounds.find(bound => bound.id === 'about');
-    if (!heal || !about || !landing.width || !nav.width || !final.width) return;
-    const exitStart = Math.max(heal.top, final.y - nav.y);
-    this.geometry = { landing, nav, final, landingEnd: Math.min(bounds[1].top, height * .72),
-      finalStart: heal.top - height * .7, finalEnd: heal.top,
-      exitStart, exitEnd: Math.min(about.top, exitStart + height * .45) };
+    const [landing, nav] = this.sources.map((source, index) => read(source, index === 1));
+    if (!landing.width || !nav.width) return;
+    this.geometry = { landing, nav, landingEnd: Math.min(bounds[1].top, height * .72) };
     this.update(window.scrollY);
   }
 

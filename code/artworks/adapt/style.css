@@ -90,9 +90,6 @@ body[data-artwork-state='2'] .figma-ui img {
   filter: none;
 }
 
-/* Keep the title's original blue paper face in both scene states. */
-body[data-artwork-state] .figma-ui .badge-layer img { filter: none; }
-
 .badge-layer {
   position: absolute;
   display: flex;
@@ -276,11 +273,6 @@ body[data-artwork-state] .figma-ui .badge-layer img { filter: none; }
 }
 body[data-artwork-state='1'] .button-shell { filter: grayscale(1) saturate(0) contrast(.9) brightness(.92); }
 body[data-artwork-state='1'] .energy-tool[aria-pressed='true'] .button-shell { filter: none; }
-/* Utility buttons keep their blue identity throughout recovery. */
-.utility-controls .icon-button,
-.info-popover .icon-button { --control-face: #1d39b7; }
-body[data-artwork-state='1'] .utility-controls .button-shell,
-body[data-artwork-state='1'] .info-popover .button-shell { filter: none; }
 /* Lift the paper stack on hover; keep the selected source colour intact. */
 @media (hover: hover) and (pointer: fine) {
   .icon-button:not(:disabled):hover {
@@ -362,15 +354,7 @@ progress::-moz-progress-bar { background: #8cff00; }
   gap: clamp(6px, .6cqw, 12px);
 }
 .utility-controls .icon-button { --control-size: clamp(47px, 4.7cqw, 82px); }
-.utility-controls .icon-button::after {
-  left: auto;
-  right: calc(100% + 14px);
-  top: 50%;
-  bottom: auto;
-  transform: translateY(-50%);
-  white-space: nowrap;
-  max-width: 210px;
-}
+.utility-controls .icon-button::after { left: auto; right: 0; }
 
 .info-popover {
   position: fixed;
@@ -441,6 +425,9 @@ progress::-moz-progress-bar { background: #8cff00; }
 }
 @media (prefers-reduced-motion: reduce) {
   .icon-button, .icon-button::after { transition: none; }
+  .icon-button:not(:disabled):hover,
+  .icon-button:not(:disabled):focus-visible,
+  .icon-button:not(:disabled):active { transform: none; }
 }
 
 /* A compact sound bubble stays attached to the speaker's left edge. */
@@ -488,28 +475,6 @@ progress::-moz-progress-bar { background: #8cff00; }
 .sound-recommended { padding: 7px 8px; border: 1px solid #111; background: #bbf52a; color: #080b0c; box-shadow: 2px 2px 0 #ff6600; font-size: 9px; font-weight: 700; }
 .sound-recommended:hover { background: #d3ff63; }
 .sound-mute:hover, .sound-close:hover { color: #fff; background: #ffffff16; }
-#sound-panel .sound-mute,
-#sound-panel .sound-close,
-#sound-panel .sound-recommended {
-  transform-origin: 50% 65%;
-  transition: transform 180ms cubic-bezier(.2, .8, .2, 1), filter 180ms ease;
-  -webkit-tap-highlight-color: transparent;
-}
-#sound-panel .sound-mute:hover,
-#sound-panel .sound-close:hover,
-#sound-panel .sound-recommended:hover,
-#sound-panel .sound-mute:focus-visible,
-#sound-panel .sound-close:focus-visible,
-#sound-panel .sound-recommended:focus-visible {
-  transform: translateY(-2px) rotate(-2deg) scale(1.04);
-  filter: brightness(1.12) drop-shadow(0 3px 0 #0005);
-}
-#sound-panel .sound-mute:active,
-#sound-panel .sound-close:active,
-#sound-panel .sound-recommended:active {
-  transform: translateY(1px) scale(.97);
-  filter: brightness(1.06);
-}
 #sound-button[aria-expanded='true']::after { display: none; }
 @container (max-width: 230px) {
   .sound-mix-row { grid-template-columns: minmax(0, 1fr) 30px; gap: 2px 6px; }
@@ -569,14 +534,6 @@ progress::-moz-progress-bar { background: #8cff00; }
   .recovery-heading { flex-wrap: wrap; gap: 2px 6px; }
   #interaction-status { position: static; margin: 10px 0 0; width: auto; font-size: 12px; line-height: 1.45; }
   .utility-controls { right: max(16px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: 1fr; gap: 8px; }
-  .utility-controls .icon-button::after {
-    right: auto;
-    left: 0;
-    top: auto;
-    bottom: calc(100% + 7px);
-    transform: none;
-    white-space: normal;
-  }
   .figma-ui:not(.export-ui) .figma-subtitle { inset: auto 86px max(26px, env(safe-area-inset-bottom)) 16px; height: 64px; }
   .figma-ui:not(.export-ui) .subtitle-shadow { left: 0; top: 6px; width: 100%; height: 58px; }
   .figma-ui:not(.export-ui) .subtitle-frame { left: 0; top: 0; width: 100%; height: 56px; }
@@ -605,4 +562,1173 @@ progress::-moz-progress-bar { background: #8cff00; }
   .recovery-status { right: 14px; width: 112px; }
   #recovery-value { font-size: 21px; }
   #interaction-status { font-size: 11px; }
+}
+
+
+/* ========================================================================
+   v3.7 — STAGE 1 / STAGE 2 VISUAL CONTINUITY
+   Visual-only redesign. Interaction mechanics and event wiring are unchanged.
+   ======================================================================== */
+:root {
+  --heal-ink: #141414;
+  --heal-paper: #F4F1EC;
+  --heal-blue: #2930FF;
+  --heal-orange: #FF7900;
+  --heal-lime: #B3FF36;
+  --heal-violet: #6952EB;
+  --heal-stage2-end: #241E28;
+}
+
+html, body { background: var(--heal-stage2-end); }
+#app { background: var(--heal-stage2-end); }
+
+/* Keep shared HEAL chrome in colour at the beginning of Stage 3. The artwork
+   itself carries the dirty Stage-2 palette; the interface remains consistent. */
+body[data-artwork-state='1'] .figma-ui img,
+body[data-artwork-state='2'] .figma-ui img { filter: none; }
+body[data-artwork-state='1'] .button-shell { filter: none; }
+
+.badge-title, .badge-stage { color: var(--heal-paper); }
+
+/* Match Stage 1/2 button family: one blue paper-stack control language. */
+.icon-button { --control-face: var(--heal-blue); color: var(--heal-paper); }
+.energy-tool[data-tool='sun'][aria-pressed='true'],
+.energy-tool[data-tool='wind'][aria-pressed='true'] { --control-face: var(--heal-blue); }
+.energy-tool[data-tool='sun'][aria-pressed='true'] .control-icon { color: var(--heal-orange); }
+.energy-tool[data-tool='wind'][aria-pressed='true'] .control-icon { color: var(--heal-lime); }
+.energy-tool[aria-pressed='true'] .selection-mark svg { stroke: var(--heal-paper); }
+.icon-button::after { background: #fff; color: #101022; box-shadow: 3px 3px 0 #000; }
+
+progress { background: rgba(244,241,236,.26); color: var(--heal-lime); accent-color: var(--heal-lime); }
+progress::-webkit-progress-bar { background: rgba(244,241,236,.26); }
+progress::-webkit-progress-value { background: var(--heal-lime); }
+progress::-moz-progress-bar { background: var(--heal-lime); }
+.energy-tool[data-tool='sun'] progress::-webkit-progress-value { background: var(--heal-orange); }
+.energy-tool[data-tool='sun'] progress::-moz-progress-bar { background: var(--heal-orange); }
+.energy-tool[data-tool='wind'] progress::-webkit-progress-value { background: var(--heal-lime); }
+.energy-tool[data-tool='wind'] progress::-moz-progress-bar { background: var(--heal-lime); }
+
+/* Stage 2-like HUD proportions and crisp editorial hierarchy. */
+.recovery-status {
+  top: 3.55%; right: 3.125%; width: clamp(188px, 12.4cqw, 238px);
+  color: var(--heal-paper); text-shadow: none; font-variant-numeric: tabular-nums;
+}
+.recovery-heading { align-items: end; column-gap: 14px; min-height: 42px; }
+#recovery-label {
+  padding-bottom: 5px; color: rgba(226,229,235,.88);
+  font-size: clamp(11px,.73cqw,14px); font-weight: 700; line-height: 1;
+  letter-spacing: .085em; text-transform: uppercase; white-space: nowrap;
+}
+#recovery-value {
+  min-width: 3.1ch; color: var(--heal-paper); font-size: clamp(25px,1.78cqw,34px);
+  font-weight: 700; line-height: .94; letter-spacing: -.035em; text-align: right;
+}
+.recovery-status > progress { height: 5px; margin-top: 10px; }
+#interaction-status {
+  margin: 8px 0 0; color: rgba(204,208,216,.72); font-size: clamp(9px,.62cqw,12px);
+  line-height: 1.28; letter-spacing: .035em; text-align: right;
+}
+
+@media (min-width: 701px) {
+  .primary-controls { top: 31.7%; left: 4.55%; gap: 14px; }
+  .primary-controls .icon-button { --control-size: 82px; }
+  .energy-tools { gap: 10px; }
+  .utility-controls { right: 2.70833%; bottom: 3.51852%; gap: 8px; }
+  .utility-controls .icon-button { --control-size: 82px; }
+  .utility-controls .icon-button::after { right: calc(100% + 14px); left: auto; top: 50%; bottom: auto; transform: translateY(-50%); white-space: nowrap; }
+}
+
+/* Research modal mirrors HARM / EXHAUST: orange cap, blue header, paper body,
+   lime closing edge. Research is primary; instructions are secondary. */
+.info-popover {
+  width: min(1718px, 89cqw); max-height: min(700px, calc(100cqh - 80px));
+  border: 0; border-top: 7px solid var(--heal-orange); border-bottom: 10px solid var(--heal-lime);
+  background: #E2E7EA; color: #0C101B; box-shadow: 10px 10px 0 rgba(0,0,0,.40);
+  font: 18px/1.48 'Stack Sans Notch', Arial, Helvetica, sans-serif;
+}
+.info-popover::backdrop { background: rgba(4,6,18,.86); }
+.info-popover-header { min-height: 92px; padding: 14px 34px; background: var(--heal-blue); color: #fff; }
+.info-popover h2 { font-size: clamp(26px,2.25cqw,44px); letter-spacing: -.02em; text-transform: uppercase; }
+#info-close { --control-size: 58px; }
+.info-popover-body {
+  grid-template-columns: minmax(0,1.65fr) minmax(300px,.72fr);
+  gap: 30px 46px; padding: 34px 46px 28px;
+}
+.research-copy { font-size: clamp(18px,1.24cqw,24px); line-height: 1.42; }
+.research-copy p { margin: 0 0 26px; }
+.research-mark { text-decoration: none; border-bottom: 7px solid; padding-bottom: 1px; }
+.research-mark-orange { border-color: rgba(255,121,0,.50); }
+.research-mark-blue { border-color: rgba(41,48,255,.32); }
+.research-mark-lime { border-color: rgba(179,255,54,.55); }
+.info-guide { padding-left: 28px; border-left: 3px solid var(--heal-blue); font-size: 15px; }
+.info-popover h3 { color: var(--heal-blue); font-size: 15px; letter-spacing: .06em; }
+.info-guide li + li { margin-top: 10px; }
+.info-shortcuts {
+  grid-column: 1 / -1; padding-top: 16px; border-top: 1px solid rgba(16,16,34,.18);
+  color: #373E4D; font-size: 12px; line-height: 1.55; letter-spacing: .02em;
+}
+
+/* Sound panel: same high-contrast mixer family as the Stage 1/2 samples. */
+.sound-panel {
+  border: 2px solid #D9DADD; border-radius: 0; background: rgba(6,8,10,.97); color: #E5E5E6;
+  box-shadow: 6px 6px 0 var(--heal-blue); font-weight: 700;
+}
+.sound-panel::after { background: #06080A; border-color: #D9DADD; }
+
+.sound-panel .sound-panel-header {
+  min-height: 0; padding: 6px 8px; background: transparent; color: #E5E5E6;
+}
+.sound-panel-header, .sound-panel-footer { border-color: #3B3D41; }
+.sound-mix-row { border-left-color: var(--heal-blue); background: rgba(255,255,255,.012); }
+.sound-mix-row:nth-child(3n) { border-left-color: var(--heal-lime); }
+.sound-mix-row:last-child { border-left-color: var(--heal-orange); }
+.sound-legend span, .sound-mix-row label span { color: var(--heal-lime); }
+.sound-mix-row input::-webkit-slider-thumb,
+.sound-mix-row input::-moz-range-thumb { background: var(--heal-lime); border-color: #131313; }
+.sound-mute { color: var(--heal-lime); }
+.sound-recommended { background: var(--heal-lime); color: #050505; border: 0; box-shadow: 3px 3px 0 var(--heal-orange); }
+
+@media (max-width: 700px) and (min-height: 430px) {
+  #artwork-stage { background: var(--heal-stage2-end); }
+  body[data-artwork-state='2'] #artwork-stage { background: #12141C; }
+  .info-popover-body { grid-template-columns: 1fr; }
+  .info-guide { padding-left: 0; border-left: 0; border-top: 3px solid var(--heal-blue); padding-top: 18px; }
+  .research-copy { font-size: 14px; }
+  .research-mark { border-bottom-width: 4px; }
+}
+
+/* ========================================================================
+   v3.8 — GROUP-SAMPLE UI PASS
+   Requested changes:
+   - remove the decorative title banner and use a simple Stage 1/2-style title
+   - subtitle becomes a temporary instruction / hint card
+   - information button occasionally shows a small reminder
+   - research copy remains the primary information content
+   ======================================================================== */
+
+/* Quiet editorial title: same top-left track and weight as HARM / EXHAUST. */
+.stage-title-text {
+  position: absolute;
+  left: 3.125%;
+  top: 3.55%;
+  z-index: 12;
+  height: 42px;
+  display: flex;
+  align-items: flex-end;
+  margin: 0;
+  padding: 0;
+  color: var(--heal-paper, #F4F1EC);
+  font-family: 'Stack Sans Notch', Arial, Helvetica, sans-serif;
+  font-size: clamp(25px, 1.78cqw, 34px);
+  font-weight: 700;
+  line-height: .94;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  pointer-events: none;
+}
+body.info-is-open .stage-title-text { visibility: hidden; }
+
+/* The subtitle is no longer permanent. It is a single sample-style paper card
+   that UI logic briefly reveals for instructions, state changes and hints. */
+.figma-subtitle {
+  position: absolute;
+  inset: auto auto 5.2% 22.95833%;
+  width: 54.08333%;
+  height: 7.11111%;
+  opacity: 0;
+  transform: translateY(20px) scale(.985);
+  transform-origin: 50% 100%;
+  transition: opacity 170ms ease-out, transform 220ms cubic-bezier(.2,.9,.25,1.15);
+  pointer-events: none;
+}
+.figma-subtitle.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.subtitle-panel-shape {
+  position: absolute;
+  inset: 0;
+  background: #E0E5E8;
+  border: 2px solid #141414;
+  box-shadow: 7px 7px 0 #2930FF;
+  clip-path: polygon(0 0, 97.7% 0, 100% 28%, 100% 100%, 2.3% 100%, 0 72%);
+}
+.figma-subtitle p {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #11131F;
+  font-family: 'Stack Sans Notch', Arial, Helvetica, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Occasional reminder attached to the information control. */
+.utility-controls { overflow: visible; }
+.info-nudge {
+  position: absolute;
+  right: calc(100% + 18px);
+  bottom: 2px;
+  z-index: 45;
+  width: max-content;
+  max-width: 235px;
+  padding: 10px 14px 11px;
+  border: 2px solid #141414;
+  background: #F4F1EC;
+  color: #141414;
+  box-shadow: 5px 5px 0 #2930FF;
+  font: 700 13px/1.15 'Stack Sans Notch', Arial, Helvetica, sans-serif;
+  letter-spacing: .005em;
+  text-transform: none;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(10px) scale(.97);
+  transform-origin: 100% 50%;
+  transition: opacity 160ms ease, transform 190ms cubic-bezier(.2,.9,.25,1.15), visibility 160ms;
+  pointer-events: none;
+}
+.info-nudge::after {
+  content: '';
+  position: absolute;
+  right: -9px;
+  bottom: 18px;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid #141414;
+  border-right: 2px solid #141414;
+  background: #F4F1EC;
+  transform: rotate(45deg);
+}
+.info-nudge.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0) scale(1);
+}
+body.info-is-open .info-nudge,
+body.sound-is-open .info-nudge { opacity: 0; visibility: hidden; }
+
+/* Research is the visual priority when the information control is opened. */
+.research-copy p:last-child { margin-bottom: 0; }
+.info-popover-body { align-items: start; }
+.research-copy { max-width: 980px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .figma-subtitle,
+  .info-nudge { transition: opacity 120ms linear, visibility 120ms linear; transform: none; }
+  .figma-subtitle.is-visible,
+  .info-nudge.is-visible { transform: none; }
+}
+
+@media (max-width: 700px) and (min-height: 430px) {
+  .stage-title-text {
+    left: 32px;
+    top: 34px;
+    height: 30px;
+    font-size: 24px;
+    line-height: 1;
+  }
+  .figma-ui:not(.export-ui) .figma-subtitle {
+    inset: auto 86px max(26px, env(safe-area-inset-bottom)) 16px;
+    width: auto;
+    height: 58px;
+  }
+  .figma-ui:not(.export-ui) .figma-subtitle p {
+    inset: 0;
+    width: auto;
+    height: auto;
+    padding: 0 16px;
+    font-size: 12px;
+    line-height: 1.25;
+    white-space: normal;
+  }
+  .subtitle-panel-shape { box-shadow: 4px 4px 0 #2930FF; }
+  .info-nudge {
+    right: calc(100% + 10px);
+    max-width: 165px;
+    padding: 8px 10px;
+    font-size: 11px;
+    white-space: normal;
+  }
+}
+
+/* ========================================================================
+   v3.9 — FULL GROUP-SYSTEM CONSISTENCY PASS
+   ADAPT keeps its unique SUN/WIND interaction, but all visible UI now follows
+   the same editorial grid, button shell, title scale, subtitle behavior and
+   research-panel language used by the supplied HARM / EXHAUST samples.
+   ======================================================================== */
+
+:root {
+  --group-paper: #F4F1EC;
+  --group-ink: #141414;
+  --group-blue: #2930FF;
+  --group-blue-hover: #1D39B7;
+  --group-orange: #FF7900;
+  --group-lime: #B3FF36;
+  --group-panel: #E0E5E8;
+}
+
+/* One fixed 1920×1080 editorial grid, matching the group's other stages. */
+.stage-title-text {
+  left: 3.125%;
+  top: 3.55%;
+  height: 42px;
+  color: var(--group-paper);
+  font-size: clamp(25px, 1.78cqw, 34px);
+  font-weight: 700;
+  line-height: .94;
+  letter-spacing: -.035em;
+}
+
+/* Instructions/hints are transient only. No decorative title-banner layers. */
+.figma-subtitle {
+  left: 22.95833%;
+  right: auto;
+  top: auto;
+  bottom: 6.05%;
+  width: 54.08333%;
+  height: 7.11111%;
+  opacity: 0;
+  transform: translateY(18px) scale(.985);
+}
+.figma-subtitle.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.subtitle-panel-shape {
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--group-panel);
+  box-shadow: 3px 3px 0 var(--group-blue);
+  clip-path: none;
+}
+.figma-subtitle p {
+  inset: 0;
+  width: auto;
+  height: auto;
+  padding: 0 30px;
+  color: #11131F;
+  font-size: clamp(14px, 1.02cqw, 19.5px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: .002em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The top-right recovery HUD mirrors the Stage 1/2 percentage hierarchy. */
+.recovery-status {
+  top: 3.55%;
+  right: 3.125%;
+  width: clamp(188px, 12.4cqw, 238px);
+  color: var(--group-paper);
+  text-shadow: none;
+  font-variant-numeric: tabular-nums;
+}
+.recovery-heading {
+  min-height: 42px;
+  align-items: end;
+  column-gap: 14px;
+}
+#recovery-label {
+  padding-bottom: 5px;
+  color: rgba(226,229,235,.88);
+  font-size: clamp(11px, .73cqw, 14px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .085em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+#recovery-value {
+  min-width: 3.1ch;
+  color: var(--group-paper);
+  font-size: clamp(25px, 1.78cqw, 34px);
+  font-weight: 700;
+  line-height: .94;
+  letter-spacing: -.035em;
+  text-align: right;
+}
+.recovery-status > progress {
+  height: 5px;
+  margin-top: 10px;
+  background: rgba(243,242,240,.26);
+}
+.recovery-status > progress::-webkit-progress-bar { background: rgba(243,242,240,.26); }
+.recovery-status > progress::-webkit-progress-value { background: var(--group-lime); }
+.recovery-status > progress::-moz-progress-bar { background: var(--group-lime); }
+#interaction-status {
+  margin: 8px 0 0;
+  color: rgba(204,208,216,.66);
+  font-size: clamp(8px, .57cqw, 11px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: .06em;
+  text-align: right;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Every control now uses the same three-layer blue paper button from HARM / EXHAUST. */
+.icon-button {
+  --control-face: var(--group-blue);
+  --control-size: clamp(58px, 4.27083cqw, 82px);
+  color: var(--group-paper);
+}
+.icon-button:hover { --control-face: var(--group-blue-hover); }
+.button-shell { filter: none !important; }
+.info-symbol,
+.control-icon { color: var(--group-paper); }
+.energy-tool[data-tool='sun'][aria-pressed='true'],
+.energy-tool[data-tool='wind'][aria-pressed='true'] { --control-face: var(--group-blue); }
+.energy-tool[data-tool='sun'][aria-pressed='true'] .control-icon { color: var(--group-orange); }
+.energy-tool[data-tool='wind'][aria-pressed='true'] .control-icon { color: var(--group-lime); }
+.energy-tool[aria-pressed='true'] .selection-mark { opacity: 0; }
+.energy-tool progress { display: none; }
+
+.icon-button::after {
+  right: calc(100% + 14px);
+  left: auto;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  max-width: 210px;
+  padding: 7px 10px;
+  background: #fff;
+  color: #101022;
+  box-shadow: 3px 3px 0 #000;
+  font: 700 12px/1.3 'Stack Sans Notch', Arial, sans-serif;
+  white-space: nowrap;
+}
+
+/* Unique energy selectors stay on the left, but share the same sample button scale. */
+.primary-controls {
+  left: 2.70833%;
+  top: auto;
+  bottom: 3.51852%;
+  display: block;
+}
+.energy-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.primary-controls .icon-button { --control-size: clamp(58px, 4.27083cqw, 82px); }
+.primary-controls .icon-button::after {
+  left: calc(100% + 14px);
+  right: auto;
+}
+
+/* Utility controls use the exact right-hand stack rhythm of the group samples. */
+.utility-controls {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+.utility-controls .icon-button {
+  --control-size: clamp(58px, 4.27083cqw, 82px);
+  position: absolute;
+  right: 2.70833%;
+  pointer-events: auto;
+}
+#info-button  { bottom: 3.51852%; }
+#reset-button { bottom: 11.85185%; }
+#sound-button { bottom: 20.18519%; }
+.utility-controls .icon-button::after {
+  right: calc(100% + 14px);
+  left: auto;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+
+/* Occasional research reminder — same paper/blue offset language, never permanent. */
+.info-nudge {
+  right: 7.65%;
+  bottom: 5.2%;
+  padding: 8px 11px 9px;
+  border: 0;
+  border-radius: 0;
+  background: var(--group-panel);
+  color: var(--group-ink);
+  box-shadow: 3px 3px 0 var(--group-blue);
+  font: 700 12px/1.2 'Stack Sans Notch', Arial, sans-serif;
+  white-space: nowrap;
+}
+.info-nudge::after {
+  right: -7px;
+  bottom: 16px;
+  width: 12px;
+  height: 12px;
+  border: 0;
+  background: var(--group-panel);
+  box-shadow: 2px -2px 0 var(--group-blue);
+}
+
+/* Research window uses the same orange top / blue header / paper body / lime edge. */
+.info-popover {
+  width: min(1718px, 89.5cqw);
+  max-height: min(760px, calc(100cqh - 48px));
+  border: 0;
+  border-top: 6px solid var(--group-orange);
+  border-bottom: 9px solid var(--group-lime);
+  border-radius: 0;
+  background: var(--group-panel);
+  color: #11151E;
+  box-shadow: none;
+  font: 18px/1.45 'Stack Sans Notch', Arial, Helvetica, sans-serif;
+}
+.info-popover::backdrop { background: rgba(3,5,19,.88); }
+.info-popover-header {
+  min-height: 92px;
+  padding: clamp(20px, 1.8cqw, 35px) clamp(24px, 2.4cqw, 46px);
+  background: #243EB5;
+  color: #fff;
+}
+.info-popover h2 {
+  margin: 0;
+  font-size: clamp(26px, 2.15cqw, 42px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+.info-popover-body {
+  grid-template-columns: minmax(0, 1.8fr) minmax(280px, .72fr);
+  gap: clamp(28px, 3.2cqw, 62px);
+  padding: clamp(24px, 1.55cqw, 30px) clamp(24px, 2.4cqw, 46px) 22px;
+}
+.research-copy {
+  max-width: none;
+  font-size: clamp(16px, 1.3cqw, 25px);
+  line-height: 1.4;
+}
+.research-copy p { margin: 0; }
+.research-mark {
+  border-bottom-width: 6px;
+  padding-bottom: 0;
+}
+.info-guide {
+  padding-left: 28px;
+  border-left: 3px solid var(--group-blue);
+  color: #252B38;
+  font-size: clamp(13px, .88cqw, 16px);
+  line-height: 1.45;
+}
+.info-popover h3 {
+  color: #243EB5;
+  font-size: clamp(13px, .9cqw, 16px);
+  letter-spacing: .06em;
+}
+.info-shortcuts {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding-top: 18px;
+  border-top: 1px solid #10102226;
+  color: #373E4D;
+  font-size: clamp(11px, .75cqw, 14px);
+  line-height: 1.45;
+}
+
+/* Dedicated close artwork avoids collisions with shared control tooltips. */
+#info-close {
+  --control-size: clamp(44px, 3cqw, 86px);
+  position: relative;
+  flex: 0 0 var(--control-size);
+  width: var(--control-size);
+  height: auto;
+  aspect-ratio: 60 / 68;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+#info-close::before,
+#info-close::after { display: none; content: none; }
+#info-close .research-close-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+#info-close:hover { color: var(--group-lime); }
+#info-close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 5px;
+}
+
+/* The mixer keeps the established dark technical-panel treatment. */
+.sound-panel {
+  border: 2px solid rgba(243,242,240,.94);
+  background: rgba(6,7,12,.97);
+  box-shadow: 6px 6px 0 var(--group-blue);
+}
+.sound-recommended {
+  background: var(--group-lime);
+  color: #050505;
+  box-shadow: none;
+}
+
+body.info-is-open .figma-ui,
+body.info-is-open #artwork-controls { visibility: hidden; }
+body.info-is-open #info-popover { visibility: visible; }
+
+@media (max-width: 700px) and (min-height: 430px) {
+  .stage-title-text {
+    left: 20px;
+    top: 22px;
+    height: 30px;
+    font-size: 23px;
+  }
+  .recovery-status {
+    top: 20px;
+    right: 18px;
+    width: 150px;
+  }
+  #recovery-label { font-size: 9px; }
+  #recovery-value { font-size: 22px; }
+  #interaction-status { font-size: 8px; }
+  .figma-ui:not(.export-ui) .figma-subtitle {
+    inset: auto 82px max(24px, env(safe-area-inset-bottom)) 82px;
+    width: auto;
+    height: 58px;
+  }
+  .figma-ui:not(.export-ui) .figma-subtitle p {
+    padding: 0 14px;
+    font-size: 11px;
+    line-height: 1.22;
+    white-space: normal;
+  }
+  .primary-controls {
+    left: 14px;
+    bottom: max(14px, env(safe-area-inset-bottom));
+  }
+  .primary-controls .icon-button,
+  .utility-controls .icon-button { --control-size: 54px; }
+  .utility-controls .icon-button { right: 14px; }
+  #info-button  { bottom: max(14px, env(safe-area-inset-bottom)); }
+  #reset-button { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 59px); }
+  #sound-button { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 118px); }
+  .info-nudge {
+    right: 76px;
+    bottom: max(24px, env(safe-area-inset-bottom));
+    max-width: 165px;
+    white-space: normal;
+  }
+  .info-popover {
+    width: calc(100cqw - 28px);
+    max-height: calc(100cqh - 28px);
+  }
+  .info-popover-header { min-height: 66px; padding: 16px 18px; }
+  .info-popover h2 { font-size: 24px; }
+  .info-popover-body { grid-template-columns: 1fr; gap: 24px; padding: 20px 18px 18px; }
+  .research-copy { font-size: 14px; }
+  .info-guide { padding: 16px 0 0; border-left: 0; border-top: 3px solid var(--group-blue); }
+  .research-mark { border-bottom-width: 4px; }
+}
+
+
+/* ============================================================
+   v41 — EXACT GROUP-SAMPLE CONTROL LANGUAGE
+   Copied dimension/rhythm/hover values from Stage 1 HARM +
+   Stage 2 EXHAUST controls. No added ENERGY/MENU wrappers.
+   ============================================================ */
+
+/* Shared paper-stack control: same shell, size, blue, icon placement and motion as samples. */
+.icon-button {
+  --control-size: 82px;
+  --control-face: #2930FF;
+  position: relative;
+  width: var(--control-size) !important;
+  height: calc(var(--control-size) * .944) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #fff !important;
+  pointer-events: auto;
+  isolation: isolate;
+  transform-origin: 50% 65%;
+  cursor: pointer;
+  transition: transform 180ms cubic-bezier(.2,.8,.2,1), filter 180ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.button-shell {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--control-face);
+  filter: none !important;
+  pointer-events: none;
+}
+.control-icon {
+  position: absolute;
+  left: 22%;
+  top: 29%;
+  width: 47%;
+  height: 47%;
+  color: #fff;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  pointer-events: none;
+}
+.info-symbol {
+  position: absolute;
+  left: 22%;
+  top: 26%;
+  width: 47%;
+  height: 47%;
+  color: #fff;
+  pointer-events: none;
+}
+.icon-button::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  z-index: 40;
+  right: calc(100% + 14px);
+  left: auto;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  width: max-content;
+  max-width: 210px;
+  padding: 7px 10px;
+  background: #fff;
+  color: #101022;
+  box-shadow: 3px 3px 0 #000;
+  font: 700 12px/1.3 'Stack Sans Notch', Arial, sans-serif;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 140ms ease, visibility 140ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .icon-button:not(:disabled):hover {
+    z-index: 30;
+    transform: translateY(-4px) rotate(-3deg) scale(1.07);
+    filter: brightness(1.18) drop-shadow(0 5px 0 #0005);
+  }
+  .icon-button:not(:disabled):hover::after {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+.icon-button:not(:disabled):focus-visible {
+  z-index: 30;
+  outline: 3px solid #fff !important;
+  outline-offset: 4px;
+  transform: translateY(-4px) rotate(-3deg) scale(1.07);
+  filter: brightness(1.18) drop-shadow(0 5px 0 #0005);
+}
+.icon-button:not(:disabled):focus-visible::after { opacity: 1; visibility: visible; }
+.icon-button:not(:disabled):active { transform: translateY(1px) scale(.96); filter: brightness(1.08); }
+.icon-button:disabled { opacity: .5; cursor: default; }
+
+/* Right utility stack: exact sample positions on the 1920×1080 artboard. */
+.utility-controls {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+.utility-controls .icon-button {
+  --control-size: 82px;
+  position: absolute;
+  right: 52px;
+  pointer-events: auto;
+}
+#info-button  { bottom: 38px; }
+#reset-button { bottom: 128px; }
+#sound-button { bottom: 218px; }
+.utility-controls .icon-button::after {
+  right: calc(100% + 14px);
+  left: auto;
+  top: 50%;
+  bottom: auto;
+}
+
+/* Stage-3-only energy selectors: same exact sample button, mirrored to left. */
+.primary-controls {
+  position: absolute;
+  left: 52px;
+  top: auto;
+  bottom: 38px;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.primary-controls::before { content: none !important; display: none !important; }
+.energy-tools { display: flex; flex-direction: column-reverse; gap: 12px; }
+.primary-controls .icon-button { --control-size: 82px; }
+.primary-controls .icon-button::after {
+  left: calc(100% + 14px);
+  right: auto;
+  top: 50%;
+  bottom: auto;
+}
+.energy-tool::before { content: none !important; display: none !important; }
+.energy-tool progress,
+.energy-tool .selection-mark { display: none !important; }
+.energy-tool[aria-pressed='true'] { --control-face: #1D39B7; }
+.energy-tool[aria-pressed='true'] .control-icon { color: #fff !important; }
+
+/* Occasional info reminder uses the same white tooltip language as the samples. */
+.info-nudge {
+  right: 148px;
+  bottom: 55px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  color: #101022;
+  box-shadow: 3px 3px 0 #000;
+  font: 700 12px/1.3 'Stack Sans Notch', Arial, sans-serif;
+  white-space: nowrap;
+}
+.info-nudge::after {
+  right: -6px;
+  bottom: 12px;
+  width: 12px;
+  height: 12px;
+  border: 0;
+  background: #fff;
+  box-shadow: none;
+}
+
+/* Sound mixer — exact sample compact technical-panel language. */
+.sound-panel {
+  position: fixed;
+  width: min(352px, 24vw) !important;
+  height: auto !important;
+  max-height: min(560px, calc(100vh - 24px));
+  margin: 0;
+  padding: 11px 12px 12px;
+  overflow: hidden;
+  color: #F3F2F0;
+  background: rgba(6, 7, 12, .97);
+  border: 2px solid rgba(243, 242, 240, .94);
+  box-shadow: 6px 6px 0 #2930FF;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.sound-panel:popover-open {
+  display: block;
+}
+.sound-panel::after { display: none !important; }
+.sound-panel-header {
+  min-height: 0 !important;
+  padding: 0 0 9px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(243,242,240,.20) !important;
+  background: transparent !important;
+  color: #F3F2F0;
+}
+.sound-panel h2 {
+  margin: 0 !important;
+  color: #F3F2F0;
+  font-size: 9px !important;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .065em;
+  text-transform: uppercase;
+}
+.sound-close {
+  min-width: 22px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(243,242,240,.92);
+  background: transparent;
+  border: 1px solid rgba(243,242,240,.28);
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+.sound-close .control-icon {
+  position: static;
+  width: 13px;
+  height: 13px;
+  color: currentColor;
+}
+.sound-close:hover,
+.sound-close:focus-visible {
+  color: #08090D;
+  background: #B3FF36;
+  border-color: #B3FF36;
+  outline: none;
+}
+.sound-close:active { transform: translateY(1px) scale(.96); }
+.sound-legend {
+  display: block !important;
+  margin: 8px 0 0 !important;
+  color: rgba(243,242,240,.48) !important;
+  font-size: 8px !important;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+.sound-legend span,
+.sound-mix-row label span { color: rgba(195,245,43,.82); font-weight: 700; }
+.sound-panel-body {
+  padding: 0 !important;
+  max-height: min(405px, calc(100vh - 150px)) !important;
+  overflow: auto;
+}
+.sound-mix-rows {
+  padding-top: 9px;
+  display: grid;
+  gap: 8px;
+}
+.sound-mix-row {
+  display: grid;
+  grid-template-columns: minmax(128px,1.35fr) minmax(76px,1fr) 36px;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  padding: 4px 5px 4px 7px;
+  border: 0;
+  border-left: 2px solid rgba(47,57,255,.68);
+  background: rgba(243,242,240,.025);
+  color: rgba(243,242,240,.92);
+  font-size: 8.5px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: .025em;
+  text-transform: uppercase;
+}
+.sound-mix-row:nth-child(3) { border-left-color: rgba(195,245,43,.72); }
+.sound-mix-row:nth-child(6) { border-left-color: rgba(255,122,26,.78); }
+.sound-mix-row label { min-width: 0; white-space: nowrap; letter-spacing: .045em; }
+.sound-mix-row output { color: #F3F2F0; text-align: right; font-variant-numeric: tabular-nums; }
+.sound-mix-row input[type='range'] {
+  width: 100%;
+  height: 16px;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+.sound-mix-row input[type='range']::-webkit-slider-runnable-track { height: 3px; background: rgba(243,242,240,.68); }
+.sound-mix-row input[type='range']::-webkit-slider-thumb {
+  width: 10px; height: 14px; margin-top: -5.5px;
+  appearance: none; -webkit-appearance: none;
+  border: 1px solid #08090D; border-radius: 0; background: #B3FF36;
+}
+.sound-mix-row input[type='range']::-moz-range-track { height: 3px; background: rgba(243,242,240,.68); }
+.sound-mix-row input[type='range']::-moz-range-thumb { width: 10px; height: 14px; border: 1px solid #08090D; border-radius: 0; background: #B3FF36; }
+.sound-panel-footer {
+  margin: 10px 0 0 !important;
+  padding: 9px 0 0 !important;
+  display: grid !important;
+  grid-template-columns: 92px 1fr;
+  gap: 8px;
+  border: 0 !important;
+  border-top: 1px solid rgba(243,242,240,.20) !important;
+}
+.sound-mute,
+.sound-recommended {
+  min-height: 25px;
+  padding: 0 8px;
+  border-radius: 0;
+  font: 700 8px/1 'Stack Sans Notch', Arial, sans-serif;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.sound-mute {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #B3FF36;
+  background: #08090D;
+  border: 1px solid #B3FF36;
+  box-shadow: 3px 3px 0 #2930FF;
+}
+.sound-mute svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+.sound-recommended {
+  color: #08090D;
+  background: #B3FF36;
+  border: 1px solid #08090D;
+  box-shadow: 3px 3px 0 #FF7900;
+}
+.sound-mute:hover,
+.sound-mute:focus-visible { filter: brightness(1.08); outline: none; }
+.sound-recommended:hover,
+.sound-recommended:focus-visible { background: #F3F2F0; outline: none; }
+
+@media (max-width: 700px) {
+  .utility-controls .icon-button,
+  .primary-controls .icon-button { --control-size: 54px; }
+  .utility-controls .icon-button { right: 14px; }
+  #info-button { bottom: 14px; }
+  #reset-button { bottom: 73px; }
+  #sound-button { bottom: 132px; }
+  .primary-controls { left: 14px; bottom: 14px; }
+  .energy-tools { gap: 7px; }
+  .icon-button::after { display: none; }
+  .info-nudge { right: 76px; bottom: 24px; max-width: 165px; white-space: normal; }
+  .sound-panel { width: min(290px,72vw) !important; padding: 9px 10px 10px; }
+  .sound-mix-row { grid-template-columns: minmax(118px,1.35fr) minmax(64px,1fr) 32px; gap: 6px; }
+  .sound-panel-footer { grid-template-columns: 84px 1fr; gap: 6px; }
+}
+
+/* Research panel: full-width copy and author credit, matching the supplied reference. */
+#info-popover {
+  width: 89.5cqw;
+  max-height: calc(100dvh - 32px);
+  border-top: clamp(4px, .36cqw, 7px) solid #ff7900;
+  border-bottom: clamp(6px, .52cqw, 10px) solid #b3ff36;
+  background: #e0e5e8;
+}
+#info-popover .info-popover-header {
+  min-height: 10cqh;
+  padding: 1.3cqw 2.4cqw;
+}
+#info-popover h2 { font-size: clamp(24px, 2.15cqw, 62px); }
+#info-popover .info-popover-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 54cqh;
+  gap: 0;
+  padding: 1.25cqw 2.4cqw 1cqw;
+}
+#info-popover .research-copy {
+  max-width: none;
+  font-size: clamp(16px, 1.3cqw, 37px);
+  line-height: 1.4;
+}
+#info-popover .research-copy p + p { margin-top: 3.2cqw; }
+#info-popover .research-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .65em;
+  margin-top: auto;
+  padding-top: 1cqw;
+  border-top: 1px solid #10102226;
+  color: #373e4d;
+  font-size: clamp(12px, .85cqw, 24px);
+  line-height: 1.45;
+}
+#info-popover .research-copy { margin-bottom: 3.2cqw; }
+#info-close { --control-size: clamp(44px, 3cqw, 86px); flex-basis: var(--control-size); }
+@media (max-width: 700px) {
+  #info-popover { width: calc(100vw - 28px); }
+  #info-popover .info-popover-header { min-height: 72px; padding: 14px 18px; }
+  #info-popover .info-popover-body { min-height: 54dvh; padding: 20px 18px 18px; }
+  #info-popover .research-copy { font-size: 16px; margin-bottom: 32px; }
+  #info-popover .research-copy p + p { margin-top: 28px; }
+  #info-popover .research-footer { padding-top: 16px; }
+}
+
+/* Persistent single-line play instructions, matching the sample's paper strip. */
+.figma-ui .figma-subtitle { display: none; }
+.play-instructions {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: 5%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 51.5%;
+  min-height: 6.2%;
+  margin: 0;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 0;
+  background: #e0e5e8;
+  color: #11131f;
+  font: 600 clamp(12px, 1.18cqw, 23px)/1.3 'Stack Sans Notch', Arial, sans-serif;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+@media (max-width: 700px) {
+  .play-instructions {
+    bottom: 5%;
+    width: calc(100% - 160px);
+    min-height: 40px;
+    padding: 10px 4px;
+    font-size: clamp(6px, 1.7vw, 12px);
+  }
+}
+
+/* Match the reference's 82px controls on its scaled 1920 × 1080 artboard. */
+@media (min-width: 701px) {
+  .utility-controls .icon-button,
+  .primary-controls .icon-button { --control-size: 4.270833cqw; }
+  .utility-controls .icon-button { right: 2.708333cqw; }
+  .primary-controls { left: 2.708333cqw; bottom: 3.518519cqh; }
+  .energy-tools { gap: .625cqw; }
+  #info-button { bottom: 3.518519cqh; }
+  #reset-button { bottom: 11.851852cqh; }
+  #sound-button { bottom: 20.185185cqh; }
+}
+body[data-completed='true'] .play-instructions { visibility: hidden; }
+
+/* Make the individual energy percentages readable beneath overall recovery. */
+#interaction-status {
+  font-size: clamp(14px, .94cqw, 18px);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: .01em;
+  color: #e0e5e8;
+}
+@media (max-width: 700px) {
+  #interaction-status { font-size: 12px; }
+}
+
+/* Orange is brief click feedback rather than a persistent selected state. */
+#artwork-controls .icon-button { --control-face: var(--group-blue); }
+#artwork-controls .icon-button.is-activated,
+#artwork-controls .icon-button:active { --control-face: var(--group-orange); }
+
+/* Keep panel toggles orange for as long as their window is open. */
+#artwork-controls #sound-button[aria-expanded='true'],
+#artwork-controls #info-button[aria-expanded='true'] {
+  --control-face: var(--group-orange);
+}
+
+/* Keep the selected energy source orange until the other source is selected. */
+#artwork-controls .energy-tool[aria-pressed='true'] {
+  --control-face: var(--group-orange);
 }

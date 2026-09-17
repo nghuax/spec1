@@ -3,14 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>ADAPTS</title>
+  <title>ADAPT — Stage 3</title>
   <link rel="icon" href="assets/figma-ui/info-button-shape.svg" type="image/svg+xml" />
-  <meta name="description" content="Reconnect damaged communities through solar and wind energy in ADAPT, Stage 3 of HEAL's SDG 7 journey." />
+  <meta name="description" content="ADAPT — Stage 3 interactive clean-energy artwork about cleaner energy, air quality and environmental recovery." />
   <link rel="stylesheet" href="fonts.css" />
-  <link rel="stylesheet" href="style.css?v=3.23" />
-<link rel="stylesheet" href="../../css/fonts.css">
-<link rel="stylesheet" href="../exhibition-bridge.css">
-</head>
+  <link rel="stylesheet" href="style.css?v=5.4" />
+<link rel="stylesheet" href="../../css/fonts.css"><link rel="stylesheet" href="../exhibition-bridge.css"></head>
 <body>
   <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -32,17 +30,7 @@
   <div id="artwork-stage">
   <div id="app"></div>
     <div class="figma-ui" aria-label="Stage 3 artwork interface">
-      <div class="badge-layer badge-layer-back" aria-hidden="true">
-        <img src="assets/figma-ui/title-layer-back.svg" alt="" draggable="false" />
-      </div>
-      <div class="badge-layer badge-layer-middle" aria-hidden="true">
-        <img src="assets/figma-ui/title-layer-middle.svg" alt="" draggable="false" />
-      </div>
-      <div class="badge-layer badge-layer-front" aria-hidden="true">
-        <img src="assets/figma-ui/title-layer-front.svg" alt="" draggable="false" />
-      </div>
-      <div class="badge-title">ADAPT</div>
-      <div class="badge-stage">STAGE 3</div>
+      <h1 class="stage-title-text">STAGE 3 ADAPT</h1>
 
       <div
         class="figma-subtitle"
@@ -51,10 +39,8 @@
         aria-hidden="true"
         data-state="1"
       >
-        <img class="subtitle-shadow" src="assets/figma-ui/subtitle-shadow.svg" alt="" draggable="false" />
-        <img class="subtitle-frame" src="assets/figma-ui/subtitle-frame.svg" alt="" draggable="false" />
-        <img class="subtitle-panel" src="assets/figma-ui/subtitle-panel.svg?v=3.4.4" alt="" draggable="false" />
-        <p id="state-subtitle-text">Balance clean energy to clear pollution and restore life</p>
+        <div class="subtitle-panel-shape" aria-hidden="true"></div>
+        <p id="state-subtitle-text">Drag SUN across the habitats, then add WIND to reconnect them.</p>
       </div>
 
     </div>
@@ -81,11 +67,11 @@
     <div class="recovery-status">
       <div class="recovery-heading"><span id="recovery-label">FIELD RECOVERY</span><strong id="recovery-value">0%</strong></div>
       <progress id="recovery-progress" max="100" value="0" aria-label="Field recovery"></progress>
-      <p id="interaction-status">Drag SUN across the habitats, then add WIND to reconnect them.</p>
+      <p id="interaction-status">SUN 0% · WIND 0%</p>
     </div>
-    <p class="visually-hidden" id="control-caption">Select an energy source, then drag to supply it.</p>
+    <p class="play-instructions" id="control-caption">Select SUN or WIND, then drag to restore the habitats.</p>
     <div class="utility-controls" role="group" aria-label="Sound, reset and information">
-      <button class="icon-button" type="button" id="sound-button" data-command="sound-panel" aria-label="Open Sound Mix" aria-controls="sound-panel" aria-expanded="false" data-tooltip="Sound Mix">
+      <button class="icon-button" type="button" id="sound-button" data-command="sound-panel" aria-label="Open sound control panel" aria-controls="sound-panel" aria-expanded="false" data-tooltip="Sound control panel">
             <svg class="button-shell" viewBox="0 0 169 159.523" aria-hidden="true"><use href="#control-shell"/></svg>
             <svg class="control-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="#icon-sound"/></svg>
           </button>
@@ -93,46 +79,39 @@
             <svg class="button-shell" viewBox="0 0 169 159.523" aria-hidden="true"><use href="#control-shell"/></svg>
             <svg class="control-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="#icon-reset"/></svg>
           </button>
-      <button class="icon-button figma-info-button" id="info-button" type="button" data-command="info" aria-label="Open information and interaction guide" aria-controls="info-popover" aria-expanded="false" data-tooltip="Interaction guide · !">
+      <div class="info-nudge" id="info-nudge" role="status" aria-live="polite" aria-hidden="true">Click for more information</div>
+      <button class="icon-button figma-info-button" id="info-button" type="button" data-command="info" aria-label="Open ADAPT research" aria-controls="info-popover" aria-expanded="false" data-tooltip="Adapt research · I">
         <svg class="button-shell" viewBox="0 0 169 159.523" aria-hidden="true"><use href="#control-shell"/></svg>
         <svg class="info-symbol" viewBox="0 0 32 32" aria-hidden="true"><path d="M13 3h6l-1 18h-4Z M13 25h6v6h-6Z" fill="currentColor"/></svg>
       </button>
     </div>
   </section>
-  <dialog class="info-popover" id="info-popover" aria-labelledby="info-title" aria-describedby="info-intro">
+  <dialog class="info-popover" id="info-popover" aria-labelledby="info-title" aria-describedby="research-intro">
     <div class="info-popover-header">
-      <h2 id="info-title">ABOUT ADAPT</h2>
-      <button class="icon-button" type="button" id="info-close" data-command="close-info" aria-label="Close information" data-tooltip="Close guide">
-        <svg class="button-shell" viewBox="0 0 169 159.523" aria-hidden="true"><use href="#control-shell"/></svg>
-        <svg class="control-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="#icon-close"/></svg>
+      <h2 id="info-title">Adapt/Research</h2>
+      <button class="research-close" type="button" id="info-close" data-command="close-info" aria-label="Close information">
+        <svg class="research-close-art" viewBox="0 0 60 68" aria-hidden="true" focusable="false">
+          <path d="M18 7 57 3 57 60 18 64Z" fill="none" stroke="white" stroke-width="3"/>
+          <path d="M7 19 51 13 49 62 3 67Z" fill="black"/>
+          <path d="M13 12 51 8 47 53 11 58Z" fill="#243eb5"/>
+          <path class="research-close-x" d="m23 22 16 16m0-16L23 38" fill="none" stroke="currentColor" stroke-width="2.8"/>
+        </svg>
       </button>
     </div>
     <div class="info-popover-body">
-      <div class="info-story">
-        <p class="info-intro" id="info-intro">From isolated fragments to a connected community. ADAPT is HEAL's turning point: clean energy helps homes and habitats recover together.</p>
-        <div class="sdg-context">
-          <h3>SDG 7 &middot; CLEAN ENERGY</h3>
-          <p>Reliable, affordable and sustainable energy supports community life. Solar and wind work together here as a visual metaphor for a resilient network.</p>
-        </div>
-      </div>
-      <div class="info-guide">
-        <h3>RECONNECT THE FIELD</h3>
-        <ol>
-          <li>Select <strong>sun</strong> or <strong>wind</strong>. The check mark shows your source; its bar tracks energy supplied.</li>
-          <li><strong>Drag across habitats</strong> to supply energy and watch them respond.</li>
-          <li>Use <strong>both sources</strong> on each habitat to reconnect the field.</li>
-        </ol>
-        <p>The <strong>circular arrow</strong> resets and replays regeneration. Select an energy source to take control. The <strong>speaker</strong> opens Sound Mix, with individual levels and a mute control.</p>
-      </div>
-      <p class="info-shortcuts"><strong>1 / 2</strong> energy source &middot; <strong>R</strong> reset &amp; replay &middot; <strong>M</strong> sound &middot; <strong>!</strong> guide<br>Sound starts after interaction. Hover or Tab to reveal control labels. In HEAL, use chapter navigation to continue to LIVEN.</p>
+      <article class="research-copy" id="research-intro" aria-label="Stage 3 research">
+        <p>Instead of using fossil fuel and risking further harm to the environment, switching to cleaner energy can reap various benefits.</p>
+        <p>The most prominent benefit is the increase in air quality. With better air, people are less exposed to harmful pollutants, leading to healthier communities and a cleaner environment (WHO 2025). Furthermore, clean energy produces significantly fewer greenhouse gas emissions than fossil fuels, helping slow down global warming and reduce further damage to the planet (IPCC 2022).</p>
+      </article>
+      <footer class="research-footer"><span>Nguyen Gia Toan Phu Nghia</span><span aria-hidden="true">·</span><span>SID: S4099019</span></footer>
     </div>
   </dialog>
   <div class="sound-panel" id="sound-panel" popover="manual" role="dialog" aria-labelledby="sound-title">
     <div class="info-popover-header sound-panel-header">
-      <h2 id="sound-title">Sound Mix</h2>
+      <h2 id="sound-title">Sound Control Panel</h2>
       <div class="sound-panel-actions">
 
-        <button class="sound-close" id="sound-close" type="button" aria-label="Close Sound Mix"><svg class="control-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="#icon-close"/></svg></button>
+        <button class="sound-close" id="sound-close" type="button" aria-label="Close sound control panel"><svg class="control-icon" viewBox="0 0 32 32" aria-hidden="true"><use href="#icon-close"/></svg></button>
       </div>
     </div>
     <div class="sound-panel-body">
@@ -147,10 +126,8 @@
   <p id="artwork-announcement" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
 
   <script src="p5.js"></script>
-  <script src="environment-assets.js?v=3.13"></script>
-  <script src="composition.js?v=3.11"></script>
-  <script src="sketch.js?v=3.20"></script>
-  <script src="ui.js?v=3.22"></script>
-<script src="../exhibition-bridge.js"></script>
-</body>
+  <script src="mastered-audio.js?v=1"></script>
+  <script src="sketch.js?v=master1"></script>
+  <script src="ui.js?v=5.5"></script>
+<script src="../exhibition-bridge.js"></script></body>
 </html>

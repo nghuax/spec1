@@ -5,3 +5,6 @@ html, body {
 canvas {
   display: block;
 }
+
+/* Keep the completed scene clear after all natural objects are destroyed. */
+.artwork-finished .stage2-subtitle { visibility: hidden; }

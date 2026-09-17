@@ -5,87 +5,64 @@
 // ------------------------------------------------------------
 
 function buildWorld() {
-  // Rebalanced spacing pass: keep the storytelling flow the same, but open a
-  // little more negative space around the machine, the poles, and the far-right
-  // cluster so the scene reads cleaner at a glance.
+  // OPEN ABSTRACT LAYOUT
+  // Three visual bands keep factories, infrastructure and domestic elements
+  // from colliding while leaving a dedicated clear zone around the machine.
   houses = [
-    makeHouse('H0', 318, 620, .36, -.012, 0, 0.20),
-    makeHouse('H1', 594, 766, .34, .010, 1, 0.75),
-    makeHouse('H2', 874, 582, .39, .004, 2, 1.18),
-    makeHouse('H3', 1152, 748, .37, -.014, 3, 1.62),
-    makeHouse('H4', 1338, 654, .34, .012, 0, 2.05),
-    makeHouse('H5', 1582, 772, .36, -.010, 1, 2.42),
-    makeHouse('H6', 1768, 642, .31, .010, 2, 2.78)
+    makeHouse('H0', 190, 800, 0.483, -.012, 0, 0.20),
+    makeHouse('H1', 420, 872, 0.425, .010, 1, 0.75),
+    makeHouse('H2', 1015, 778, 0.471, .004, 2, 1.18),
+    makeHouse('H3', 1215, 886, 0.414, -.014, 3, 1.62),
+    makeHouse('H4', 1425, 770, 0.448, .012, 0, 2.05),
+    makeHouse('H5', 1630, 878, 0.414, -.010, 1, 2.42),
+    makeHouse('H6', 1810, 772, 0.391, .010, 2, 2.78)
   ];
 
   trees = [
-    makeTree(114, 712, .50, -.022, 0, .05),
-    makeTree(262, 538, .25, .010, 2, .42),
-    makeTree(508, 796, .35, -.014, 1, .83),
-    makeTree(740, 776, .36, .016, 2, 1.12),
-    makeTree(934, 502, .29, .022, 1, 1.48),
-    makeTree(1108, 520, .23, .008, 1, 1.70),
-    makeTree(1234, 782, .36, -.014, 0, 1.92),
-    makeTree(1314, 510, .31, -.018, 2, 2.10),
-    makeTree(1434, 786, .36, .010, 1, 2.35),
-    makeTree(1592, 520, .31, -.010, 0, 2.62),
-    makeTree(1842, 736, .28, .014, 2, 2.92)
+    makeTree(82, 648, 0.437, -.020, 0, .05),
+    makeTree(318, 636, 0.380, .010, 2, .42),
+    makeTree(526, 852, 0.391, -.014, 1, .83),
+    makeTree(882, 882, 0.368, .014, 3, 1.12),
+    makeTree(1078, 604, 0.391, .020, 1, 1.48),
+    makeTree(1266, 670, 0.345, .008, 2, 1.70),
+    makeTree(1492, 604, 0.402, -.014, 0, 1.92),
+    makeTree(1698, 646, 0.356, -.016, 3, 2.10),
+    makeTree(1860, 896, 0.345, .010, 1, 2.35)
   ];
 
   poles = [
-    makePole('P0', 520, 700, .47, -.008, .56),
-    makePole('P1', 984, 664, .53, -.012, 1.42),
-    makePole('P2', 1372, 780, .46, .010, 2.18),
-    makePole('P3', 1688, 748, .51, -.014, 2.84)
+    makePole('P0', 500, 688, 0.473, -.008, .56),
+    makePole('P1', 930, 650, 0.517, -.012, 1.42),
+    makePole('P2', 1350, 845, 0.473, .010, 2.18),
+    makePole('P3', 1695, 748, 0.506, -.014, 2.84)
   ];
 
   factories = [
-    makeFactory('F0', 248, 526, .23, 1, -.010, .32),
-    makeFactory('F05', 714, 524, .22, 0, .010, .94),
-    makeFactory('F1', 1216, 438, .54, 2, -.018, 1.55),
-    makeFactory('F2', 1512, 386, .47, 1, .014, 2.08),
-    makeFactory('F3', 1448, 652, .27, 0, -.008, 2.54),
-    makeFactory('F4', 1722, 556, .23, 1, .008, 3.00)
+    makeFactory('F0', 225, 486, 0.310, 0, -.010, .32),
+    makeFactory('F05', 520, 442, 0.287, 2, .010, .94),
+    makeFactory('F1', 980, 430, 0.425, 1, -.018, 1.55),
+    makeFactory('F2', 1260, 512, 0.345, 0, .014, 2.08),
+    makeFactory('F3', 1540, 428, 0.356, 2, -.008, 2.54),
+    makeFactory('F4', 1785, 520, 0.287, 1, .008, 3.00)
   ];
 
-  // Ground patches are derived from each building's real baseline instead of
-  // manually guessed Y values. This keeps every house/factory physically planted
-  // on its island even when scale changes.
-  const housePatchSpecs = [
-    { w: 124, r: -.01 }, { w: 132, r: .01 }, { w: 126, r: 0 },
-    { w: 142, r: -.02 }, { w: 130, r: .01 }, { w: 146, r: .02 },
-    { w: 126, r: .01 }
-  ];
-  const factoryPatchSpecs = [
-    { w: 86, r: 0 }, { w: 96, r: 0 }, { w: 226, r: -.03 },
-    { w: 202, r: .02 }, { w: 110, r: -.01 }, { w: 96, r: .01 }
-  ];
+  // One or two factories occupy lower pockets, chosen once for each seed.
+  // These slots avoid the furnace, domestic row and right-side controls.
+  const lowerSlots = [
+    {id:'F0', x:190, y:655}, {id:'F2', x:1170, y:710},
+    {id:'F3', x:1550, y:720}, {id:'F4', x:1780, y:665}
+  ].sort((a,b) => genSample(a.id,91)-genSample(b.id,91));
+  const lowerCount = genSample('lower-count',92) < .5 ? 1 : 2;
+  for (const slot of lowerSlots.slice(0,lowerCount)) {
+    const f = factories.find(f=>f.id===slot.id);
+    f.x=slot.x+(genSample(f.id,93)-.5)*24;
+    f.y=slot.y+(genSample(f.id,94)-.5)*24;
+    f.lowerPlacement=true;
+  }
 
-  patches = [
-    ...houses.map((h, i) => ({
-      ownerId: h.id,
-      ownerType: 'house',
-      x: h.x,
-      // groundPatch's top edge sits ~23 px above its origin; +18 gives a
-      // deliberate 5 px overlap with the house baseline so no dark gap appears.
-      y: h.y + 18,
-      w: housePatchSpecs[i].w,
-      r: housePatchSpecs[i].r
-    })),
-    ...factories.map((f, i) => ({
-      ownerId: f.id,
-      ownerType: 'factory',
-      x: f.x,
-      // Factory base ends at local y=80, so convert that baseline by scale and
-      // overlap it with the patch by 6 px.
-      y: f.y + 80 * f.s + 17,
-      w: factoryPatchSpecs[i].w,
-      r: factoryPatchSpecs[i].r
-    }))
-  ];
+  // Flat 2D pass: no grey ground/island shapes beneath houses or factories.
+  patches = [];
 
-  // Only real electricity consumers create demand.
-  // Poles are infrastructure: they conduct/react, but never ask for coal themselves.
   demandNodes = [
     ...houses.map(ref => ({ id: ref.id, type: 'house', ref })),
     ...factories.map(ref => ({ id: ref.id, type: 'factory', ref }))
@@ -103,20 +80,30 @@ function buildWorld() {
 function makeBaseObject(x, y, s, rot, birth, partCount) {
   const appear = [];
   for (let i = 0; i < partCount; i++) {
+    // The old build scattered pieces 40–140 px away and made them fly back in.
+    // Keep only tiny per-part offsets; render.js now unfolds them locally.
     const a = random(TWO_PI);
-    const d = random(42, 142);
+    const d = random(6, 22);
     appear.push({
       x: cos(a) * d,
-      y: sin(a) * d * .72 - random(14, 48),
-      r: random(-.82, .82),
-      sc: random(.48, .84),
-      delay: random(0, .95)
+      y: sin(a) * d * .55,
+      r: random(-.10, .10),
+      sc: random(.82, .94),
+      delay: i * random(.045, .085) + random(0, .10)
     });
   }
   return {
     x, y, s, rot, birth,
     seed: random(1000),
-    formDuration: random(2.0, 3.25),
+    motionSeedX: random(1000),
+    motionSeedY: random(1000),
+    motionSpeedX: random(.075, .135),
+    motionSpeedY: random(.064, .118),
+    motionAmp: random(.86, 1.12),
+    motionPhase: random(TWO_PI),
+    revealMode: 'fold',
+    revealDir: random() < .5 ? -1 : 1,
+    formDuration: random(1.15, 1.65),
     appear,
     activationAt: birth,
     locked: false,
@@ -132,7 +119,7 @@ function makeBaseObject(x, y, s, rot, birth, partCount) {
 
 function makeHouse(id, x, y, s, rot, variant, birth) {
   return Object.assign(makeBaseObject(x, y, s, rot, birth, 6), {
-    id, variant, kind: 'house',
+    id, variant, kind: 'house', motionType: 'house',
     locked: true,
     activationAt: Infinity,
     revealBias: birth,
@@ -142,6 +129,9 @@ function makeHouse(id, x, y, s, rot, variant, birth) {
     demandReady: 0,
     demandQueuedAt: -99,
     lastDemandAt: -99,
+    motionAmp: random(1.08, 1.34),
+    motionSpeedX: random(.082, .145),
+    motionSpeedY: random(.072, .128),
     housePuffTimer: random(1.1, 2.6),
     smokeBias: random(.92, 1.18),
     damageThresholds: [.98, .80, .50, .60, .72, .90]
@@ -150,7 +140,10 @@ function makeHouse(id, x, y, s, rot, variant, birth) {
 
 function makeTree(x, y, s, rot, variant, birth) {
   return Object.assign(makeBaseObject(x, y, s, rot, birth, 5), {
-    variant,
+    variant, motionType: 'tree',
+    motionAmp: random(1.12, 1.42),
+    motionSpeedX: random(.085, .152),
+    motionSpeedY: random(.074, .132),
     health: 1,
     damageThresholds: [.99, .48, .59, .72, .86]
   });
@@ -158,7 +151,7 @@ function makeTree(x, y, s, rot, variant, birth) {
 
 function makePole(id, x, y, s, rot, birth) {
   return Object.assign(makeBaseObject(x, y, s, rot, birth, 5), {
-    id,
+    id, motionType: 'pole',
     energy: 0,
     lastDemandAt: -99,
     damageThresholds: [.99, .88, .74, .80, .93]
@@ -167,7 +160,7 @@ function makePole(id, x, y, s, rot, birth) {
 
 function makeFactory(id, x, y, s, variant, rot, birth) {
   return Object.assign(makeBaseObject(x, y, s, rot, birth, 7), {
-    id, variant, kind: 'factory',
+    id, variant, kind: 'factory', motionType: 'factory',
     locked: true,
     activationAt: Infinity,
     revealBias: birth,
@@ -194,13 +187,14 @@ function makeFactory(id, x, y, s, variant, rot, birth) {
 
 function formationProgress(o, partIndex = 0) {
   if (!o || o.locked || !Number.isFinite(o.activationAt)) return 0;
+  if (o.entryDX !== undefined) return smooth01(constrain((sceneTime-o.activationAt)/.65,0,1));
   const a = o.appear[partIndex] || { delay: 0 };
   const t = (sceneTime - o.activationAt - a.delay) / o.formDuration;
   return easeOutCubic(constrain(t, 0, 1));
 }
 
 function objectReady(o) {
-  return !o.locked && formationProgress(o, 0) > .94;
+  return !o.locked && formationProgress(o, 0) > .94 && objectArrival(o).progress > .94;
 }
 
 function findArchitectureById(id) {
@@ -359,66 +353,138 @@ function buildAmbientFragments() {
     ambientFragments.push({
       x,
       y,
-      vx: random(-.08, .08),
-      vy: random(-.05, .05),
-      size: random(2.5, 9.5),
+      vx: random(-.16, .16),
+      vy: random(-.11, .11),
+      size: random(2.8, 9.5),
       shape: floor(random(5)),
       seed: random(1000),
       rot: random(TWO_PI),
-      rv: random(-.006, .006),
+      rv: random(-.012, .012),
       tone: random(),
-      depth: random() < .68 ? 0 : 1
+      mode: floor(random(4)),
+      phase: random(TWO_PI),
+      speedBias: random(.68, 1.22),
+      hero: random() < .06,
+      depth: random() < .72 ? 0 : 1
     });
   }
 }
 
 function updateAmbientFragments(dt) {
   const mouseSpeed = dist(mouseX, mouseY, pmouseX, pmouseY);
+  updateArtRipples(dt);
   for (const a of ambientFragments) {
+    applyArtRipple(a, dt);
     const local = samplePollution(a.x, a.y);
-    const n = noise(a.seed, sceneTime * .08) - .5;
-    a.vx += n * .004 * dt * 60;
-    a.vy += (noise(a.seed + 91, sceneTime * .08) - .5) * .004 * dt * 60;
+    const s = a.speedBias || 1;
+    const n = noise(a.seed, sceneTime * .17 * s) - .5;
+    const n2 = noise(a.seed + 91, sceneTime * .15 * s) - .5;
+    a.vx += n * .008 * dt * 60;
+    a.vy += n2 * .007 * dt * 60;
+
+    // Four movement personalities keep the particles from reading as one system.
+    if (a.mode === 1) {
+      a.vx += cos(sceneTime * .9 * s + a.phase) * .004 * dt * 60;
+      a.vy += sin(sceneTime * .76 * s + a.phase) * .0036 * dt * 60;
+    } else if (a.mode === 2) {
+      a.vx += sin(sceneTime * 1.25 * s + a.y * .012 + a.phase) * .0038 * dt * 60;
+      a.vy += cos(sceneTime * .95 * s + a.x * .009 + a.phase) * .003 * dt * 60;
+    } else if (a.mode === 3) {
+      const turn = sin(sceneTime * .62 * s + a.phase);
+      a.vx += turn * .006 * dt * 60;
+      a.vy -= turn * .0028 * dt * 60;
+    }
 
     const dx = a.x - mouseX;
     const dy = a.y - mouseY;
     const dd = sqrt(dx * dx + dy * dy);
-    if (dd < 125 && dd > 1 && mouseSpeed > 1.5) {
-      const force = (1 - dd / 125) * min(1, mouseSpeed / 28);
+    if (dd < 150 && dd > 1 && mouseSpeed > 1.2) {
+      const force = (1 - dd / 150) * min(1.2, mouseSpeed / 24);
       a.vx += dx / dd * force * .10;
       a.vy += dy / dd * force * .10;
     }
 
     if (local > .36) a.vy += local * .0032 * dt * 60;
-    a.x += a.vx * dt * 60;
-    a.y += a.vy * dt * 60;
-    a.rot += a.rv * dt * 60;
-    a.vx *= .996;
-    a.vy *= .996;
+    a.x += a.vx * dt * 60 * s;
+    a.y += a.vy * dt * 60 * s;
+    a.rot += a.rv * dt * 60 * s;
+    a.vx *= .994;
+    a.vy *= .994;
 
-    if (a.x < -20) a.x = W + 20;
-    else if (a.x > W + 20) a.x = -20;
-    if (a.y > H + 30) { a.y = random(20, 130); a.vy *= .2; }
-    if (a.y < -30) a.y = H + 20;
+    if (a.x < -36) a.x = W + 36;
+    else if (a.x > W + 36) a.x = -36;
+    if (a.y > H + 42) { a.y = random(18, 150); a.vy *= .22; }
+    if (a.y < -42) a.y = H + 28;
   }
 }
 
 function drawAmbientFragments(frontLayer) {
-  noStroke();
   for (const a of ambientFragments) {
     if ((frontLayer ? 1 : 0) !== a.depth) continue;
     const local = samplePollution(a.x, a.y);
+    const speed = sqrt(a.vx * a.vx + a.vy * a.vy);
     push();
     translate(a.x, a.y);
     rotate(a.rot);
-    if (local > .34) fill(54, 55, 61, 90 + local * 80);
-    else if (a.tone < .22) fill(46, 51, 245, 55);
-    else if (a.tone < .34) fill(255, 122, 26, 45);
-    else if (a.tone < .48) fill(180, 242, 42, 38);
-    else fill(8, 9, 13, 35);
-    drawShard(a.shape, a.size);
+
+    let c;
+    if (local > .34) c = color(151, 143, 134, 62 + local * 38);
+    else if (a.tone < .22) c = color(47, 57, 255, a.hero ? 92 : 65);
+    else if (a.tone < .40) c = color(255, 123, 0, a.hero ? 86 : 59);
+    else if (a.tone < .58) c = color(182, 242, 48, a.hero ? 60 : 38);
+    else if (a.tone < .72) c = color(255, 26, 18, a.hero ? 58 : 36);
+    else c = color(11, 11, 16, a.hero ? 48 : 30);
+
+    // Velocity streak: turns random drift into a readable kinetic gesture.
+    const trail = constrain(speed * 34, 3, a.hero ? 36 : 20);
+    stroke(red(c), green(c), blue(c), alpha(c) * .38);
+    strokeWeight(a.hero ? 1.7 : 1.0);
+    line(-trail, 0, 0, 0);
+    noStroke();
+    fill(c);
+    const sz = a.size * (a.hero ? 1.45 : 1);
+    drawShard(a.shape, sz);
+
+    if (a.hero) {
+      fill(red(c), green(c), blue(c), alpha(c) * .34);
+      rotate(.42);
+      drawShard((a.shape + 2) % 5, sz * .55);
+    }
     pop();
   }
+}
+
+// ------------------------------------------------------------
+// KINETIC ART RIBBONS — sparse, fast-moving geometric gestures
+// ------------------------------------------------------------
+function drawKineticRibbons(frontLayer = false) {
+  const count = frontLayer ? 3 : 5;
+  push();
+  noFill();
+  for (let i = 0; i < count; i++) {
+    const seed = (sceneSeed % 9973) * .001 + i * 17.31 + (frontLayer ? 90 : 0);
+    const speed = .22 + (i % 4) * .045;
+    const t = sceneTime * speed + seed;
+    const baseX = ((noise(seed, t * .12) * (W + 520) + t * 145) % (W + 520)) - 260;
+    const baseY = 130 + noise(seed + 21.4, t * .16) * (H - 260);
+    const len = 36 + noise(seed + 42.8, t * .22) * (frontLayer ? 92 : 136);
+    const ang = -0.75 + noise(seed + 75.1, t * .19) * 1.5;
+    const palette = i % 4;
+    let cc = palette === 0 ? color(47,57,255) : palette === 1 ? color(255,123,0) : palette === 2 ? color(182,242,48) : color(255,26,18);
+    const aa = frontLayer ? 42 : 24;
+    stroke(red(cc), green(cc), blue(cc), aa);
+    strokeWeight(frontLayer ? 2.0 : 1.4);
+    line(baseX, baseY, baseX + cos(ang) * len, baseY + sin(ang) * len);
+    noStroke();
+    fill(red(cc), green(cc), blue(cc), frontLayer ? 72 : 42);
+    push();
+    translate(baseX + cos(ang) * len, baseY + sin(ang) * len);
+    rotate(ang + sceneTime * .18 * (i % 2 ? 1 : -1));
+    if (i % 3 === 0) diamond(0, 0, frontLayer ? 7 : 5);
+    else polygon([[-7,-3],[7,0],[-5,4]]);
+    pop();
+  }
+  pop();
 }
 
 // ------------------------------------------------------------
@@ -429,6 +495,7 @@ function draw() {
   const dt = min(deltaTime / 1000, .05);
   sceneTime += dt;
 
+  updatePressure(dt);
   updateHover();
   updateCoal(dt);
   updateFragments(dt);
@@ -452,9 +519,12 @@ function draw() {
 
   drawBackdrop();
   drawGraphicField();
+  drawGenerativeAirField();
+  drawGenerativeResidue();
+  drawArtRipples();
+  drawKineticRibbons(false);
   drawSmokeCeiling();
   drawStains();
-  drawPatches();
   drawAmbientFragments(false);
   drawCarbon(false);
   drawSmoke(false);
@@ -468,10 +538,14 @@ function draw() {
   drawDebris();
   drawDamageWaste();
   drawAmbientFragments(true);
+  drawKineticRibbons(true);
   drawCarbon(true);
   drawSmoke(true);
   drawAtmosphereVeil();
+  drawCompletionSurge();
+  drawPressureWake();
   drawHUD();
+  updateCompletion();
   image(grainLayer, 0, 0);
   if (infoOpen) drawInformationOverlay();
 }
@@ -481,7 +555,7 @@ function draw() {
 // ------------------------------------------------------------
 
 function updateHover() {
-  if (infoOpen) {
+  if (infoOpen || pressure.holding) {
     hoveredCoal = -1;
     hoveredNode = null;
     hoverStarted = 0;
@@ -535,9 +609,9 @@ function findDemandNodeAt(mx, my) {
 
 function nodePoint(n) {
   const r = n.ref;
-  if (n.type === 'house') return { x: r.x, y: r.y - 46 * r.s };
-  if (n.type === 'pole') return { x: r.x, y: r.y - 128 * r.s };
-  return { x: r.x - 34 * r.s, y: r.y - 42 * r.s };
+  if (n.type === 'house') return localToWorld(r, 0, -46);
+  if (n.type === 'pole') return localToWorld(r, 0, -128);
+  return localToWorld(r, -34, -42);
 }
 
 function requestDemand(node) {

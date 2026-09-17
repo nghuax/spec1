@@ -1,0 +1,64 @@
+/* Flat paper and a solid offset plate above the live completed artwork. */
+.artwork-ending {
+  left:50%;top:50%;width:min(52vw,1000px);max-height:calc(100dvh - 112px);
+  padding:clamp(28px,3.5vw,64px) clamp(24px,3vw,56px);
+  color:#101333;background:#f0f0ed;border:2px solid #6952eb;border-radius:0;
+  box-shadow:9px 9px 0 #493cf2;pointer-events:auto;
+  overflow:auto;overscroll-behavior:contain;
+  animation:ending-arrive 360ms var(--ease-ui) 220ms both;
+}
+.artwork-ending::before,.artwork-ending::after { content:none; }
+.artwork-ending .ending-content { text-align:center; }
+.ending-sequence .ending-content { min-height:clamp(290px,22vw,390px); }
+.artwork-ending .ending-message {
+  margin:0;font-size:clamp(30px,3.15vw,60px);font-weight:750;line-height:1.08;
+  letter-spacing:-.035em;color:#101333;animation:none;
+}
+.artwork-ending .ending-subtitle {
+  margin:clamp(18px,2vw,30px) auto 0;max-width:42ch;
+  font-size:clamp(18px,1.45vw,27px);font-weight:650;line-height:1.35;
+  white-space:pre-line;color:#101333;
+}
+.artwork-ending .ending-detail {
+  margin:clamp(26px,3vw,46px) auto 0;max-width:48ch;
+  font-size:clamp(16px,1.18vw,22px);font-weight:450;line-height:1.5;
+  white-space:pre-line;color:#101333;animation:none;
+}
+.artwork-ending .ending-actions { margin-top:clamp(28px,3vw,48px);animation:none; }
+.artwork-ending .ending-actions button {
+  min-height:48px;min-width:158px;padding:12px 26px;
+  justify-content:center;color:#101333;background:#a5ff12;border:1px solid #101333;
+  border-radius:0;box-shadow:5px 5px 0 #493cf2;
+  font-size:16px;font-weight:750;letter-spacing:.025em;
+  transition:transform 200ms var(--ease-ui),box-shadow 200ms var(--ease-ui),background-color 200ms var(--ease-ui);
+}
+.artwork-ending .ending-actions button:hover { transform:translate(-2px,-2px);background:#b5ff43;box-shadow:7px 7px 0 #493cf2;border-color:#101333; }
+.artwork-ending .ending-actions button:active { transform:translate(3px,3px);box-shadow:2px 2px 0 #493cf2; }
+.artwork-ending .ending-actions button:focus-visible { outline:3px solid #101333;outline-offset:4px; }
+@media(max-width:1000px) { .artwork-ending { width:min(76vw,760px); } }
+@media(max-width:600px) {
+  .ending-sequence .ending-content { min-height:345px; }
+  .artwork-ending { width:calc(100% - 40px);padding:30px 22px;box-shadow:6px 6px 0 #493cf2; }
+  .artwork-ending .ending-message { font-size:30px; }
+}
+@media(max-height:540px) {
+  .ending-sequence .ending-content { min-height:210px; }
+  .artwork-ending { max-height:calc(100dvh - 80px);padding:18px 24px; }
+  .artwork-ending .ending-message { font-size:26px; }
+  .artwork-ending .ending-subtitle { margin-top:12px;font-size:16px; }
+  .artwork-ending .ending-detail { margin-top:16px;font-size:14px; }
+  .artwork-ending .ending-actions { margin-top:18px; }
+}
+@media(prefers-reduced-motion:reduce) { .artwork-ending { animation:none; } }
+html[data-motion="reduced"] .artwork-ending { animation:none; }
+/* One balanced action row; only the last LIVEN message exposes final actions. */
+.artwork-ending .ending-actions { align-items:center;gap:clamp(10px,1.4vw,22px);flex-wrap:wrap; }
+.artwork-ending .ending-actions button { flex:0 1 158px;min-width:0;padding-inline:12px; }
+.artwork-ending .ending-actions button[hidden] { display:none; }
+@media(max-width:600px) {
+  .artwork-ending .ending-actions { gap:10px; }
+  .artwork-ending .ending-actions button { flex:1 1 110px; }
+}
+@media(max-width:600px) {
+  .ending-sequence .ending-actions { min-height:106px;align-content:center; }
+}

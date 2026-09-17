@@ -14,9 +14,9 @@ function livenInformationContent() {
     <section class="info-gameplay">
       <h3>RESTORE THE PLANET</h3>
       <ol>
-        <li><strong>Drag renewable energy</strong><p>Move solar, wind and water pieces into their matching spaces on Earth.</p></li>
-        <li><strong>Avoid waste</strong><p>Trash pieces darken the planet. If one is placed by mistake, click it again to remove it.</p></li>
-        <li><strong>Bring Earth back to life</strong><p>Complete all three renewable-energy pieces to restore the planet and activate its final living state.</p></li>
+        <li><strong>Drag clean-energy homes</strong><p>Move the three clean-home continents into their matching spaces on Earth.</p></li>
+        <li><strong>Avoid polluting factories</strong><p>Factories temporarily darken the planet, then bounce back to orbit automatically.</p></li>
+        <li><strong>Bring Earth back to life</strong><p>Complete all three clean-home continents to restore the planet and activate its final living state.</p></li>
       </ol>
     </section>
     <footer class="info-shortcuts">
@@ -44,49 +44,73 @@ const C = {
 };
 
 const storyMessages = [
-  "Earth is waiting for a cleaner source of energy.",
-  "Drag a renewable energy piece toward the planet.",
-  "Every clean-energy choice helps Earth recover.",
-  "Solar, wind and water can restore what was damaged.",
-  "Be careful — not every piece brings life.",
-  "Waste and pollution will make the planet darker.",
-  "Placed the wrong piece? Click it to remove the damage.",
-  "Keep restoring Earth with renewable energy.",
-  "Complete all three clean-energy pieces to bring life back.",
-  "A renewable future begins with the choices we make."
+  "Earth is waiting for clean-energy homes to bring life back.",
+  "Drag a clean home into its matching continent on Earth.",
+  "Each clean-energy home helps the planet recover.",
+  "As clean homes return, dry trees grow back to life.",
+  "Be careful — polluting factories harm the planet.",
+  "Factory emissions temporarily darken Earth.",
+  "Factories bounce away and return to orbit automatically.",
+  "Choose clean homes to keep restoring the planet.",
+  "Complete all three clean-home continents to bring Earth back to life.",
+  "A living planet brings everyone together."
 ];
 
 const SOUND_DEFINITIONS = [
   {
+    key: "celebration",
+    label: "CELEBRATION",
+    file: "assets/sounds/celebration.wav",
+    recommended: 60,
+    level: 60,
+    accent: C.lime
+  },
+  {
+    key: "uiHover",
+    label: "UI HOVER",
+    file: "assets/sounds/ending.mp3",
+    recommended: 60,
+    level: 60,
+    accent: C.blue
+  },
+  {
+    key: "uiClick",
+    label: "UI CLICK",
+    file: "assets/sounds/ui-click.wav",
+    recommended: 60,
+    level: 60,
+    accent: C.orange
+  },
+  {
     key: "dragElement",
     label: "DRAG ELEMENT",
     file: "assets/sounds/drag-element.wav",
-    recommended: 45,
-    level: 45,
+    recommended: 60,
+    level: 60,
     accent: C.blue
   },
   {
     key: "correctElement",
     label: "CORRECT ELEMENT",
     file: "assets/sounds/correct-element.wav",
-    recommended: 70,
-    level: 70,
+    recommended: 60,
+    level: 60,
     accent: C.lime
   },
   {
     key: "earthRestore",
     label: "EARTH RESTORE",
     file: "assets/sounds/earth-restore.wav",
-    recommended: 80,
-    level: 80,
+    recommended: 60,
+    level: 60,
     accent: C.lime
   },
   {
     key: "trashElement",
     label: "TRASH ELEMENT",
     file: "assets/sounds/trash-element.wav",
-    recommended: 50,
-    level: 50,
+    recommended: 60,
+    level: 60,
     accent: C.orange
   },
   {
@@ -101,8 +125,8 @@ const SOUND_DEFINITIONS = [
     key: "wrongPlacement",
     label: "WRONG PLACEMENT",
     file: "assets/sounds/wrong-placement.wav",
-    recommended: 55,
-    level: 55,
+    recommended: 60,
+    level: 60,
     accent: C.pink
   }
 ];
@@ -128,6 +152,7 @@ let viewport = {
 };
 
 let earth;
+let pollutionPulse = 0;
 
 let renewablePieces = [];
 let trashPieces = [];
@@ -217,7 +242,7 @@ function loadSoundEffects() {
 
     const audio =
       new Audio(
-        sound.file
+        HEALMaster.url(sound.key)
       );
 
     audio.preload =
@@ -273,7 +298,7 @@ function playSound(
     sound.level / 100;
 
   const playback =
-    audio.play();
+    HEALMaster.play(audio);
 
   if (
     playback &&
@@ -445,9 +470,9 @@ function updateViewport() {
 
   if (width < height) {
     // Recompose the same world for portrait, keeping puzzle pieces undistorted.
-    viewport.scale = min(width / 1100, max(160, height - 240) / 1200);
+    viewport.scale = min((width - 24) / 1100, max(160, height - 320) / 1200);
     viewport.x = width / 2 - earth.x * viewport.scale;
-    viewport.y = height / 2 - 24 - earth.y * viewport.scale;
+    viewport.y = height / 2 - earth.y * viewport.scale;
     return;
   }
 
@@ -475,6 +500,8 @@ function updateViewport() {
     *
     0.5;
 
+  viewport.x = width / 2 - earth.x * viewport.scale;
+  viewport.y = height / 2 - earth.y * viewport.scale;
 }
 
 
@@ -512,6 +539,10 @@ function mouseWorld() {
 ========================================================= */
 
 function regenerateScene() {
+
+  visualRestoration = 0;
+  celebrationReveal = 0;
+  pollutionPulse = 0;
 
   sceneSeed =
     floor(
@@ -1114,9 +1145,12 @@ function drawBackdrop() {
   }
 
 
+  const densityTarget = [0, .12, .4, 1][renewableCount()];
+  celebrationReveal = Math.min(densityTarget, celebrationReveal + 1 / 90);
   for (
     const m
-    of bgMarks
+    of bgMarks.map((mark, index) => ({ ...mark, reveal: constrain((celebrationReveal - index / bgMarks.length) * 12, 0, 1) }))
+      .filter(mark => mark.reveal > 0)
   ) {
 
     push();
@@ -1131,7 +1165,7 @@ function drawBackdrop() {
     );
 
     const markColor = color(m.c);
-    markColor.setAlpha(m.opacity);
+    markColor.setAlpha(m.opacity * m.reveal);
     fill(markColor);
 
     beginShape();
@@ -1534,10 +1568,11 @@ function makeOrbitPiece({
     shapeVariant,
 
     shape:
-      makePuzzleShape(
-        size,
-        shapeVariant
-      ),
+      role === "renewable"
+        ? continentShape(["solar", "water", "turbine"].indexOf(kind), size)
+        : role === "trash"
+          ? continentShape(shapeVariant % 3, size)
+          : makePuzzleShape(size, shapeVariant),
 
     dragging:
       false,
@@ -1690,40 +1725,8 @@ function makePuzzleShape(
 }
 
 
-function fixedPuzzleShape(
-  variant,
-  size
-) {
-
-  return {
-
-    w:
-      size,
-
-    h:
-      size *
-      (
-        variant === 0
-          ? 0.82
-          : 0.95
-      ),
-
-    skew:
-      variant === 0
-        ? -10
-        :
-        (
-          variant === 1
-            ? 7
-            : -6
-        ),
-
-    mode:
-      variant %
-      4
-
-  };
-
+function fixedPuzzleShape(variant, size) {
+  return continentShape(variant, size, true);
 }
 
 
@@ -1736,6 +1739,11 @@ function drawPuzzleTile(
   scaleValue,
   fillColor
 ) {
+
+  if (shape.continent !== undefined) {
+    drawContinentTile(shape, scaleValue, fillColor);
+    return;
+  }
 
   const {
     w,
@@ -1935,6 +1943,16 @@ function updateOrbitingPieces() {
       )
       *
       orbitRadiusY(p);
+
+    if (p.returnFlight) {
+      const flight = p.returnFlight;
+      flight.progress = Math.min(1, flight.progress + 1 / 24);
+      const t = flight.progress;
+      const ease = 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2);
+      p.x = lerp(flight.x, p.x, ease);
+      p.y = lerp(flight.y, p.y, ease) - Math.sin(t * Math.PI) * 26;
+      if (t === 1) p.returnFlight = null;
+    }
 
   }
 
@@ -2136,7 +2154,7 @@ function drawOrbitPiece(
   drawPuzzleTile(
     p.shape,
     1,
-    C.purple
+    p.role === "renewable" ? C.lime : p.role === "trash" ? C.darkGray : C.purple
   );
 
   if (
@@ -2300,29 +2318,18 @@ function drawEarth() {
   const correctCount =
     renewableCount();
 
-  const trashCount =
-    trashPieces.filter(
-      p =>
-        p.placed
-    ).length;
-
   const heal =
     correctCount /
     3;
 
-  const damage =
-    constrain(
-      trashCount /
-      3,
-      0,
-      0.88
-    );
+  visualRestoration = lerp(visualRestoration, heal, 0.055);
+
+  const damage = pollutionPulse;
+  pollutionPulse *= 0.975;
 
   const healedOcean =
     lerpColor(
-      color(
-        C.gray
-      ),
+      lerpColor(color(C.lime), color(C.black), 0.82),
       color(
         C.blue
       ),
@@ -2374,16 +2381,16 @@ function drawEarth() {
     -earth.y
   );
 
+  drawingContext.save();
+  drawingContext.beginPath();
+  drawingContext.arc(earth.x, earth.y, earth.r, 0, Math.PI * 2);
+  drawingContext.clip();
+
   const passiveLand =
     lerpColor(
-      color(
-        C.darkGray
-      ),
-      color(
-        C.lime
-      ),
-      heal *
-      0.38
+      lerpColor(color(C.brown), color(C.black), 0.3),
+      lerpColor(color(C.darkGray), color(C.lime), 0.38),
+      heal
     );
 
   const passiveDamaged =
@@ -2413,7 +2420,13 @@ function drawEarth() {
     damage
   );
 
+  drawWorldRecovery(heal, damage);
+
+  drawingContext.restore();
+
   pop();
+
+  drawPeaceCircle();
 
 }
 
@@ -2544,9 +2557,7 @@ function drawRenewableEarthPieces(
 
       const emptyCol =
         lerpColor(
-          color(
-            C.darkGray
-          ),
+          lerpColor(color(C.brown), color(C.black), 0.3),
           color(
             C.black
           ),
@@ -2651,143 +2662,15 @@ function drawTrashEarthPieces() {
 ========================================================= */
 
 function drawPassiveLandShapes() {
-
   push();
-
-  translate(
-    earth.x,
-    earth.y
-  );
-
-  beginShape();
-
-  vertex(
-    -225,
-    -185
-  );
-
-  vertex(
-    -155,
-    -245
-  );
-
-  vertex(
-    -72,
-    -198
-  );
-
-  vertex(
-    -98,
-    -125
-  );
-
-  vertex(
-    -193,
-    -108
-  );
-
-  endShape(
-    CLOSE
-  );
-
-
-  beginShape();
-
-  vertex(
-    95,
-    -240
-  );
-
-  vertex(
-    198,
-    -184
-  );
-
-  vertex(
-    178,
-    -104
-  );
-
-  vertex(
-    96,
-    -120
-  );
-
-  vertex(
-    60,
-    -192
-  );
-
-  endShape(
-    CLOSE
-  );
-
-
-  beginShape();
-
-  vertex(
-    -250,
-    92
-  );
-
-  vertex(
-    -178,
-    50
-  );
-
-  vertex(
-    -118,
-    95
-  );
-
-  vertex(
-    -140,
-    188
-  );
-
-  vertex(
-    -222,
-    198
-  );
-
-  endShape(
-    CLOSE
-  );
-
-
-  beginShape();
-
-  vertex(
-    150,
-    78
-  );
-
-  vertex(
-    250,
-    62
-  );
-
-  vertex(
-    260,
-    150
-  );
-
-  vertex(
-    185,
-    215
-  );
-
-  vertex(
-    108,
-    170
-  );
-
-  endShape(
-    CLOSE
-  );
-
+  translate(earth.x, earth.y);
+  // Island chains between Asia, Africa and Australia.
+  [[-211,-166,17,25],[-231,-136,10,18],[169,-62,9,27],[188,-35,8,20],[96,32,10,15],[111,43,18,9],[133,48,14,8],[-86,174,12,35],[204,184,12,26],[150,217,15,11]].forEach(([x,y,w,h]) => {
+    beginShape();
+    [[-.4,-.4],[.1,-.55],[.48,-.16],[.3,.38],[-.2,.5],[-.5,.1]].forEach(([px,py])=>vertex(x+px*w,y+py*h));
+    endShape(CLOSE);
+  });
   pop();
-
 }
 
 
@@ -2954,46 +2837,8 @@ function earthDisplayPoint(
    RENEWABLE ICONS
 ========================================================= */
 
-function drawRenewableIcon(
-  kind,
-  sc = 1
-) {
-
-  push();
-
-  scale(
-    sc
-  );
-
-  if (
-    kind ===
-    "solar"
-  ) {
-
-    drawSolarReference();
-
-  }
-
-  if (
-    kind ===
-    "turbine"
-  ) {
-
-    drawTurbineReference();
-
-  }
-
-  if (
-    kind ===
-    "water"
-  ) {
-
-    drawWaterWheelReference();
-
-  }
-
-  pop();
-
+function drawRenewableIcon(kind, scaleValue) {
+  drawHouseCluster(kind, scaleValue, false);
 }
 
 
@@ -3350,359 +3195,8 @@ function drawWaterWheelReference() {
    TRASH ICONS
 ========================================================= */
 
-function drawTrashIcon(
-  kind,
-  sc = 1
-) {
-
-  push();
-
-  scale(
-    sc
-  );
-
-  noStroke();
-
-
-  if (
-    kind ===
-    "bag"
-  ) {
-
-    fill(
-      C.orange
-    );
-
-    beginShape();
-
-    vertex(
-      -25,
-      32
-    );
-
-    vertex(
-      -21,
-      -9
-    );
-
-    vertex(
-      -11,
-      -19
-    );
-
-    vertex(
-      -10,
-      -30
-    );
-
-    vertex(
-      11,
-      -30
-    );
-
-    vertex(
-      10,
-      -19
-    );
-
-    vertex(
-      21,
-      -9
-    );
-
-    vertex(
-      25,
-      32
-    );
-
-    endShape(
-      CLOSE
-    );
-
-    fill(
-      C.pink
-    );
-
-    rectMode(
-      CENTER
-    );
-
-    rect(
-      0,
-      -26,
-      17,
-      6
-    );
-
-    fill(
-      C.lime
-    );
-
-    rect(
-      0,
-      3,
-      18,
-      12
-    );
-
-  }
-
-
-  if (
-    kind ===
-    "barrel"
-  ) {
-
-    fill(
-      C.orange
-    );
-
-    rectMode(
-      CENTER
-    );
-
-    rect(
-      0,
-      0,
-      44,
-      60,
-      5
-    );
-
-    fill(
-      C.pink
-    );
-
-    rect(
-      0,
-      -21,
-      40,
-      7
-    );
-
-    rect(
-      0,
-      21,
-      40,
-      7
-    );
-
-    fill(
-      C.lime
-    );
-
-    rect(
-      0,
-      0,
-      21,
-      13
-    );
-
-  }
-
-
-  if (
-    kind ===
-    "can"
-  ) {
-
-    fill(
-      C.orange
-    );
-
-    rectMode(
-      CENTER
-    );
-
-    rect(
-      0,
-      0,
-      34,
-      50,
-      4
-    );
-
-    fill(
-      C.pink
-    );
-
-    rect(
-      0,
-      -21,
-      30,
-      6
-    );
-
-    fill(
-      C.lime
-    );
-
-    rect(
-      0,
-      4,
-      17,
-      10
-    );
-
-  }
-
-
-  if (
-    kind ===
-    "bottle"
-  ) {
-
-    fill(
-      C.orange
-    );
-
-    beginShape();
-
-    vertex(
-      -14,
-      31
-    );
-
-    vertex(
-      -16,
-      5
-    );
-
-    vertex(
-      -10,
-      -8
-    );
-
-    vertex(
-      -10,
-      -25
-    );
-
-    vertex(
-      10,
-      -25
-    );
-
-    vertex(
-      10,
-      -8
-    );
-
-    vertex(
-      16,
-      5
-    );
-
-    vertex(
-      14,
-      31
-    );
-
-    endShape(
-      CLOSE
-    );
-
-    fill(
-      C.pink
-    );
-
-    rectMode(
-      CENTER
-    );
-
-    rect(
-      0,
-      -30,
-      12,
-      6
-    );
-
-    fill(
-      C.lime
-    );
-
-    rect(
-      0,
-      4,
-      17,
-      11
-    );
-
-  }
-
-
-  if (
-    kind ===
-    "fishbone"
-  ) {
-
-    stroke(
-      C.orange
-    );
-
-    strokeWeight(
-      5
-    );
-
-    line(
-      -28,
-      0,
-      24,
-      0
-    );
-
-    for (
-      let x = -16;
-      x <= 12;
-      x += 14
-    ) {
-
-      line(
-        x,
-        0,
-        x - 10,
-        -13
-      );
-
-      line(
-        x,
-        0,
-        x - 10,
-        13
-      );
-
-    }
-
-    line(
-      24,
-      0,
-      34,
-      -9
-    );
-
-    line(
-      24,
-      0,
-      34,
-      9
-    );
-
-    noStroke();
-
-    fill(
-      C.pink
-    );
-
-    circle(
-      -31,
-      0,
-      8
-    );
-
-  }
-
-  pop();
-
+function drawTrashIcon(kind, scaleValue) {
+  drawHouseCluster(kind, scaleValue, true);
 }
 
 
@@ -6267,6 +5761,8 @@ function beginPieceDrag(
     dragging =
       p;
 
+    p.returnFlight = null;
+
     p.dragging =
       true;
 
@@ -6400,7 +5896,7 @@ function mouseReleased() {
   }
 
   if (
-    !p.placed
+    !p.placed && !p.returnFlight
   ) {
 
     returnPieceToOrbit(
@@ -6486,6 +5982,7 @@ function tryRenewableDrop(
       ? "earthRestore"
       : "correctElement"
   );
+  if (earthIsRestored()) playSound("celebration");
 
 }
 
@@ -6494,55 +5991,15 @@ function tryRenewableDrop(
    TRASH DROP
 ========================================================= */
 
-function tryTrashDrop(
-  p
-) {
-
-  if (
-    dist(
-      p.x,
-      p.y,
-      earth.x,
-      earth.y
-    )
-    >
-    earth.r *
-    0.98
-  ) {
-
-    return;
-
-  }
-
-  const best =
-    closestTrashSlot(
-      p
-    );
-
-  if (
-    best < 0
-  ) {
-
-    return;
-
-  }
-
-  trashSlots[best].occupied =
-    p;
-
-  p.placed =
-    true;
-
-  p.slotType =
-    "trash";
-
-  p.slotIndex =
-    best;
-
-  playSound(
-    "trashElement"
-  );
-
+function tryTrashDrop(p) {
+  if (dist(p.x,p.y,earth.x,earth.y) > earth.r * .98) return;
+  pollutionPulse = Math.min(.72, pollutionPulse + .38);
+  p.placed = false;
+  p.slotType = null;
+  p.slotIndex = -1;
+  returnPieceToOrbit(p);
+  p.returnFlight = { x: p.x, y: p.y, progress: 0 };
+  playSound("trashElement");
 }
 
 

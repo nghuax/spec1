@@ -1,7 +1,7 @@
 :root {
   --paper: #F3F2F0;
   --ink: #08090D;
-  --orange: #FF7A1A;
+  --orange: #FF7900;
 }
 
 * { box-sizing: border-box; }
@@ -188,7 +188,7 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
   position: absolute;
   inset: 0 auto 0 0;
   width: 0%;
-  background: #2F39FF;
+  background: #2930FF;
   transform-origin: left center;
   transition: width 160ms linear, background-color 180ms ease;
 }
@@ -205,8 +205,8 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
   white-space: nowrap;
 }
 
-.air-load-hud.is-warning .air-load-hud__value { color: #FF7A1A; }
-.air-load-hud.is-warning .air-load-hud__fill { background: #FF7A1A; }
+.air-load-hud.is-warning .air-load-hud__value { color: #FF7900; }
+.air-load-hud.is-warning .air-load-hud__fill { background: #FF7900; }
 
 .stage2-subtitle {
   position: absolute;
@@ -284,7 +284,7 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
 
 /* ---------- Right-side sample controls ---------- */
 .figma-control {
-  --control-face: #1d39b7;
+  --control-face: #2930FF;
   position: absolute !important;
   right: 2.70833%;
   width: 4.27083% !important;
@@ -359,7 +359,7 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
 .figma-control-mute-cross::after  { transform: translate(-50%, -50%) rotate(-45deg); }
 
 .figma-control.is-muted {
-  --control-face: #6B53F7;
+  --control-face: #2930FF;
 }
 
 .figma-control.is-muted .figma-control-icon path:last-child {
@@ -452,7 +452,7 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
   color: #F3F2F0;
   background: rgba(6, 7, 12, .97);
   border: 2px solid rgba(243, 242, 240, .94);
-  box-shadow: 6px 6px 0 #2F39FF;
+  box-shadow: 6px 6px 0 #2930FF;
   pointer-events: auto;
   user-select: none;
   -webkit-user-select: none;
@@ -500,8 +500,8 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
 .sound-settings__close:hover,
 .sound-settings__close:focus-visible {
   color: #08090D;
-  background: #C3F52B;
-  border-color: #C3F52B;
+  background: #B3FF36;
+  border-color: #B3FF36;
   outline: none;
 }
 
@@ -577,7 +577,7 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
   -webkit-appearance: none;
   border: 1px solid #08090D;
   border-radius: 0;
-  background: #C3F52B;
+  background: #B3FF36;
 }
 
 .sound-mix-row input[type="range"]::-moz-range-track {
@@ -590,7 +590,7 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
   height: 14px;
   border: 1px solid #08090D;
   border-radius: 0;
-  background: #C3F52B;
+  background: #B3FF36;
 }
 
 .sound-settings__foot {
@@ -630,10 +630,10 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
   align-items: center;
   justify-content: center;
   gap: 4px;
-  color: #C3F52B;
+  color: #B3FF36;
   background: #08090D;
-  border: 1px solid #C3F52B;
-  box-shadow: 3px 3px 0 #2F39FF;
+  border: 1px solid #B3FF36;
+  box-shadow: 3px 3px 0 #2930FF;
 }
 
 .sound-mute__icon {
@@ -658,7 +658,7 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
 
 .sound-mute.is-muted {
   color: #08090D;
-  background: #C3F52B;
+  background: #B3FF36;
   border-color: #08090D;
 }
 
@@ -672,9 +672,9 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
 
 .sound-reset {
   color: #08090D;
-  background: #C3F52B;
+  background: #B3FF36;
   border: 1px solid #08090D;
-  box-shadow: 3px 3px 0 #FF7A1A;
+  box-shadow: 3px 3px 0 #FF7900;
 }
 
 .sound-mute:hover,
@@ -742,4 +742,171 @@ html, body, button, input, output, .stage2-figma-ui, .stage2-subtitle-text, .sou
 .stage2-figma-ui.is-info-open .sound-settings {
   opacity: 0;
   pointer-events: none;
+}
+
+/* Quiet white typography panels, matching the supplied reference. */
+.stage2-subtitle-text {
+  box-sizing: border-box; left: 7%; top: 87%; width: 86%; height: 9%;
+  padding: 12px 26px; border: 2px solid #2930FF; background: #F4F1EC;
+  box-shadow: none; color: #141414; text-align: center; justify-content: center;
+  font-size: clamp(12px, 1.65vw, 32px); line-height: 1.2;
+  letter-spacing: -.025em; text-transform: none; white-space: normal;
+  text-shadow: none; overflow-wrap: anywhere;
+}
+
+/* Match the reference proportions on the 16:9 artwork, not a fixed pixel dialog. */
+:root { --harm-art-width: min(100vw, 177.7778vh); }
+.stage2-subtitle-text {
+  left: 24.2%; top: 88.7%; width: 51.6%; height: 6.2%;
+  padding: 5px 14px; border: 0; background: #E0E5E8;
+  font-size: clamp(11px, calc(var(--harm-art-width) * .014), 30px);
+  line-height: 1.12; letter-spacing: -.035em;
+}
+@media (max-width: 640px) {
+  .stage2-subtitle-text { left: 15%; width: 70%; font-size: 10px; }
+}
+
+@media (max-width: 640px) {
+}
+
+/* Flat-colour edition: clean faces, consistent palette and quiet shadows. */
+#sound-button { --control-face: #FF7900; }
+#reset-ui { --control-face: #B3FF36; }
+#info-ui { --control-face: #2930FF; }
+#sound-button .figma-control-icon, #reset-ui .figma-control-icon { color: #141414; }
+#info-ui .figma-control-icon { color: #F4F1EC; }
+.air-load-hud__fill { background: #B3FF36; }
+.air-load-hud.is-warning .air-load-hud__fill { background: #FF7900; }
+.air-load-hud.is-warning .air-load-hud__value { color: #FF7900; }
+.stage2-subtitle-text { border: 0; box-shadow: 3px 3px 0 #2930FF; }
+.sound-settings { border-color: #2930FF; }
+
+
+/* Blue control family, without textures. */
+#sound-button, #reset-ui, #info-ui { --control-face: #2930FF; }
+#sound-button .figma-control-icon, #reset-ui .figma-control-icon, #info-ui .figma-control-icon { color: #F4F1EC; }
+#sound-button:hover, #reset-ui:hover, #info-ui:hover { --control-face: #1D39B7; }
+
+/* Selected controls stay orange; reset only flashes after activation. */
+#sound-button[aria-expanded="true"],
+#info-ui[aria-expanded="true"],
+#reset-ui.is-flashing {
+  --control-face: #FF7900;
+}
+
+
+/* v18: quiet editorial caption; free-play control appears only at full load. */
+/* v24: left stage title mirrors the AIR LOAD percentage typography.
+   Same vertical track, cap height, weight and baseline as .air-load-hud__value. */
+.harm-caption {
+  position: absolute;
+  left: 3.125%;
+  top: 3.55%;
+  height: 42px;
+  display: flex;
+  align-items: flex-end;
+  margin: 0;
+  padding: 0;
+  color: #F4F1EC;
+  font-family: "Stack Sans Notch", Arial, Helvetica, sans-serif;
+  font-size: clamp(25px, 1.78vw, 34px);
+  font-weight: 700;
+  line-height: .94;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: none;
+  border: 0;
+}
+.is-info-open .harm-caption { visibility:hidden; }
+/* Keep the selected Info control available while research is open. */
+.stage2-figma-ui.is-info-open > * { visibility:hidden; }
+.stage2-figma-ui.is-info-open #info-ui {
+  visibility: visible;
+  opacity: 1;
+  filter: none;
+  pointer-events: auto;
+  --control-face: #FF7900;
+}
+
+
+/* v30 — 100% consequence popup.
+   Editorial card inspired by the supplied reference: pale face, thin blue keyline,
+   offset blue sheet/shadow, simple close control and a strong two-level message. */
+@media (max-width: 640px) {
+}
+
+/* v34 — refined designed-audio mixer: master + nine semantic channels. */
+.sound-settings {
+  right: 8.2%;
+  bottom: 17.8%;
+  width: min(390px, 28vw);
+  max-height: min(610px, 72vh);
+  padding: 12px 13px 13px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #B3FF36 rgba(243,242,240,.08);
+}
+.sound-settings__head > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.sound-settings__head small {
+  color: rgba(243,242,240,.42);
+  font: inherit;
+  font-size: .82em;
+  letter-spacing: .08em;
+}
+.sound-settings__hint { margin-top: 7px; }
+.sound-mix-list { padding-top: 8px; gap: 5px; }
+.sound-mix-row {
+  grid-template-columns: minmax(136px, 1.42fr) minmax(84px, 1fr) 38px;
+  gap: 8px;
+  min-height: 24px;
+  padding: 3px 5px 3px 7px;
+  background: rgba(243,242,240,.022);
+}
+.sound-mix-row--master {
+  min-height: 29px;
+  border-left-color: #B3FF36;
+  background: rgba(195,245,43,.075);
+}
+.sound-mix-row--master .sound-mix-row__label,
+.sound-mix-row--master output { color: #B3FF36; }
+.sound-mix-row:nth-child(4),
+.sound-mix-row:nth-child(5) { border-left-color: rgba(255,122,26,.78); }
+.sound-mix-row:nth-child(9),
+.sound-mix-row:nth-child(10) { border-left-color: rgba(255,122,26,.68); }
+.sound-settings__foot { margin-top: 8px; padding-top: 8px; }
+
+@media (max-width: 900px) {
+  .sound-settings {
+    right: 7%;
+    bottom: 16%;
+    width: min(370px, 66vw);
+    max-height: 68vh;
+  }
+}
+@media (max-width: 640px) {
+  .sound-settings {
+    right: 7%;
+    bottom: 14%;
+    width: min(320px, 82vw);
+    max-height: 67vh;
+    padding: 9px 10px 10px;
+  }
+  .sound-mix-row {
+    grid-template-columns: minmax(112px, 1.32fr) minmax(62px, 1fr) 33px;
+    gap: 6px;
+  }
+  .sound-settings__head small { display: none; }
+}
+
+/* v35 soundscape controls */
+.sound-mix-row--ambience { border-left-color: rgba(195,245,43,.72) !important; }
+.sound-mix-row--ambience .sound-mix-row__label,
+.sound-mix-row--ambience output { color: #B3FF36; }
+@media (min-width: 801px) {
+  .sound-settings { max-height: min(78vh, 720px); overflow-y: auto; }
 }

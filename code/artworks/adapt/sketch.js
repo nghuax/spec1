@@ -4,39 +4,50 @@ ADAPT — MODULAR ECOLOGY
 
 Stage 3 bridges the Stage 2 and Stage 4 visual systems:
 - shared HEAL palette and bold p5.js primitive geometry
-- the existing stepped depth field, warmed to charcoal-earth in the polluted state
-- ten reusable environmental asset families with intact two-state silhouettes
+- a stepped charcoal depth field that transitions into a randomized blue recovery field
+- abstract floating habitat stamps with depth-based greys that reassemble as the field recovers
 - no central Earth/orb artwork; the habitats are the visual focus
 - the SUN/WIND recovery interaction remains unique to this stage
 */
 
 const C = {
+  // Shared HARM / EXHAUST visual family. Stage 3 now opens from EXHAUST's
+  // fully-polluted palette and recovers into the clean HEAL palette.
   ink: '#141414',
-  bg0: '#05051C',
-  bg1: '#11114A',
-  bg2: '#242443',
-  white: '#FFFFFF',
-  paper: '#C8B99F',
-  soft: '#E5E8EB',
-  grey: '#CDD2D7',
-  darkGrey: '#48515C',
-  blue: '#163FBF',
-  purple: '#5735A5',
-  orange: '#E85C18',
-  lime: '#78A914',
-  green: '#78A914',
-  leaf: '#5735A5',
-  red: '#E85C18',
-  yellow: '#78A914',
-  pink: '#D94D93',
-  teal: '#147A78',
-  brown: '#755443',
-  pollutedAmber: '#D58A3D',
-  pollutedHotOrange: '#C87629',
-  pollutedBurnt: '#BC7634',
-  pollutedRust: '#AE630D',
-  pollutedShadow: '#7A3F00'
+  bg0: '#241E28',
+  bg1: '#131A37',
+  bg2: '#12141C',
+  white: '#F4F1EC',
+  paper: '#F4F1EC',
+  soft: '#D8DBE3',
+  grey: '#8F96A3',
+  darkGrey: '#4E5057',
+  blue: '#2930FF',
+  purple: '#6952EB',
+  orange: '#FF7900',
+  lime: '#B3FF36',
+  green: '#B3FF36',
+  leaf: '#2930FF',
+  red: '#FF7900',
+  yellow: '#B3FF36',
+  pink: '#FF7900',
+  teal: '#6952EB',
+  brown: '#8A3F00'
 };
+
+// Exact continuity colors taken from EXHAUST at full pollution. These are used
+// only as Stage 3's starting state; interaction and recovery mechanics are unchanged.
+const STAGE2_END = Object.freeze({
+  sky: '#241E28',
+  charcoal: '#262427',
+  brown: '#3C2F26',
+  grey: '#575352',
+  paper: '#B8AE9F',
+  blue: '#3C3C69',
+  purple: '#4E415E',
+  orange: '#AA5E28',
+  lime: '#786C38'
+});
 
 const ARTBOARD_WIDTH = 1920;
 const ARTBOARD_HEIGHT = 1080;
@@ -48,6 +59,8 @@ let smoke = [];
 let pollen = [];
 let sunBursts = [];
 let windLines = [];
+let debris = [];
+let recoveredFragments = [];
 let damagedField = null;
 let restoredField = null;
 let restoredLand = null;
@@ -84,19 +97,23 @@ let dragPointerX = pointerX;
 let dragPointerY = pointerY;
 let windTrailCooldown = 0;
 let lastRecoveryPercent = -1;
+let recoveryWaterPlayed = false;
 let audioContext = null;
 let audioMaster = null;
 let audioEnabled = false;
 let audioFetchPromise = null;
 let audioDecodePromise = null;
-// Recommended levels preserve the original balance of the six recorded cues.
+// Recorded cues and their recommended mixer levels.
 const SOUND_MIX_CHANNELS = [
-  { id: 'confirmation', label: 'Interface click', recommended: 58 },
-  { id: 'solarSelect', label: 'Solar selection', recommended: 48 },
-  { id: 'solarEnergy', label: 'Solar energy', recommended: 24 },
-  { id: 'windPaper', label: 'Wind', recommended: 30 },
-  { id: 'recoveryWater', label: 'Recovery water', recommended: 72 },
-  { id: 'assemblyKeyboard', label: 'Habitat assembly', recommended: 98 }
+  { id: 'confirmation', label: 'Confirmation', recommended: 60 },
+  { id: 'solarSelect', label: 'Solar selection', recommended: 60 },
+  { id: 'solarEnergy', label: 'Solar energy', recommended: 60 },
+  { id: 'windPaper', label: 'Wind brush', recommended: 60 },
+  { id: 'recoveryWater', label: '90% recovery', recommended: 60 },
+  { id: 'assemblyKeyboard', label: 'Assembly texture', recommended: 50 },
+  { id: 'cameraShutter', label: 'Assembly shutter', recommended: 60 },
+  { id: 'mouseClick', label: 'Button click', recommended: 60 },
+  { id: 'keyboardReverse', label: 'Button hover', recommended: 60 }
 ];
 const soundMixLevels = Object.fromEntries(SOUND_MIX_CHANNELS.map(({ id, recommended }) => [id, recommended]));
 const audioChannelGains = new Map();
@@ -104,7 +121,7 @@ const audioChannelGains = new Map();
 const audioFileData = new Map();
 const audioBuffers = new Map();
 const activeSampleSources = new Map();
-const lastEnergySoundAt = { sun: 0, wind: 0 };
+const lastEnergySoundAt = { sun: -Infinity, wind: -Infinity };
 let fpsWindowStartedAt = 0;
 let fpsWindowFrames = 0;
 
@@ -112,55 +129,37 @@ const AUDIO_FILES = Object.freeze({
   confirmation: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-Interface-Confirmation-01.wav',
   solarSelect: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-Solar-Selection-02.wav',
   solarEnergy: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-Solar-Energy-Activation-03.wav',
-  windPaper: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-Wind-Brush-Paper-04.wav',
+  windPaper: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-Wind-Brush-Paper-02.wav',
   recoveryWater: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-Recovery-Water-05.wav',
-  assemblyKeyboard: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-Assembly-Keyboard-06.wav'
+  assemblyKeyboard: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-Assembly-Keyboard-06.wav',
+  cameraShutter: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-Camera-Shutter.wav',
+  mouseClick: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-MouseClick.wav',
+  keyboardReverse: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-KeyboardReverse.mp3'
 });
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const motionScale = reducedMotion ? 0.18 : 1;
 const ENERGY_BRUSH_RADIUS = 580;
-const ENERGY_BRUSH_GAIN = 0.12;
-// Each reset selects a fresh composition seed. Authored asset geometry remains
-// stable; bounded layout/background variation is repeatable for an explicit seed.
-let environmentSeed = 307;
-let compositionSeed = 307;
-let floatingTextureLayout = [];
-let floatingEdgeLayout = [];
-const ambientScratch = { x: 0, y: 0, r: 0, scale: 1 };
-const sharedFloat = { x: 0, y: 0, r: 0, scale: 1 };
-// A quicker, layered float keeps the whole field lively without making the
-// large habitats feel weightless. The same clock is used for every layer, so
-// motion remains deterministic and pause/reduced-motion still work globally.
-const AMBIENT_SPEED = 2.56;
-
-// Reusable render-only motion. Callers reuse output records; no frame RNG.
-function getFloatOffset(time, phase, amplitudeX, amplitudeY, period, rotationAmount, recovery, out) {
-  const weight = 0.72 + recovery * 0.28;
-  const t = time * TWO_PI / period * AMBIENT_SPEED;
-  const accessibility = reducedMotion ? 0.2 : 1;
-  // Two restrained harmonics make the movement feel hand-authored instead of
-  // like a single pendulum, while each channel stays inside its amplitude.
-  out.x = (sin(t * 0.79 + phase * 1.31) * 0.78
-    + sin(t * 0.43 + phase * 0.71) * 0.22) * amplitudeX * weight * accessibility;
-  out.y = (sin(t + phase) * 0.76
-    + sin(t * 0.53 + phase * 1.7) * 0.14
-    + cos(t * 0.31 + phase * 0.42) * 0.10) * amplitudeY * weight * accessibility;
-  out.r = (sin(t * 0.67 + phase * 1.91) * 0.84
-    + sin(t * 0.37 + phase * 0.83) * 0.16) * rotationAmount * weight * accessibility;
-  out.scale = 1 + sin(t * 0.61 + phase) * 0.0032 * recovery * accessibility;
-  return out;
-}
-
-function getSharedFloat() {
-  return getFloatOffset(tm, compositionSeed % 71, 1.2, 3, 9.2, 0.005, globalRecovery, sharedFloat);
-}
-function environmentRandom(low, high) {
-  environmentSeed = (Math.imul(environmentSeed, 1664525) + 1013904223) >>> 0;
-  const value = environmentSeed / 4294967296;
-  if (low === undefined) return value;
-  return high === undefined ? value * low : low + value * (high - low);
-}
+// Moderately relaxed pacing for charging, guided replay, assembly, and recovery.
+// This is about 18% slower than the previous timing while keeping input responsive.
+const PROGRESSION_PACE = 0.72;
+const ENERGY_BRUSH_GAIN = 0.18 * PROGRESSION_PACE;
+const ASSEMBLY_FRAGMENT_COLORS = [
+  C.orange,
+  C.lime,
+  C.blue,
+  C.ink,
+  C.paper,
+  C.purple
+];
+const RECOVERED_FRAGMENT_COLORS = [
+  '#FF7900',
+  '#B3FF36',
+  '#2930FF',
+  '#141414',
+  '#F4F1EC',
+  '#6952EB'
+];
 
 function setup() {
   pixelDensity(1);
@@ -205,12 +204,8 @@ function fitArtboardToWindow() {
   viewport?.style.setProperty('--artwork-height', `${ARTBOARD_HEIGHT * displayScale}px`);
 }
 
-function regenerate(seed) {
+function regenerate() {
   [...activeSampleSources.keys()].forEach(stopSample);
-  lastEnergySoundAt.sun = -Infinity;
-  lastEnergySoundAt.wind = -Infinity;
-  delete document.body.dataset.assemblyCue;
-  delete document.body.dataset.recoveryCue;
   document.body.dataset.soundHistory = '';
   W = width;
   H = height;
@@ -227,6 +222,8 @@ function regenerate(seed) {
   pollen = [];
   sunBursts = [];
   windLines = [];
+  debris = [];
+  recoveredFragments = [];
 
   activeTool = 'sun';
   dragging = false;
@@ -234,6 +231,9 @@ function regenerate(seed) {
   finalTriggered = false;
   stateTwoAnnounced = false;
   lastRecoveryPercent = -1;
+  recoveryWaterPlayed = false;
+  lastEnergySoundAt.sun = -Infinity;
+  lastEnergySoundAt.wind = -Infinity;
   fpsWindowStartedAt = 0;
   fpsWindowFrames = 0;
   pointerX = W * 0.5;
@@ -243,20 +243,18 @@ function regenerate(seed) {
   dragPointerX = pointerX;
   dragPointerY = pointerY;
 
-  compositionSeed = Number.isFinite(seed) ? seed >>> 0 : floor(random(1, 2147483647));
-  environmentSeed = compositionSeed;
-  document.body.dataset.compositionSeed = String(compositionSeed);
-  if (typeof noiseSeed === 'function') noiseSeed(compositionSeed);
   buildDamagedField();
   buildRestoredField();
   buildRestoredLand();
   buildModules();
-  buildFloatingLayouts();
   buildEnergyNetwork();
   const visualAssetCount = modules.length - max(0, restoredLand.moduleIds.length - 1);
   document.body.dataset.assetCount = String(visualAssetCount);
   document.body.dataset.moduleCount = String(modules.length);
   document.body.dataset.landPosition = `${round(restoredLand.x)},${round(restoredLand.y)}`;
+  buildDebris();
+  buildRecoveredConstellation();
+  buildSmoke();
 
   const previewState = new URLSearchParams(window.location.search).get('state');
   const isRestoredPreview = previewState === '2' || previewState === 'restored';
@@ -290,7 +288,7 @@ function buildEnergyNetwork() {
         return Math.hypot(candidate.homeX - target.homeX, candidate.homeY - target.homeY)
           < Math.hypot(nearest.homeX - target.homeX, nearest.homeY - target.homeY) ? candidate : nearest;
       }, null);
-      return { source, target, phase: (index * 0.381966) % 1 };
+      return { source, target, phase: random() };
     })
     .filter((link) => link.source !== null);
 }
@@ -344,7 +342,6 @@ function selectEnergyTool(tool) {
   if (tool !== 'sun' && tool !== 'wind') return;
   experienceMode = 'manual';
   activeTool = tool;
-  ensureAudioEnabled(false).then(() => playSelectSound(tool));
   setStatus(tool === 'sun' ? 'SUN selected — drag to activate the panels.' : 'WIND selected — drag to clear pollution.', 1.7);
   publishProgress(true);
 }
@@ -365,7 +362,7 @@ function handleArtworkCommand(event) {
   else if (command.action === 'mix-reset') resetSoundMix();
   else if (command.action === 'mix-preview') {
     const channel = SOUND_MIX_CHANNELS.find(({ id }) => id === command.channel);
-    if (channel) ensureAudioEnabled(false).then(() => playSample(channel.id, { gain: channel.recommended / 100, exclusive: 'mix-preview' }));
+    if (channel) ensureAudioEnabled().then(() => playSample(channel.id, { gain: channel.recommended / 100, exclusive: 'mix-preview' }));
   }
   else if (command.action === 'save') exportArtwork();
   publishProgress(true);
@@ -377,20 +374,20 @@ function resetAndReplay() {
   experienceMode = 'guided';
   guidedPhase = 'damage';
   setStatus('Watch the habitats reconnect through sunlight and wind.', 2);
-  ensureAudioEnabled(true);
+  ensureAudioEnabled();
   publishProgress(true);
 }
 
 function updateGuidedSequence(dt) {
   if (experienceMode !== 'guided' || stateTwoAnnounced) return;
-  guidedTime += dt;
+  guidedTime += dt * PROGRESSION_PACE;
   const phase = guidedTime < 2 ? 'damage' : guidedTime < 8 ? 'sun' : guidedTime < 14 ? 'wind' : 'assembly';
   if (phase !== guidedPhase) {
     guidedPhase = phase;
     statusUntil = 0;
     if (phase === 'sun' || phase === 'wind') {
       activeTool = phase;
-      playSelectSound(phase);
+      ensureAudioEnabled().then(() => playSelectSound(phase));
     }
   }
   // forEach updates each habitat independently with a slightly staggered arrival.
@@ -399,7 +396,6 @@ function updateGuidedSequence(dt) {
     habitat.sun = max(habitat.sun, smoothClamp(guidedTime, 2 + stagger, 7.6 + stagger));
     habitat.wind = max(habitat.wind, smoothClamp(guidedTime, 8 + stagger, 13.6 + stagger));
   });
-  if (phase === 'sun' || phase === 'wind') playEnergySound(phase);
 }
 
 function announceArtworkState(state) {
@@ -408,49 +404,424 @@ function announceArtworkState(state) {
   }));
 }
 
-// Twelve logical modules retain the existing energy/network model. Four share
-// one island, leaving nine visual habitat groups and generous negative space.
-let acceptedComposition = null;
+function randomKind() {
+  const r = random();
+  return r < 0.18 ? 'forest'
+    : r < 0.34 ? 'water'
+    : r < 0.51 ? 'solar'
+    : r < 0.68 ? 'wind'
+    : r < 0.84 ? 'community'
+    : 'wildlife';
+}
+
+function scaleFor(kind) {
+  if (kind === 'community') return random(0.98, 1.16);
+  if (kind === 'solar' || kind === 'wind') return random(0.94, 1.12);
+  if (kind === 'water') return random(0.92, 1.12);
+  if (kind === 'forest') return random(0.90, 1.12);
+  return random(0.88, 1.06);
+}
+
+function spacingFor(kind) {
+  if (kind === 'community') return 148;
+  if (kind === 'solar' || kind === 'wind') return 142;
+  if (kind === 'water') return 138;
+  if (kind === 'forest') return 132;
+  return 126;
+}
+
 function buildModules() {
-  // Generate entirely off-screen, then publish the highest-scoring valid layout.
-  acceptedComposition = generateAdaptLayout(compositionSeed, W, H);
-  const anchor = acceptedComposition.groups[0];
-  const unit = Math.min(W / 1920, H / 1080);
-  restoredLand = { x: anchor.x, y: anchor.y - 48, w: anchor.width,
-    h: 66 * anchor.scale * unit, rotation: 0, moduleIds: [] };
+  // Four clean-energy modules combine on the shared land and count as one
+  // visual habitat. Seven to nine satellite habitats keep the final scene at
+  // the requested eight-to-ten clearly readable asset groups.
+  const targetVisualCount = floor(random(8, 11));
+  const targetCount = targetVisualCount + 3;
+  const kinds = ['community', 'forest', 'wind', 'wildlife', 'solar', 'water'];
+  while (kinds.length < targetCount) kinds.push(randomKind());
+
+  // Shuffle both the habitat families and their scale hierarchy on every reset.
+  for (let i = kinds.length - 1; i > 0; i--) {
+    const j = floor(random(i + 1));
+    [kinds[i], kinds[j]] = [kinds[j], kinds[i]];
+  }
+
+  const layout = kinds.map((kind) => ({
+    kind,
+    ring: floor(random(2)),
+    scale: random(1.16, 1.38)
+  }));
+  const startPositions = generateStartPositions(layout.length);
+
+  for (let moduleIndex = 0; moduleIndex < layout.length; moduleIndex++) {
+    const item = layout[moduleIndex];
+    const start = startPositions[moduleIndex];
+    const s = scaleFor(item.kind) * item.scale;
+    const module = makeModule(moduleIndex, item.kind, start.x, start.y, s);
+    module.orbitRing = item.ring;
+    module.orbitAngle = atan2(start.y - FIELD_Y, start.x - FIELD_X);
+    modules.push(module);
+  }
+
+  placeSharedLandModules();
+}
+
+function generateStartPositions(count) {
+  const positions = [];
+  const minimumDistance = count >= 13 ? 166 : count === 12 ? 174 : count === 11 ? 184 : 205;
+  const fallback = [
+    { x: 820, y: 410 },
+    { x: 1130, y: 290 },
+    { x: 1450, y: 440 },
+    { x: 1700, y: 620 },
+    { x: 470, y: 690 },
+    { x: 800, y: 700 },
+    { x: 1130, y: 730 },
+    { x: 1430, y: 700 },
+    { x: 990, y: 520 },
+    { x: 1630, y: 430 }
+  ];
+
+  for (let i = 0; i < count; i++) {
+    let chosen = null;
+
+    for (let attempt = 0; attempt < 320; attempt++) {
+      const candidate = {
+        x: random(330, 1790),
+        y: random(210, 820)
+      };
+
+      // Keep the exact Figma title, subtitle and information control readable.
+      if (candidate.x < 730 && candidate.y < 575) continue;
+      if (candidate.x > 1320 && candidate.y < 380) continue;
+      if (candidate.x > 1540 && candidate.y > 720) continue;
+      if (pointInRestoredLandClearance(candidate.x, candidate.y)) continue;
+
+      const hasRoom = positions.every((other) =>
+        dist(candidate.x, candidate.y, other.x, other.y) >= minimumDistance
+      );
+      if (!hasRoom) continue;
+
+      chosen = candidate;
+      break;
+    }
+
+    if (!chosen) {
+      const safe = fallback.find((candidate) =>
+        !pointInRestoredLandClearance(candidate.x, candidate.y) &&
+        positions.every((other) =>
+          dist(candidate.x, candidate.y, other.x, other.y) >= minimumDistance - 18
+        )
+      ) || fallback[i % fallback.length];
+      chosen = {
+        x: safe.x + random(-36, 36),
+        y: safe.y + random(-28, 28)
+      };
+    }
+
+    positions.push(chosen);
+  }
+
+  return positions;
+}
+
+function pointInRestoredLandClearance(x, y) {
+  if (!restoredLand) return false;
+  const dx = (x - restoredLand.x) / (restoredLand.w * 0.64);
+  const dy = (y - restoredLand.y) / (restoredLand.h * 1.45);
+  return dx * dx + dy * dy < 1;
+}
+
+function placeSharedLandModules() {
+  if (!restoredLand || !modules.length) return;
+
   const anchorKinds = ['solar', 'wind', 'community', 'forest'];
-  const offsets = [-0.35, -0.13, 0.12, 0.35];
-  const relativeScales = [1.12, 1.08, 1.12, 1.03];
-  modules = anchorKinds.map((kind, id) => {
-    const s = relativeScales[id] * anchor.scale * unit;
-    const m = makeModule(id, kind, anchor.x + anchor.width * offsets[id], anchor.y - 40 * s, s);
-    m.sharedLand = true; m.sharedLandIndex = id;
-    return m;
+  const anchors = anchorKinds
+    .map((kind) => modules.find((m) => m.kind === kind))
+    .filter(Boolean);
+  const offsets = [
+    -restoredLand.w * 0.35,
+    -restoredLand.w * 0.13,
+    restoredLand.w * 0.12,
+    restoredLand.w * 0.35
+  ];
+  const verticalOffsets = [8, -8, -13, 7];
+
+  anchors.forEach((m, index) => {
+    m.sharedLand = true;
+    m.sharedLandIndex = index;
+    const anchorScale =
+      m.kind === 'community' ? 1.38 :
+      m.kind === 'wind' ? 1.28 :
+      m.kind === 'solar' ? 1.22 : 1.18;
+    m.s = min(m.s, anchorScale);
+    m.homeX = restoredLand.x + offsets[index];
+    m.homeY = restoredLand.y + verticalOffsets[index];
+    m.x = m.homeX;
+    m.y = m.homeY;
   });
-  acceptedComposition.groups.slice(1).forEach((group, index) => {
-    const s = group.scale * unit;
-    modules.push(makeModule(index + 4, group.kind, group.x, group.y - 40 * s, s));
-  });
-  modules.forEach(m => {
-    m.seed = environmentRandom(10000); m.phase = environmentRandom(TWO_PI);
-    m.variant = Math.floor(environmentRandom(3));
-  });
-  restoredLand.moduleIds = modules.slice(0, 4).map(m => m.id);
-  document.body.dataset.layoutScore = acceptedComposition.evaluation.score.toFixed(1);
-  document.body.dataset.layoutCandidates = String(acceptedComposition.validCandidates);
+
+  restoredLand.moduleIds = anchors.map((m) => m.id);
 }
 
 function makeModule(id, kind, x, y, s) {
-  const mass = kind === 'community' ? 1 : kind === 'water' ? 0.9
-    : kind === 'solar' || kind === 'wind' ? 0.84 : kind === 'forest' ? 0.72 : 0.64;
+  const partCount =
+    kind === 'community' ? 6 :
+    kind === 'solar' ? 6 :
+    kind === 'wind' ? 5 :
+    kind === 'forest' ? 5 :
+    kind === 'water' ? 4 : 5;
+
+  const mass =
+    kind === 'community' ? 1.00 :
+    kind === 'water' ? 0.90 :
+    kind === 'solar' || kind === 'wind' ? 0.84 :
+    kind === 'forest' ? 0.72 : 0.64;
+
+  const parts = [];
+  for (let i = 0; i < partCount; i++) {
+    const scatter = random() < 0.42 ? random(1.35, 2.05) : random(0.82, 1.32);
+    parts.push({
+      fx: random(-70, 70) * scatter,
+      fy: random(-60, 54) * scatter,
+      fr: random(-0.68, 0.68),
+      delay: random(0.04, 0.48),
+      floatPhase: random(TWO_PI),
+      floatSpeed: random(0.22, 0.46),
+      floatRadius: random(7, 17)
+    });
+  }
+
+  const baseW = random(132, 160);
+  const baseH = random(28, 36);
+  const phase = random(TWO_PI);
+  const fragmentCount = floor(random(22, 30));
+  const fragmentSpread = random(0.92, 1.28);
+  const fragments = [];
+
+  for (let i = 0; i < fragmentCount; i++) {
+    const layerRoll = random();
+    const layer = layerRoll < 0.62 ? 0 : layerRoll < 0.93 ? 1 : 2;
+    const size = layer === 0
+      ? random(3.5, 10)
+      : layer === 1
+        ? random(9, 21)
+        : random(27, 58);
+    const radius = layer === 0
+      ? random(120, 235)
+      : layer === 1
+        ? random(86, 190)
+        : random(180, 285);
+    const progress = fragmentCount > 1 ? i / (fragmentCount - 1) : 0;
+
+    fragments.push({
+      layer,
+      size,
+      radius,
+      angle: phase + progress * PI * 1.72 + random(-0.72, 0.72),
+      stretch: random(0.52, 2.25),
+      rotation: random(TWO_PI),
+      spin: random(-0.16, 0.16),
+      floatSpeed: random(0.16, 0.46),
+      drift: layer === 2 ? random(16, 34) : random(7, 22),
+      phase: random(TWO_PI),
+      shape: floor(random(7)),
+      colorIndex: floor(random(ASSEMBLY_FRAGMENT_COLORS.length)),
+      alpha: layer === 0 ? random(42, 72) : layer === 1 ? random(72, 120) : random(34, 56)
+    });
+  }
+
   return {
-    id, kind, x, y, homeX: x, homeY: y, s, mass,
-    vx: 0, vy: 0, rot: 0, platform: { w: 160, h: 36 },
-    sun: 0, wind: 0, visualRecovery: 0,
-    assemblyDelay: 0.06 + (id % 4) * 0.035,
-    seed: 307 + id * 97, phase: id * 1.618,
-    floatAmp: 3, orbitAmp: 2, orbitSpeed: 0.3, hover: 0
+    id,
+    kind,
+    x,
+    y,
+    homeX: x,
+    homeY: y,
+    vx: random(-0.22, 0.22),
+    vy: random(-0.18, 0.18),
+    rot: random(-0.04, 0.04),
+    s,
+    mass,
+    parts,
+    platform: { w: baseW, h: baseH },
+    sun: 0,
+    wind: 0,
+    visualRecovery: 0,
+    assemblyDelay: random(0.02, 0.3),
+    seed: random(10000),
+    phase,
+    floatAmp: random(6, 15),
+    orbitAmp: random(3, 9),
+    orbitSpeed: random(0.25, 0.8),
+    fragmentSeed: random(1000),
+    fragmentCount,
+    fragmentSpread,
+    fragments,
+    hover: 0
   };
+}
+
+function buildDebris() {
+  const count = floor(random(36, 49));
+  for (let i = 0; i < count; i++) {
+    let x = null;
+    let y = null;
+    const layerRoll = random();
+    const layer = layerRoll < 0.64 ? 0 : layerRoll < 0.93 ? 1 : 2;
+
+    for (let attempt = 0; attempt < 80; attempt++) {
+      if (layer === 2 && random() < 0.58) {
+        // A few oversized foreground shards enter from the artboard edges.
+        const edge = floor(random(4));
+        if (edge === 0) {
+          x = random(-90, 130);
+          y = random(100, H - 150);
+        } else if (edge === 1) {
+          x = random(W - 130, W + 90);
+          y = random(100, H - 150);
+        } else if (edge === 2) {
+          x = random(120, W - 120);
+          y = random(-70, 150);
+        } else {
+          x = random(120, W - 120);
+          y = random(H - 210, H + 70);
+        }
+      } else if (random() < 0.76 && modules.length) {
+        const source = random(modules);
+        const spread = layer === 0 ? 240 : layer === 1 ? 210 : 300;
+        x = source.homeX + random(-spread, spread);
+        y = source.homeY + random(-spread * 0.68, spread * 0.62);
+      } else {
+        x = random(-60, W + 60);
+        y = random(70, H - 100);
+      }
+
+      if (isProtectedUiPoint(x, y, layer === 2 ? 82 : 28)) continue;
+      break;
+    }
+
+    if (!Number.isFinite(x) || !Number.isFinite(y) || isProtectedUiPoint(x, y, 22)) {
+      x = random(760, 1460);
+      y = random(260, 760);
+    }
+
+    const size = layer === 0
+      ? random(3, 9)
+      : layer === 1
+        ? random(11, 32)
+        : random(32, 70);
+
+    debris.push({
+      x,
+      y,
+      layer,
+      size,
+      stretch: random(0.55, 2.1),
+      rotation: random(TWO_PI),
+      spin: random(-0.14, 0.14),
+      phase: random(TWO_PI),
+      floatSpeed: random(0.18, 0.48),
+      drift: layer === 2 ? random(14, 34) : random(7, 23),
+      fallSpeed: layer === 0 ? random(1.4, 3.8) : layer === 1 ? random(2.4, 6) : random(3.4, 8.2),
+      depth: random(),
+      shape: floor(random(7)),
+      colorIndex: floor(random(ASSEMBLY_FRAGMENT_COLORS.length)),
+      alpha: layer === 0 ? random(24, 42) : layer === 1 ? random(40, 74) : random(18, 32)
+    });
+  }
+}
+
+function buildRecoveredConstellation() {
+  // The recovered field keeps a visible memory of the scattered pieces. Small,
+  // saturated fragments connect the separate habitats into one living system;
+  // larger slate shards at the perimeter create foreground depth.
+  const fragmentCount = floor(random(82, 104));
+
+  for (let i = 0; i < fragmentCount; i++) {
+    const layerRoll = random();
+    const layer = layerRoll < 0.62 ? 0 : 1;
+    let x = null;
+    let y = null;
+
+    for (let attempt = 0; attempt < 120; attempt++) {
+      if (random() < 0.78 && modules.length) {
+        const source = random(modules);
+        const spreadX = layer === 0 ? random(150, 320) : random(120, 270);
+        x = source.homeX + random(-spreadX, spreadX);
+        y = source.homeY + random(-spreadX * 0.62, spreadX * 0.62);
+      } else {
+        x = random(30, W - 30);
+        y = random(150, H - 185);
+      }
+
+      if (isProtectedUiPoint(x, y, layer === 0 ? 14 : 26)) continue;
+      break;
+    }
+
+    if (!Number.isFinite(x) || !Number.isFinite(y) || isProtectedUiPoint(x, y, 10)) {
+      x = random(720, 1510);
+      y = random(250, 790);
+    }
+
+    recoveredFragments.push({
+      x,
+      y,
+      layer,
+      edge: false,
+      size: layer === 0 ? random(3.5, 9.5) : random(10, 24),
+      stretch: random(0.58, 1.85),
+      rotation: random(TWO_PI),
+      spin: random(-0.045, 0.045),
+      phase: random(TWO_PI),
+      floatSpeed: random(0.16, 0.38),
+      drift: layer === 0 ? random(1.5, 5.5) : random(3, 8),
+      shape: floor(random(7)),
+      colorIndex: floor(random(ASSEMBLY_FRAGMENT_COLORS.length)),
+      alpha: layer === 0 ? random(110, 175) : random(145, 205)
+    });
+  }
+
+  const edgeCount = floor(random(16, 23));
+  for (let i = 0; i < edgeCount; i++) {
+    const edge = i % 4;
+    let x;
+    let y;
+    if (edge === 0) {
+      x = random(-65, 110);
+      y = random(30, H - 150);
+    } else if (edge === 1) {
+      x = random(W - 110, W + 65);
+      y = random(25, H - 150);
+    } else if (edge === 2) {
+      x = random(160, W - 120);
+      y = random(-65, 115);
+    } else {
+      x = random(70, W - 120);
+      y = random(H - 170, H + 70);
+    }
+
+    if (isProtectedUiPoint(x, y, 90)) {
+      i--;
+      continue;
+    }
+
+    recoveredFragments.push({
+      x,
+      y,
+      layer: random() < 0.55 ? -1 : 2,
+      edge: true,
+      size: random(42, 112),
+      stretch: random(0.72, 2.25),
+      rotation: random(TWO_PI),
+      spin: random(-0.018, 0.018),
+      phase: random(TWO_PI),
+      floatSpeed: random(0.08, 0.2),
+      drift: random(2, 7),
+      shape: floor(random(1, 7)),
+      colorIndex: floor(random(ASSEMBLY_FRAGMENT_COLORS.length)),
+      alpha: random(105, 182)
+    });
+  }
 }
 
 function isProtectedUiPoint(x, y, margin = 0) {
@@ -462,7 +833,23 @@ function isProtectedUiPoint(x, y, margin = 0) {
   return inTitle || inTools || inSubtitle || inRecovery || inOptions;
 }
 
-
+function buildSmoke() {
+  const count = floor(random(10, 16));
+  for (let i = 0; i < count; i++) {
+    smoke.push({
+      x: random(-50, W + 50),
+      y: random(20, H * 0.88),
+      vx: random(-0.08, 0.08),
+      vy: random(-0.03, 0.04),
+      rot: random(TWO_PI),
+      vr: random(-0.006, 0.006),
+      size: random(10, 26),
+      life: random(0.82, 1.12),
+      dark: random() > 0.25,
+      phase: random(TWO_PI)
+    });
+  }
+}
 
 function draw() {
   const dt = min(deltaTime / 1000, 0.05);
@@ -496,189 +883,24 @@ function draw() {
   publishProgress();
 
   drawBackground();
-  drawEnvironmentalTexture();
-  drawHabitatConstellations();
+  drawSmoke();
+  drawDebris();
+  drawRecoveredConstellation('back');
   drawEnergyNetwork();
   drawRestoredLand();
   drawPlatforms();
   drawModules();
+  drawRecoveredConstellation('front');
   drawBurstsAndWind();
+  drawPollen();
   drawEnergyCursor();
 }
 
 function drawBackground() {
   const rec = smoothClamp(globalRecovery, 0.08, 0.92);
   drawDepthField(rec);
-}
-
-// Authored atmospheric accents, not an eleventh gameplay asset family.
-// A rich, deterministic field; one fifth of its anchors fade during recovery.
-// Drawn behind every habitat with UI/asset clearance checked during motion.
-const ADAPT_TEXTURE_LAYOUT = Object.freeze([
-  [620, 565, 18], [685, 510, 12], [640, 660, 14], [365, 590, 22],
-  [320, 780, 15], [660, 800, 12], [590, 845, 20], [890, 868, 16],
-  [945, 745, 13], [1010, 850, 24], [1260, 835, 16], [1540, 820, 18],
-  [1630, 755, 11], [1810, 725, 20], [680, 365, 17], [704, 195, 13],
-  [950, 175, 12], [1260, 210, 24], [1280, 355, 16], [1360, 270, 12],
-  [1680, 440, 25], [1780, 520, 14], [1610, 525, 18], [1550, 575, 11],
-  [930, 380, 11], [1080, 400, 15], [1220, 690, 14], [680, 705, 16]
-].concat(Array.from({ length: 392 }, (_, index) => {
-  // Low-discrepancy placement fills the field without a visible grid or RNG.
-  const u = ((index + 1) * 0.61803398875) % 1;
-  const v = ((index + 1) * 0.75487766625) % 1;
-  const size = index % 13 === 0 ? 38 + index % 17 : 10 + (index * 7) % 23;
-  return [42 + u * 1836, 50 + v * 820, size];
-})).map((point) => Object.freeze(point)));
-
-function pollutedToneAt(x, y, variation = 0) {
-  const dx = (x - ARTBOARD_WIDTH * 0.5) / (ARTBOARD_WIDTH * 0.5);
-  const dy = (y - ARTBOARD_HEIGHT * 0.5) / (ARTBOARD_HEIGHT * 0.5);
-  const distance = constrain(Math.sqrt(dx * dx + dy * dy), 0, 1);
-  const centerWeight = 1 - distance;
-  const nudge = ((variation % 3) - 1) * 0.22;
-  const index = constrain(Math.floor(centerWeight * 4.2 + nudge), 0, 4);
-  const palette = [C.pollutedAmber, C.pollutedHotOrange, C.pollutedBurnt,
-    C.pollutedRust, C.pollutedShadow];
-  return color(palette[index]);
-}
-
-function drawEnvironmentalTexture() {
-  const rec = constrain(globalRecovery, 0, 1);
-  const colors = [ADAPT_COLORS.blue, ADAPT_COLORS.teal, ADAPT_COLORS.purple,
-    ADAPT_COLORS.sand, ADAPT_COLORS.green, ADAPT_COLORS.orange];
-  push();
-  noStroke();
-  floatingTextureLayout.forEach(([homeX, homeY, size], index) => {
-    const depthAlpha = index % 3 === 0 ? 0.65 : 1;
-    const alpha = (index % 5 === 0 ? 1 - rec : 1) * lerp(112, 142, rec) * depthAlpha;
-    if (alpha <= 0.5) return;
-    const phase = index * 1.618 + compositionSeed % 997;
-    const float = getFloatOffset(tm, phase, 3 + index % 6, 6 + index % 9,
-      6 + index % 9, 0.035 + index % 4 * 0.016, rec, ambientScratch);
-    const x = homeX + sin(phase * 1.7) * 32 + float.x;
-    const y = homeY + cos(phase * 1.3) * 24 + float.y;
-    const rotation = phase + float.r;
-    if (isProtectedUiPoint(x, y, size + 8)) return;
-    // Avoid drawing through the object or its platform, even after wind nudges.
-    if (modules.some((m) => {
-      const pose = habitatPose(m);
-      return abs(x - pose.x) < 100 * m.s + size
-        && y > pose.y - 156 * m.s - size && y < pose.y + 40 * m.s + size;
-    })) return;
-    if (restoredLand && abs(x - restoredLand.x) < restoredLand.w * 0.55 + size
-      && y > restoredLand.y + 30 && y < restoredLand.y + 106 + size) return;
-    const shade = lerpColor(pollutedToneAt(x, y, index), color(colors[index % colors.length]), rec);
-    shade.setAlpha(alpha);
-    fill(shade);
-    push();
-    translate(x, y);
-    rotate(rotation);
-    if (index % 3 === 0) {
-      poly([[-size * 0.6, size * 0.3], [-size * 0.16, -size * 0.64], [size * 0.58, size * 0.2]]);
-    } else if (index % 3 === 1) {
-      poly([[-size * 0.55, -size * 0.12], [size * 0.26, -size * 0.45],
-        [size * 0.58, size * 0.15], [-size * 0.23, size * 0.45]]);
-    } else {
-      poly([[-size * 0.5, -size * 0.24], [size * 0.5, -size * 0.24],
-        [size * 0.35, size * 0.26], [-size * 0.58, size * 0.26]]);
-    }
-    pop();
-  });
-  pop();
-}
-
-// v3.6 reference: nearby fragment constellations and large edge silhouettes.
-// Authored relative positions keep the field repeatable and leave object cores clear.
-const HABITAT_SCRAPS = Object.freeze([
-  [-105, -105, 12], [-83, -139, 22], [-44, -152, 9], [26, -159, 14],
-  [91, -125, 18], [109, -72, 10], [101, -23, 19], [76, 42, 12],
-  [27, 60, 24], [-35, 53, 11], [-96, 31, 18], [-115, -33, 9]
-]);
-
-// Sample once per reset. Both states render these same anchors so recovery
-// changes color and motion without teleporting the field on every frame.
-function buildFloatingLayouts() {
-  floatingTextureLayout = ADAPT_TEXTURE_LAYOUT.map(() => {
-    // Keep most atmospheric pieces small, with a few larger depth accents.
-    const size = environmentRandom() < 0.16
-      ? environmentRandom(38, 64)
-      : environmentRandom(8, 34);
-    return [environmentRandom(32, 1888), environmentRandom(36, 870), size];
-  });
-  modules.forEach((m) => {
-    m.scraps = HABITAT_SCRAPS.map(([, , size], i) => {
-      const angle = i * TWO_PI / HABITAT_SCRAPS.length + environmentRandom(-0.22, 0.22);
-      const radius = environmentRandom(94, 149);
-      return [cos(angle) * radius, -52 + sin(angle) * radius * 0.83,
-        size * environmentRandom(0.75, 1.35)];
-    });
-  });
-  // Accent pieces are stratified across the whole work, not just the border.
-  // Each cell gets one deterministic piece so the field has air, corners and
-  // middle-ground texture without collapsing into a noisy center cluster.
-  const edgeSize = () => environmentRandom() < 0.2
-    ? environmentRandom(78, 148)
-    : environmentRandom(24, 68);
-  const accentCells = [
-    [0.04, 0.19, 0.05, 0.22], [0.20, 0.34, 0.05, 0.22], [0.36, 0.49, 0.05, 0.22],
-    [0.52, 0.65, 0.05, 0.22], [0.68, 0.81, 0.05, 0.22], [0.84, 0.96, 0.05, 0.22],
-    [0.04, 0.19, 0.28, 0.47], [0.20, 0.34, 0.28, 0.47], [0.36, 0.49, 0.28, 0.47],
-    [0.52, 0.65, 0.28, 0.47], [0.68, 0.81, 0.28, 0.47], [0.84, 0.96, 0.28, 0.47],
-    [0.04, 0.19, 0.53, 0.72], [0.20, 0.34, 0.53, 0.72], [0.36, 0.49, 0.53, 0.72],
-    [0.52, 0.65, 0.53, 0.72], [0.68, 0.81, 0.53, 0.72], [0.84, 0.96, 0.53, 0.72],
-    [0.04, 0.19, 0.77, 0.92], [0.20, 0.34, 0.77, 0.92], [0.36, 0.49, 0.77, 0.92],
-    [0.52, 0.65, 0.77, 0.92], [0.68, 0.81, 0.77, 0.92], [0.84, 0.96, 0.77, 0.92],
-    [0.02, 0.11, 0.31, 0.46], [0.89, 0.98, 0.31, 0.46],
-    [0.02, 0.11, 0.55, 0.72], [0.89, 0.98, 0.55, 0.72]
-  ];
-  floatingEdgeLayout = Array.from({ length: 28 }, (_, i) => {
-    const [x0, x1, y0, y1] = accentCells[i];
-    return [environmentRandom(x0 * 1920, x1 * 1920),
-      environmentRandom(y0 * 1080, y1 * 1080), edgeSize()];
-  });
-}
-
-function drawHabitatConstellations() {
-  push();
-  noStroke();
-  const palette = [C.orange, C.lime, C.purple, C.blue, C.paper, C.teal];
-  modules.forEach((m) => {
-    const pose = habitatPose(m), rec = moduleRecovery(m);
-    (m.scraps || HABITAT_SCRAPS).forEach(([sx, sy, size], i) => {
-      const phase = m.phase + i * 1.72;
-      const spread = lerp(1.08, 0.94, rec);
-      const float = getFloatOffset(tm, phase, 4, 8, 7 + i % 6, 0.05, rec, ambientScratch);
-      const x = pose.x + (sx * spread + float.x) * m.s;
-      const y = pose.y + (sy * spread + float.y) * m.s;
-      const rotation = phase + float.r;
-      if (isProtectedUiPoint(x, y, size)) return;
-      const blocked = modules.some(other => {
-        const p = habitatPose(other);
-        return abs(x - p.x) < 78 * other.s + size * 0.4
-          && y > p.y - 135 * other.s && y < p.y + 26 * other.s;
-      });
-      if (blocked) return;
-      const shade = lerpColor(pollutedToneAt(x, y, i + m.id),
-        color(palette[(i + m.id) % palette.length]), rec);
-      shade.setAlpha(lerp(115, 175, rec));
-      fill(shade);
-      push(); translate(x, y); rotate(rotation);
-      if (i % 3 === 0) triangle(-size * 0.7, size * 0.4, 0, -size * 0.6, size * 0.6, size * 0.3);
-      else poly([[-size * 0.6, -size * 0.3], [size * 0.4, -size * 0.5], [size * 0.6, size * 0.3], [-size * 0.3, size * 0.5]]);
-      pop();
-    });
-  });
-  floatingEdgeLayout.forEach(([x, y, size], i) => {
-    if (isProtectedUiPoint(x, y, 20)) return;
-    const shade = lerpColor(pollutedToneAt(x, y, i),
-      color(i % 2 ? C.blue : C.paper), globalRecovery);
-    shade.setAlpha(lerp(65, 48, globalRecovery)); fill(shade);
-    const float = getFloatOffset(tm, i * 1.9 + compositionSeed % 53, 3, 5, 11 + i % 4, 0.025, globalRecovery, ambientScratch);
-    push(); translate(x + float.x, y + float.y); rotate(i * 1.9 + float.r);
-    poly([[-size, -size * 0.2], [-size * 0.3, -size * 0.7], [size * 0.7, -size * 0.45], [size, size * 0.4], [-size * 0.4, size * 0.8]]);
-    pop();
-  });
-  pop();
+  drawBackgroundHills(rec);
+  drawSkyGuides(rec);
 }
 
 function alphaColor(hex, alpha) {
@@ -691,7 +913,7 @@ function makeFieldPolygon(cx, cy, rx, ry, count, rotationOffset, jitter) {
   const points = [];
   for (let i = 0; i < count; i++) {
     const angle = rotationOffset + i * TWO_PI / count;
-    const radius = environmentRandom(1 - jitter, 1 + jitter);
+    const radius = random(1 - jitter, 1 + jitter);
     points.push([
       cx + cos(angle) * rx * radius,
       cy + sin(angle) * ry * radius
@@ -701,69 +923,56 @@ function makeFieldPolygon(cx, cy, rx, ry, count, rotationOffset, jitter) {
 }
 
 function buildDamagedField() {
-  const centerX = environmentRandom(870, 1260);
-  const centerY = environmentRandom(420, 650);
-  const rotationOffset = environmentRandom(-0.46, 0.24);
-  const outerRx = environmentRandom(520, 720);
-  const outerRy = environmentRandom(300, 440);
+  // Stage 3 begins where EXHAUST ends: the dirty plum sky and muted versions
+  // of the shared blue / orange / lime family. The geometry still regenerates
+  // on every reset, but the palette hand-off is now exact and intentional.
+  const centerX = random(860, 1260);
+  const centerY = random(430, 650);
+  const rotationOffset = random(-0.42, 0.22);
+  const outerRx = random(520, 720);
+  const outerRy = random(300, 440);
 
   damagedField = {
-    base: '#C87629',
+    base: STAGE2_END.sky,
     layers: [
       {
-        color: '#D58A3D',
+        color: STAGE2_END.charcoal,
         points: [
-          [environmentRandom(-180, 80), environmentRandom(80, 330)],
-          [environmentRandom(980, 1520), environmentRandom(-140, 80)],
-          [environmentRandom(1900, 2130), environmentRandom(350, 720)],
-          [environmentRandom(760, 1260), environmentRandom(1080, 1240)],
-          [environmentRandom(-160, 120), environmentRandom(850, 1100)]
+          [random(-180, 80), random(90, 300)],
+          [random(980, 1480), random(-140, 70)],
+          [random(1900, 2120), random(360, 710)],
+          [random(760, 1260), random(1080, 1230)],
+          [random(-160, 120), random(850, 1100)]
         ]
       },
       {
-        color: '#BF6D1B',
+        color: STAGE2_END.brown,
         points: [
-          [environmentRandom(120, 360), environmentRandom(160, 360)],
-          [environmentRandom(1360, 1740), environmentRandom(80, 260)],
-          [environmentRandom(1760, 2040), environmentRandom(720, 980)],
-          [environmentRandom(620, 1120), environmentRandom(1020, 1190)],
-          [environmentRandom(-100, 130), environmentRandom(560, 820)]
+          [random(100, 330), random(180, 350)],
+          [random(1350, 1730), random(90, 250)],
+          [random(1770, 2040), random(720, 970)],
+          [random(620, 1120), random(1010, 1180)],
+          [random(-100, 130), random(560, 820)]
         ]
       },
       {
-        color: '#AE630D',
+        color: STAGE2_END.blue,
+        points: makeFieldPolygon(centerX, centerY, outerRx, outerRy, floor(random(6, 9)), rotationOffset, 0.14)
+      },
+      {
+        color: STAGE2_END.purple,
         points: makeFieldPolygon(
-          centerX,
-          centerY,
-          outerRx,
-          outerRy,
-          floor(environmentRandom(6, 9)),
-          rotationOffset,
-          0.14
+          centerX + random(-50, 50), centerY + random(-35, 38),
+          outerRx * random(0.58, 0.72), outerRy * random(0.54, 0.68),
+          floor(random(5, 8)), rotationOffset + random(-0.22, 0.22), 0.16
         )
       },
       {
-        color: '#A15400',
+        color: STAGE2_END.grey,
         points: makeFieldPolygon(
-          centerX + environmentRandom(-50, 50),
-          centerY + environmentRandom(-35, 38),
-          outerRx * environmentRandom(0.58, 0.72),
-          outerRy * environmentRandom(0.54, 0.68),
-          floor(environmentRandom(5, 8)),
-          rotationOffset + environmentRandom(-0.22, 0.22),
-          0.16
-        )
-      },
-      {
-        color: '#7A3F00',
-        points: makeFieldPolygon(
-          centerX + environmentRandom(-65, 65),
-          centerY + environmentRandom(-45, 48),
-          outerRx * environmentRandom(0.27, 0.42),
-          outerRy * environmentRandom(0.24, 0.38),
-          floor(environmentRandom(5, 8)),
-          rotationOffset + environmentRandom(-0.3, 0.3),
-          0.2
+          centerX + random(-65, 65), centerY + random(-45, 48),
+          outerRx * random(0.27, 0.42), outerRy * random(0.24, 0.38),
+          floor(random(5, 8)), rotationOffset + random(-0.3, 0.3), 0.2
         )
       }
     ]
@@ -771,97 +980,93 @@ function buildDamagedField() {
 }
 
 function buildRestoredField() {
+  // Same dark editorial field used in HARM/EXHAUST, with bright cut-paper
+  // accents gradually returning instead of switching to a different blue world.
   const palette = {
-    base: '#07152F',
-    sweep: '#0A1E42',
-    accent: '#0D2854',
-    outer: '#123468',
-    middle: '#19417A',
-    inner: '#28538F'
+    base: C.bg2,
+    sweep: '#17204A',
+    accent: C.blue,
+    outer: '#1C286D',
+    middle: '#2930FF',
+    inner: '#6952EB'
   };
-  const centerX = environmentRandom(860, 1320);
-  const centerY = environmentRandom(430, 650);
-  const rotationOffset = environmentRandom(-0.42, 0.28);
-  const outerRx = environmentRandom(500, 690);
-  const outerRy = environmentRandom(285, 420);
-  const vertexCount = floor(environmentRandom(6, 9));
+  const centerX = random(860, 1320);
+  const centerY = random(430, 650);
+  const rotationOffset = random(-0.42, 0.28);
+  const outerRx = random(500, 690);
+  const outerRy = random(285, 420);
+  const vertexCount = floor(random(6, 9));
 
   restoredField = {
     palette,
     sweep: [
-      [environmentRandom(-180, 120), environmentRandom(150, 390)],
-      [environmentRandom(920, 1480), environmentRandom(-160, 70)],
-      [environmentRandom(1860, 2100), environmentRandom(320, 700)],
-      [environmentRandom(620, 1180), environmentRandom(1060, 1230)],
-      [environmentRandom(-180, 130), environmentRandom(900, 1160)]
+      [random(-180, 120), random(150, 390)],
+      [random(920, 1480), random(-160, 70)],
+      [random(1860, 2100), random(320, 700)],
+      [random(620, 1180), random(1060, 1230)],
+      [random(-180, 130), random(900, 1160)]
     ],
     accent: [
-      [0, environmentRandom(440, 720)],
-      [environmentRandom(260, 620), environmentRandom(650, 850)],
-      [environmentRandom(720, 1100), 1080],
+      [0, random(440, 720)],
+      [random(260, 620), random(650, 850)],
+      [random(720, 1100), 1080],
       [0, 1080]
     ],
     layers: [
-      {
-        color: palette.outer,
-        points: makeFieldPolygon(
-          centerX,
-          centerY,
-          outerRx,
-          outerRy,
-          vertexCount,
-          rotationOffset,
-          0.12
-        )
-      },
-      {
-        color: palette.middle,
-        points: makeFieldPolygon(
-          centerX + environmentRandom(-50, 55),
-          centerY + environmentRandom(-35, 40),
-          outerRx * environmentRandom(0.58, 0.72),
-          outerRy * environmentRandom(0.54, 0.68),
-          floor(environmentRandom(5, 8)),
-          rotationOffset + environmentRandom(-0.24, 0.24),
-          0.16
-        )
-      },
-      {
-        color: palette.inner,
-        points: makeFieldPolygon(
-          centerX + environmentRandom(-70, 75),
-          centerY + environmentRandom(-50, 55),
-          outerRx * environmentRandom(0.27, 0.42),
-          outerRy * environmentRandom(0.24, 0.38),
-          floor(environmentRandom(5, 8)),
-          rotationOffset + environmentRandom(-0.34, 0.34),
-          0.2
-        )
-      }
+      { color: palette.outer, points: makeFieldPolygon(centerX, centerY, outerRx, outerRy, vertexCount, rotationOffset, 0.12) },
+      { color: palette.middle, points: makeFieldPolygon(centerX + random(-50, 55), centerY + random(-35, 40), outerRx * random(0.58, 0.72), outerRy * random(0.54, 0.68), floor(random(5, 8)), rotationOffset + random(-0.24, 0.24), 0.16) },
+      { color: palette.inner, points: makeFieldPolygon(centerX + random(-70, 75), centerY + random(-50, 55), outerRx * random(0.27, 0.42), outerRy * random(0.24, 0.38), floor(random(5, 8)), rotationOffset + random(-0.34, 0.34), 0.2) }
     ]
   };
 }
 
 function buildRestoredLand() {
-  restoredLand = { x: environmentRandom(1068, 1132), y: environmentRandom(525, 560),
-    w: environmentRandom(735, 785), h: environmentRandom(60, 74), rotation: 0, moduleIds: [] };
+  const horizontalDirection = random() < 0.5 ? -1 : 1;
+  const w = random(780, 850);
+  const h = random(138, 174);
+
+  restoredLand = {
+    x: horizontalDirection < 0 ? random(930, 1015) : random(1165, 1250),
+    y: FIELD_Y + random(-72, 86),
+    w,
+    h,
+    rotation: random(-0.045, 0.045),
+    points: [
+      [-w * 0.50, -h * random(0.12, 0.2)],
+      [-w * random(0.38, 0.44), -h * random(0.42, 0.5)],
+      [w * random(0.33, 0.4), -h * random(0.42, 0.5)],
+      [w * 0.50, -h * random(0.08, 0.16)],
+      [w * random(0.36, 0.42), h * random(0.42, 0.5)],
+      [-w * random(0.38, 0.44), h * random(0.42, 0.5)]
+    ],
+    moduleIds: []
+  };
+}
+
+function sharedLandReveal() {
+  return smoothClamp(globalRecovery, 0.56, 0.96);
 }
 
 function drawRestoredLand() {
   if (!restoredLand) return;
-  const float = getSharedFloat();
-  const anchors = modules.filter((m) => m.sharedLand);
-  const recovery = anchors.reduce((sum, m) => sum + moduleRecovery(m), 0) / max(1, anchors.length);
-  ADAPT_ASSETS.habitatIsland({
-    x: restoredLand.x + float.x, y: restoredLand.y + 48 + float.y, rotation: float.r,
-    width: restoredLand.w, height: restoredLand.h, recovery, variant: 1,
-    alpha: smoothClamp(globalRecovery, 0.38, 0.92)
-  });
+  const reveal = sharedLandReveal();
+  if (reveal <= 0.001) return;
+
+  push();
+  translate(restoredLand.x, restoredLand.y + 82);
+  rotate(restoredLand.rotation);
+  noStroke();
+
+  const landColor = lerpColor(color(STAGE2_END.charcoal), color('#3247CC'), smoothClamp(globalRecovery, 0.5, 0.94));
+  landColor.setAlpha(255 * reveal);
+  fill(landColor);
+  poly(restoredLand.points);
+  pop();
 }
 
 function drawDepthField(rec) {
-  const stateOneBase = color(damagedField?.base || '#C87629');
-  const restoredBase = color(restoredField?.palette.base || '#07152F');
+  const stateOneBase = color(damagedField?.base || STAGE2_END.sky);
+  const restoredBase = color(restoredField?.palette.base || C.bg2);
 
   background(lerpColor(stateOneBase, restoredBase, rec));
 
@@ -886,14 +1091,14 @@ function drawRestoredDepthField(rec) {
   push();
   noStroke();
 
-  fill(alphaColor(restoredField.palette.sweep, 255 * reveal));
+  fill(alphaColor(restoredField.palette.sweep, 160 * reveal));
   poly(restoredField.sweep);
 
-  fill(alphaColor(restoredField.palette.accent, 255 * reveal));
+  fill(alphaColor(restoredField.palette.accent, 72 * reveal));
   poly(restoredField.accent);
 
   for (const layer of restoredField.layers) {
-    fill(alphaColor(layer.color, 255 * reveal));
+    fill(alphaColor(layer.color, 118 * reveal));
     poly(layer.points);
   }
 
@@ -901,6 +1106,49 @@ function drawRestoredDepthField(rec) {
 }
 
 
+function drawBackgroundHills(rec) {
+  const reveal = smoothClamp(rec, 0.12, 0.98);
+  push();
+  noStroke();
+  const hillBack = lerpColor(color(STAGE2_END.grey), color('#4256BE'), reveal * 0.95);
+  hillBack.setAlpha(170);
+  fill(hillBack);
+  poly([[530, 712],[660, 612],[820, 556],[972, 608],[1118, 564],[1296, 620],[1460, 562],[1596, 646],[1650, 758],[522,760]]);
+  const hillMid = lerpColor(color(STAGE2_END.purple), color('#31408E'), reveal);
+  hillMid.setAlpha(195);
+  fill(hillMid);
+  poly([[640, 758],[770, 662],[905, 634],[1036, 690],[1166, 628],[1316, 692],[1450, 660],[1566, 724],[1580, 834],[626,834]]);
+  const hillFront = lerpColor(color(STAGE2_END.charcoal), color('#202F78'), reveal);
+  hillFront.setAlpha(232);
+  fill(hillFront);
+  poly([[0, 1080],[0, 946],[236, 894],[426, 950],[604, 916],[770, 972],[962, 920],[1164, 958],[1372, 918],[1626, 986],[1920, 930],[1920,1080]]);
+  pop();
+}
+
+function drawSkyGuides(rec) {
+  const reveal = smoothClamp(rec, 0.26, 0.98);
+  push();
+  noStroke();
+  fill(244,241,236, 30 + 28 * reveal);
+  poly([[347,323],[377,301],[430,304],[452,323]]);
+  poly([[1206,352],[1229,336],[1268,338],[1290,356]]);
+  pop();
+}
+
+function moduleDepth(m) {
+  return constrain(map(m.homeY, 220, 820, 0, 1), 0, 1);
+}
+
+function damagedPalette(m) {
+  const depth = moduleDepth(m);
+  return {
+    highlight: lerpColor(color(STAGE2_END.paper), color('#CDC2B1'), depth),
+    light: lerpColor(color(STAGE2_END.lime), color('#95885A'), depth),
+    mid: lerpColor(color(STAGE2_END.orange), color('#8A6745'), depth),
+    dark: lerpColor(color(STAGE2_END.purple), color(STAGE2_END.blue), depth),
+    base: lerpColor(color(STAGE2_END.brown), color(STAGE2_END.grey), depth)
+  };
+}
 
 function flowAt(x, y, seedOff = 0) {
   const a = noise(x * 0.00135 + seedOff, y * 0.00125 + seedOff, tm * 0.06) * TWO_PI * 2.5;
@@ -931,35 +1179,43 @@ function updateModules(dt) {
   let total = 0;
   let rawTotal = 0;
 
+  // Once a source reaches 80%, carry it to the remaining habitats. Keep the
+  // sources independent so the player still needs to supply both SUN and WIND.
+  const finishSun = finalTriggered || averageCharge('sun') >= 0.8;
+  const finishWind = finalTriggered || averageCharge('wind') >= 0.8;
   for (const m of modules) {
-    if (finalTriggered) {
-      // Finish the balanced transition over several seconds instead of snapping.
-      m.sun = min(1, m.sun + dt * 0.08);
-      m.wind = min(1, m.wind + dt * 0.08);
-    }
+    if (finishSun) m.sun = min(1, m.sun + dt * 0.35 * PROGRESSION_PACE);
+    if (finishWind) m.wind = min(1, m.wind + dt * 0.35 * PROGRESSION_PACE);
 
     const rawRecovery = moduleCharge(m);
     rawTotal += rawRecovery;
     const visualTarget = constrain(rawRecovery * 0.42 + smoothClamp(rawRecovery, m.assemblyDelay, 0.98) * 0.58, 0, 1);
-    const assemblyRate = finalTriggered ? 0.8 : 0.62;
+    const assemblyRate = (finalTriggered ? 1.8 : 0.9) * PROGRESSION_PACE;
     const assemblyEase = 1 - exp(-dt * assemblyRate);
     m.visualRecovery = lerp(m.visualRecovery, visualTarget, assemblyEase);
     const rec = moduleRecovery(m);
     total += rec;
 
-    // Ambient motion is render-only. Preserve the existing wind-brush impulse
-    // and home attraction, but do not drive coordinates with ambient flow.
-    m.vx = lerp(m.vx, 0, 0.04);
-    m.vy = lerp(m.vy, 0, 0.04);
+    const flow = flowAt(m.x, m.y, m.seed * 0.0001);
+    const weight = 1 / (0.7 + m.mass * 0.85);
+    const targetVx = flow.x * 1.22 * weight;
+    const targetVy = flow.y * 0.92 * weight;
+
+    const chaos = 1 - smoothClamp(rec, 0.12, 0.85);
+    const extraX = (noise(m.seed, tm * 0.34) - 0.5) * 0.26 * chaos;
+    const extraY = (noise(m.seed + 40, tm * 0.37) - 0.5) * 0.20 * chaos;
+
+    m.vx = lerp(m.vx, targetVx + extraX, 0.04);
+    m.vy = lerp(m.vy, targetVy + extraY, 0.04);
 
     m.x += m.vx * 60 * dt * motionScale;
     m.y += m.vy * 60 * dt * motionScale;
     m.x = lerp(m.x, m.homeX, 0.012);
     m.y = lerp(m.y, m.homeY, 0.012);
-    m.rot = lerp(m.rot, m.vx * 0.018, 0.03);
+    m.rot = lerp(m.rot, sin(tm * 0.25 + m.seed) * 0.018 + m.vx * 0.018, 0.03);
 
     m.x = constrain(m.x, 110, W - 110);
-    m.y = constrain(m.y, 100, H - 100);
+    m.y = constrain(m.y, 170, H - 300);
 
     // Layout generation already reserves the title/control areas. Do not kick
     // moving habitats away from a hard UI boundary here: their home attraction
@@ -971,10 +1227,31 @@ function updateModules(dt) {
       m.hover = lerp(m.hover, 0, 0.08);
     }
 
+    if (!reducedMotion && rec > 0.62 && random() < 0.009 * dt * 60) {
+      pollen.push({
+        x: m.x + random(-10, 10),
+        y: m.y - random(10, 32),
+        vx: random(-0.12, 0.12),
+        vy: random(-0.26, -0.06),
+        size: random(4, 8),
+        life: 1,
+        col: random([C.lime, C.orange, C.purple, C.blue, C.white])
+      });
+    }
   }
 
-  const backgroundEase = 1 - exp(-dt * 0.68);
+  const backgroundEase = 1 - exp(-dt * (finalTriggered ? 1.6 : 0.9) * PROGRESSION_PACE);
   globalRecovery = lerp(globalRecovery, total / modules.length, backgroundEase);
+
+  // Water marks the near-complete state once, exactly when the displayed
+  // recovery progress reaches 90 percent.
+  if (!recoveryWaterPlayed && round(globalRecovery * 100) >= 90) {
+    recoveryWaterPlayed = playSample('recoveryWater', {
+      gain: 0.72,
+      exclusive: 'recovery-water',
+      finishPrevious: true
+    });
+  }
 
   const rawAverage = rawTotal / modules.length;
   const sunAverage = averageCharge('sun');
@@ -992,7 +1269,15 @@ function updateModules(dt) {
     modules.forEach((habitat) => { habitat.sun = 1; habitat.wind = 1; habitat.visualRecovery = 1; });
     announceArtworkState(2);
     setStatus('A connected clean-energy network is ready.', 4);
-    playCompletionSound();
+    playSample('confirmation', { gain: 0.58, exclusive: 'completion-confirmation' });
+    for (let i = 0; i < 18; i++) {
+      sunBursts.push({
+        x: random(80, W - 80),
+        y: random(80, H - 120),
+        r: random(12, 34),
+        life: random(0.65, 1.0)
+      });
+    }
   }
 }
 
@@ -1050,23 +1335,121 @@ function smoothClamp(v, a, b) {
 }
 
 function displayOffset(m, rec) {
-  const loose = 1 - smoothClamp(rec, 0.12, 0.95);
-  const out = m.floatOffset || (m.floatOffset = { x: 0, y: 0, r: 0, scale: 1 });
-  const light = m.kind === 'forest' || m.kind === 'wildlife';
-  getFloatOffset(tm, m.phase, light ? 3 : 2, light ? 5.5 : 4,
-    ((light ? 5.2 : 6.6) + m.id % 3 * 0.6) * Math.sqrt(m.s), light ? 0.014 : 0.0087, rec, out);
-  if (m.sharedLand) {
-    const offsets = [[-18, -20], [-10, 16], [16, -18], [20, 12]][m.sharedLandIndex];
-    const land = getSharedFloat();
-    const dx = m.homeX - restoredLand.x;
-    out.x = m.homeX - m.x + (offsets[0] + out.x) * loose
-      + (land.x + dx * (cos(land.r) - 1)) * (1 - loose);
-    out.y = m.homeY - m.y + (offsets[1] + out.y) * loose
-      + (land.y + dx * sin(land.r)) * (1 - loose);
-    out.r = out.r * loose + land.r * (1 - loose);
-    out.scale = 1;
+  const t = smoothClamp(rec, 0.28, 1);
+  const parallax = lerp(0.72, 1.28, moduleDepth(m));
+  const sway = lerp(m.floatAmp * 1.75 * parallax, m.floatAmp, t);
+  const orbit = lerp(m.orbitAmp * 0.72 * parallax, m.orbitAmp, t);
+  return {
+    x:
+      sin(tm * (0.26 + m.orbitSpeed * 0.32) + m.phase) * sway * 0.48 +
+      cos(tm * (0.19 + m.orbitSpeed * 0.44) + m.phase * 0.8) * orbit,
+    y:
+      cos(tm * (0.31 + m.orbitSpeed * 0.24) + m.phase * 1.1) * sway * 0.68 +
+      sin(tm * (0.22 + m.orbitSpeed * 0.52) + m.phase * 0.7) * orbit * 0.72,
+    r: sin(tm * 0.24 + m.phase) * lerp(0.052, 0.04, t)
+  };
+}
+
+function drawSmoke() {
+  const clear = constrain((averageCharge('wind') + averageCharge('sun')) * 0.5 + globalRecovery * 0.42, 0, 1);
+
+  for (const s of smoke) {
+    const alphaBase = (s.dark ? 42 : 28) * s.life * (1 - clear);
+    if (alphaBase < 2) continue;
+
+    push();
+    translate(s.x, s.y);
+    rotate(s.rot);
+    noStroke();
+
+    const col = s.dark ? color(STAGE2_END.charcoal) : color(STAGE2_END.grey);
+    col.setAlpha(alphaBase);
+    fill(col);
+
+    const w = s.size * (1.03 + sin(tm * 0.26 + s.phase) * 0.05);
+    const h = s.size * (0.74 + cos(tm * 0.23 + s.phase) * 0.06);
+
+    beginShape();
+    vertex(-w * 0.52, -h * 0.04);
+    vertex(-w * 0.36, -h * 0.34);
+    vertex(0, -h * 0.46);
+    vertex(w * 0.30, -h * 0.30);
+    vertex(w * 0.50, -h * 0.04);
+    vertex(w * 0.36, h * 0.24);
+    vertex(0, h * 0.38);
+    vertex(-w * 0.30, h * 0.28);
+    vertex(-w * 0.46, h * 0.10);
+    endShape(CLOSE);
+
+    pop();
   }
-  return out;
+}
+
+function drawDebris() {
+  const loose = pow(1 - smoothClamp(globalRecovery, 0.08, 0.96), 1.14);
+  if (loose < 0.01) return;
+
+  noStroke();
+  for (const piece of debris) {
+    const floatX = sin(tm * piece.floatSpeed + piece.phase) * piece.drift;
+    const floatY = cos(tm * piece.floatSpeed * 0.73 + piece.phase * 1.31) * piece.drift * 0.7;
+    const fallingY = tm * piece.fallSpeed;
+    const y = ((piece.y + floatY + fallingY + 120) % (H + 240)) - 120;
+    const damagedTone = piece.layer === 0
+      ? lerpColor(color(STAGE2_END.paper), color('#CEC3B2'), piece.depth)
+      : piece.layer === 1
+        ? lerpColor(color(STAGE2_END.grey), color(STAGE2_END.orange), piece.depth)
+        : lerpColor(color(STAGE2_END.charcoal), color(STAGE2_END.blue), piece.depth);
+    const restoredTone = color(ASSEMBLY_FRAGMENT_COLORS[piece.colorIndex]);
+    const colorArrival = smoothClamp(globalRecovery, 0.08, 0.62);
+    const assemblyEmphasis = 1 + sin(constrain(globalRecovery, 0, 1) * PI) * 0.55;
+    const tone = lerpColor(damagedTone, restoredTone, colorArrival * (piece.layer === 2 ? 0.5 : 0.82));
+    tone.setAlpha(min(255, piece.alpha * assemblyEmphasis * smoothClamp(loose, 0, 0.72)));
+
+    push();
+    translate(piece.x + floatX, y);
+    rotate(piece.rotation + tm * piece.spin);
+    fill(tone);
+
+    const size = piece.size * lerp(0.42, 1, loose);
+    drawFragmentPrimitive(piece.shape, size, piece.stretch);
+    pop();
+  }
+}
+
+function drawRecoveredConstellation(pass = 'back') {
+  const reveal = smoothClamp(globalRecovery, 0.64, 0.96);
+  if (reveal <= 0.025) return;
+
+  noStroke();
+  const visibleCount = ceil(recoveredFragments.length * reveal);
+  for (let pieceIndex = 0; pieceIndex < visibleCount; pieceIndex++) {
+    const piece = recoveredFragments[pieceIndex];
+    const isFront = piece.layer === 2;
+    if ((pass === 'front') !== isFront) continue;
+
+    const floatX = sin(tm * piece.floatSpeed + piece.phase) * piece.drift * motionScale;
+    const floatY = cos(tm * piece.floatSpeed * 0.73 + piece.phase * 1.27) * piece.drift * 0.72 * motionScale;
+    const scaleIn = lerp(0.18, 1, 1 - pow(1 - reveal, 3));
+
+    push();
+    translate(piece.x + floatX, piece.y + floatY);
+    rotate(piece.rotation + tm * piece.spin * motionScale);
+
+    if (piece.edge) {
+      const edgePalette = [C.blue, C.purple, C.ink, C.paper];
+      const edgeColor = color(edgePalette[piece.colorIndex % edgePalette.length]);
+      edgeColor.setAlpha(piece.alpha * reveal);
+      fill(edgeColor);
+    } else {
+      const fragmentColor = color(RECOVERED_FRAGMENT_COLORS[piece.colorIndex]);
+      fragmentColor.setAlpha(piece.alpha * reveal);
+      fill(fragmentColor);
+    }
+
+    drawFragmentPrimitive(piece.shape, piece.size * scaleIn, piece.stretch);
+    pop();
+  }
 }
 
 function drawEnergyNetwork() {
@@ -1082,7 +1465,7 @@ function drawEnergyNetwork() {
     const endY = target.y + to.y + 50 * target.s;
     const bend = min(72, abs(endX - startX) * 0.18 + 20);
     const point = (t) => ({ x: lerp(startX, endX, t), y: lerp(startY, endY, t) - sin(t * PI) * bend });
-    const tint = source.kind === 'sun' || source.kind === 'solar' ? C.orange : C.teal;
+    const tint = source.kind === 'sun' || source.kind === 'solar' ? C.orange : C.lime;
     stroke(alphaColor(tint, 66 * reveal));
     strokeWeight(2);
     noFill();
@@ -1107,64 +1490,216 @@ function drawEnergyNetwork() {
   pop();
 }
 
-function habitatPose(m) {
-  const recovery = moduleRecovery(m);
-  const off = displayOffset(m, recovery);
-  return {
-    x: m.x + off.x, y: m.y + off.y + 40 * m.s,
-    scale: m.s * (1 + m.hover * 0.025) * off.scale,
-    rotation: m.sharedLand ? off.r : m.rot + off.r,
-    recovery, state: recovery >= 0.65 ? 'recovered' : 'polluted'
-  };
+function drawFragmentPrimitive(shape, size, stretch = 1) {
+  if (shape === 0) {
+    rect(0, 0, size * stretch, size * 0.58);
+  } else if (shape === 1) {
+    triangle(-size, size * 0.58, size * 0.82, size * 0.14, -size * 0.2, -size);
+  } else if (shape === 2) {
+    poly([
+      [-size, -size * 0.35],
+      [size * 0.45, -size * 0.7],
+      [size, size * 0.28],
+      [-size * 0.35, size * 0.72]
+    ]);
+  } else if (shape === 3) {
+    rect(0, 0, size * 0.72, size * 0.72);
+  } else if (shape === 4) {
+    quad(
+      -size * stretch, -size * 0.18,
+      -size * 0.36, -size * 0.64,
+      size * stretch, size * 0.12,
+      size * 0.28, size * 0.62
+    );
+  } else if (shape === 5) {
+    triangle(-size * 0.92, size * 0.4, size * 0.16, -size, size, size * 0.55);
+  } else {
+    poly([
+      [-size * 0.92, -size * 0.22],
+      [-size * 0.24, -size * 0.76],
+      [size * 0.72, -size * 0.48],
+      [size, size * 0.16],
+      [size * 0.12, size * 0.76],
+      [-size * 0.68, size * 0.48]
+    ]);
+  }
 }
 
 function drawPlatforms() {
-  for (const m of modules) {
-    const alpha = m.sharedLand ? 1 - smoothClamp(globalRecovery, 0.38, 0.92) : 1;
-    ADAPT_ASSETS.habitatIsland({ ...habitatPose(m), width: m.platform.w, height: m.platform.h, variant: m.id % 2, alpha });
+  const ordered = modules.slice().sort((a, b) => a.y - b.y);
+  for (const m of ordered) {
+    const rec = moduleRecovery(m);
+    const off = displayOffset(m, rec);
+
+    push();
+    translate(m.x + off.x, m.y + 42 * m.s + off.y);
+    rotate(m.rot + off.r * 0.4);
+    scale(m.s * (1 + m.hover * 0.025));
+
+    noStroke();
+    const damaged = damagedPalette(m);
+    const restoredBase = m.id % 3 === 0 ? C.ink : m.id % 2 ? C.purple : C.blue;
+    const individualPlatformAlpha = m.sharedLand ? 1 - sharedLandReveal() : 1;
+    if (individualPlatformAlpha > 0.01) {
+      const platformColor = lerpColor(damaged.base, color(restoredBase), rec);
+      platformColor.setAlpha(255 * individualPlatformAlpha);
+      fill(platformColor);
+      drawFloatingBase(m, rec, damaged);
+    }
+
+    pop();
   }
 }
 
 function drawModules() {
-  for (const m of modules.slice().sort((a, b) => a.y - b.y)) {
-    const pose = habitatPose(m);
+  const ordered = modules.slice().sort((a, b) => a.y - b.y);
+  for (const m of ordered) {
+    const rec = moduleRecovery(m);
+    const off = displayOffset(m, rec);
+
     push();
-    translate(pose.x, pose.y);
-    rotate(pose.rotation);
-    scale(pose.scale);
-    const loose = 1 - smoothClamp(pose.recovery, 0.12, 0.94);
-    // Lift the current object group off its platform, as in the v3.6 assembly.
-    translate(sin(m.phase) * 12 * loose, -22 * loose);
-    rotate(sin(m.phase + 1) * 0.075 * loose);
-    const appearance = { recovery: pose.recovery, state: pose.state, variant: m.variant };
-    if (m.kind === 'solar') {
-      if (m.sharedLand) {
-        ADAPT_ASSETS.solarArray({ ...appearance, x: -22, scale: 0.9, energy: m.sun });
-        ADAPT_ASSETS.tree({ ...appearance, x: 56, scale: 0.42 });
-      } else ADAPT_ASSETS.solarHouse({ ...appearance, scale: 1.05, energy: m.sun });
-    } else if (m.kind === 'wind') {
-      ADAPT_ASSETS.windTurbine({ ...appearance, x: -20, scale: 0.93, energy: m.wind, angle: tm * m.wind * 0.38 });
-      ADAPT_ASSETS.basicHouse({ ...appearance, x: 44, scale: 0.49 });
-    } else if (m.kind === 'community') {
-      ADAPT_ASSETS.basicHouse({ ...appearance, x: -33, scale: 0.8 });
-      ADAPT_ASSETS.solarHouse({ ...appearance, x: 38, scale: 0.68, energy: m.sun });
-    } else if (m.kind === 'forest') {
-      ADAPT_ASSETS.treeCluster({ ...appearance, scale: 1.04 });
-    } else if (m.kind === 'water') {
-      ADAPT_ASSETS.landmark({ ...appearance, x: -18, scale: 1.05 });
-      ADAPT_ASSETS.tree({ ...appearance, x: 57, scale: 0.56 });
-    } else {
-      ADAPT_ASSETS.tree({ ...appearance, x: 47, scale: 0.84 });
-      ADAPT_ASSETS.wildlife({ ...appearance, x: -28, scale: 0.72 });
-    }
-    // Five deliberately placed clusters across nine habitats. The other zones
-    // communicate damage through dormant infrastructure and two ground scars.
-    if ([0, 4, 7, 9, 11].includes(m.id)) {
-      ADAPT_ASSETS.pollutionCluster({
-        ...appearance, x: m.kind === 'wildlife' ? -35 : -58, y: 8,
-        scale: 0.4, variant: m.id % 3
-      });
-    }
+    translate(m.x + off.x, m.y + off.y);
+    rotate(m.rot + off.r);
+    scale(m.s * (1 + m.hover * 0.025));
+
+    noStroke();
+    const damaged = damagedPalette(m);
+    drawLooseFragments(m, rec, damaged, 'back');
+    if (m.kind === 'forest') drawForestHabitat(m, rec, damaged);
+    else if (m.kind === 'water') drawWaterHabitat(m, rec, damaged);
+    else if (m.kind === 'solar') drawSolarHabitat(m, rec, damaged);
+    else if (m.kind === 'wind') drawWindHabitat(m, rec, damaged);
+    else if (m.kind === 'community') drawCommunityHabitat(m, rec, damaged);
+    else drawWildlifeHabitat(m, rec, damaged);
+    drawLooseFragments(m, rec, damaged, 'front');
+
+    pop();
+  }
+}
+
+function partTransform(m, idx, rec, fn) {
+  const part = m.parts[idx % m.parts.length];
+  const t = smoothClamp(rec, part.delay, min(1, part.delay + 0.56));
+  // Keep the main panel/roof/turbine recognisable even while its pieces detach.
+  const anchor = idx < 2 ? 0.38 : 0.82;
+  const loose = pow(1 - t, 1.08) * anchor;
+  const floatX = sin(tm * part.floatSpeed + part.floatPhase) * part.floatRadius * loose;
+  const floatY = cos(tm * part.floatSpeed * 0.78 + part.floatPhase * 1.27) * part.floatRadius * 1.35 * loose;
+  push();
+  translate(part.fx * loose + floatX, part.fy * loose + floatY);
+  rotate(part.fr * loose * 0.62 + sin(tm * 0.2 + part.floatPhase) * 0.055 * loose);
+  fn(idx < 2 ? lerp(0.32, 1, t) : t);
+  pop();
+}
+
+function drawLooseFragments(m, rec, damaged, pass = 'back') {
+  // Let each constellation linger until the whole field catches up. This keeps
+  // the recovery readable as one dramatic wave instead of isolated assets
+  // snapping clean the moment their own energy reaches them.
+  const fragmentRecovery = lerp(rec, globalRecovery, 0.72);
+  const loose = pow(1 - smoothClamp(fragmentRecovery, 0.08, 0.98), 1.08);
+  if (loose < 0.015) return;
+
+  const fragments = m.fragments || [];
+  for (let i = 0; i < fragments.length; i++) {
+    const fragment = fragments[i];
+    const visibleShare = min(1, loose * 1.42);
+    if (i / max(1, fragments.length - 1) > visibleShare) continue;
+    const isFront = fragment.layer === 2;
+    if ((pass === 'front') !== isFront) continue;
+
+    const pull = pow(loose, fragment.layer === 0 ? 0.86 : fragment.layer === 1 ? 0.78 : 0.68);
+    const angle = fragment.angle + sin(tm * 0.09 + fragment.phase) * 0.12;
+    const driftX = sin(tm * fragment.floatSpeed + fragment.phase) * fragment.drift;
+    const driftY = cos(tm * fragment.floatSpeed * 0.77 + fragment.phase * 1.23) * fragment.drift * 0.72;
+    const waveLift = sin(i * 0.7 + m.phase) * (fragment.layer === 0 ? 18 : fragment.layer === 1 ? 28 : 42);
+    const x = (cos(angle) * fragment.radius * m.fragmentSpread + driftX) * pull;
+    const y = (sin(angle) * fragment.radius * 0.54 + driftY + waveLift) * pull;
+    const size = fragment.size * lerp(0.34, 1, loose);
+
+    const globalX = m.x + x * m.s;
+    const globalY = m.y + y * m.s;
+    if (isProtectedUiPoint(globalX, globalY, fragment.layer === 2 ? size * 0.5 : 8)) continue;
+
+    push();
+    translate(x, y);
+    rotate(fragment.rotation + angle * 0.24 + tm * fragment.spin);
+
+    const damagedTone = fragment.layer === 0
+      ? damaged.highlight
+      : fragment.layer === 1
+        ? damaged.mid
+        : damaged.dark;
+    const restoredTone = color(ASSEMBLY_FRAGMENT_COLORS[fragment.colorIndex]);
+    const colorArrival = smoothClamp(max(rec, globalRecovery), 0.08, 0.62);
+    const assemblyEmphasis = 1 + sin(constrain(fragmentRecovery, 0, 1) * PI) * 0.8;
+    const fragmentColor = lerpColor(
+      color(damagedTone),
+      restoredTone,
+      colorArrival * (fragment.layer === 2 ? 0.56 : 0.92)
+    );
+    fragmentColor.setAlpha(min(255, fragment.alpha * assemblyEmphasis * smoothClamp(loose, 0, 0.76)));
+    fill(fragmentColor);
+    drawFragmentPrimitive(fragment.shape, size, fragment.stretch);
+    pop();
+  }
+}
+
+function drawFloatingBase(m, rec, damaged) {
+  const w = m.platform.w;
+  const h = m.platform.h;
+  const loose = pow(1 - smoothClamp(rec, 0.04, 0.9), 1.18);
+  const gap = 14 * loose;
+  const leftFloat = sin(tm * 0.24 + m.phase) * 5.5 * loose;
+  const rightFloat = cos(tm * 0.21 + m.phase * 1.3) * 6.5 * loose;
+
+  push();
+  translate(-gap * 0.5, leftFloat);
+  rotate(-0.055 * loose + sin(tm * 0.17 + m.phase) * 0.018 * loose);
+  poly([
+    [-w * 0.5, -h * 0.22],
+    [-w * 0.38, -h * 0.5],
+    [0, -h * 0.5],
+    [0, h * 0.5],
+    [-w * 0.36, h * 0.5]
+  ]);
+  pop();
+
+  push();
+  translate(gap * 0.5, rightFloat);
+  rotate(0.052 * loose + cos(tm * 0.19 + m.phase) * 0.017 * loose);
+  poly([
+    [0, -h * 0.5],
+    [w * 0.38, -h * 0.5],
+    [w * 0.5, -h * 0.08],
+    [w * 0.36, h * 0.5],
+    [0, h * 0.5]
+  ]);
+  pop();
+
+  if (loose > 0.03) {
+    push();
+    translate(
+      sin(tm * 0.22 + m.phase) * 5 * loose,
+      h * 1.16 + cos(tm * 0.18 + m.phase) * 7 * loose
+    );
+    rotate(tm * 0.08 + m.phase);
+    const upperFragment = color(damaged.light);
+    upperFragment.setAlpha(195 * loose);
+    fill(upperFragment);
+    rect(0, 0, 11 * loose, 11 * loose);
+    pop();
+
+    push();
+    translate(
+      cos(tm * 0.16 + m.phase) * 8 * loose,
+      h * 2.08 + sin(tm * 0.14 + m.phase) * 9 * loose
+    );
+    rotate(QUARTER_PI + sin(tm * 0.12 + m.phase) * 0.22);
+    const lowerFragment = color(damaged.dark);
+    lowerFragment.setAlpha(190 * loose);
+    fill(lowerFragment);
+    rect(0, 0, 18 * loose, 18 * loose);
     pop();
   }
 }
@@ -1175,7 +1710,16 @@ function poly(points) {
   endShape(CLOSE);
 }
 
-
+function drawChamferedBase(cx, cy, w, h) {
+  poly([
+    [cx - w * 0.5, cy - h * 0.22],
+    [cx - w * 0.38, cy - h * 0.5],
+    [cx + w * 0.38, cy - h * 0.5],
+    [cx + w * 0.5, cy - h * 0.08],
+    [cx + w * 0.36, cy + h * 0.5],
+    [cx - w * 0.36, cy + h * 0.5]
+  ]);
+}
 
 function drawOctagon(cx, cy, radius) {
   beginShape();
@@ -1190,35 +1734,109 @@ function restoredFill(damaged, restored, rec) {
   return lerpColor(color(damaged), color(restored), constrain(rec, 0, 1));
 }
 
+function adaptHouseVariant(phase = 0) {
+  return abs(floor(phase * 997)) % 4;
+}
 
+function drawHouseBodyShape(v, w, h) {
+  const i = ((v % 4) + 4) % 4;
+  if (i === 1) poly([[-w*.52,0],[-w*.47,-h*.72],[-w*.15,-h*.88],[w*.45,-h*.73],[w*.52,-h*.10],[w*.36,0]]);
+  else if (i === 2) poly([[-w*.42,0],[-w*.43,-h*.50],[-w*.18,-h*.72],[w*.12,-h*1.06],[w*.48,-h*.72],[w*.43,-h*.14],[w*.28,0]]);
+  else if (i === 3) poly([[-w*.52,0],[-w*.45,-h*.56],[0,-h*.86],[w*.52,-h*.27],[w*.44,0],[w*.15,-h*.08]]);
+  else poly([[-w*.52,0],[-w*.50,-h*.72],[-w*.08,-h*1.02],[w*.48,-h*.74],[w*.43,-h*.10],[w*.24,0]]);
+}
 
-function drawSunPrimitive(size, restored = 1, damaged = null) {
-  const palette = damaged || {
-    light: color(C.grey),
-    dark: color(C.darkGrey)
-  };
-  const orange = restoredFill(palette.light, C.orange, restored);
-  const paper = restoredFill(palette.dark, C.paper, restored);
-  fill(orange);
-  drawOctagon(0, 0, size * 0.34);
-  fill(paper);
-  for (let i = 0; i < 4; i++) {
+function drawHouseRoofShape(v, w, h) {
+  const i = ((v % 4) + 4) % 4;
+  if (i === 0) poly([[-w*.58,-h*.73],[-w*.13,-h*1.18],[w*.49,-h*.88],[w*.38,-h*.61],[-w*.08,-h*.88],[-w*.50,-h*.52]]);
+  else if (i === 1) poly([[-w*.56,-h*.83],[-w*.08,-h*1.18],[w*.57,-h*.94],[w*.47,-h*.65],[-w*.20,-h*.66]]);
+  else if (i === 2) poly([[-w*.47,-h*.62],[w*.10,-h*1.28],[w*.53,-h*.90],[w*.36,-h*.60],[w*.10,-h*.93],[-w*.33,-h*.42]]);
+  else poly([[-w*.56,-h*.64],[-w*.02,-h*1.08],[w*.61,-h*.34],[w*.42,-h*.12],[0,-h*.72],[-w*.47,-h*.42]]);
+}
+
+function drawHouseBlock(cx, baseline, w, h, bodyColor, roofColor, loose = 0, phase = 0) {
+  const variant = adaptHouseVariant(phase);
+  push();
+  translate(cx, baseline);
+  noStroke();
+
+  fill(bodyColor);
+  drawHouseBodyShape(variant, w, h);
+
+  const cut = lerpColor(color(C.paper), color(C.ink), 0.16);
+  fill(cut);
+  if (variant % 2 === 0) poly([[-w*.15,-h*.47],[w*.06,-h*.50],[w*.08,-h*.23],[-w*.13,-h*.20]]);
+  else poly([[w*.06,-h*.46],[w*.25,-h*.43],[w*.23,-h*.14],[w*.05,-h*.17]]);
+  fill(lerpColor(color(C.paper), color(C.ink), 0.08));
+  if (variant % 2 === 0) poly([[w*.16,-h*.42],[w*.31,-h*.44],[w*.30,-h*.28],[w*.14,-h*.26]]);
+  else poly([[-w*.31,-h*.42],[-w*.14,-h*.45],[-w*.13,-h*.28],[-w*.30,-h*.26]]);
+
+  push();
+  translate(
+    sin(tm * 0.24 + phase) * 8 * loose,
+    -loose * (8 + cos(phase) * 3) + cos(tm * 0.19 + phase) * 5 * loose
+  );
+  rotate(sin(tm * 0.17 + phase) * 0.085 * loose);
+  fill(roofColor);
+  drawHouseRoofShape(variant, w, h);
+  fill(lerpColor(color(C.paper), roofColor, 0.32));
+  poly([[-w*.18,-h*.90],[w*.10,-h*1.09],[w*.34,-h*.86],[w*.08,-h*.78]]);
+  pop();
+
+  fill(lerpColor(color(C.paper), bodyColor, 0.12));
+  const chimneyX = variant % 2 ? w * .27 : w * .20;
+  rect(chimneyX, -h * .95, max(4, w * .10), h * .44);
+  fill(C.ink);
+  rect(chimneyX, -h * 1.16, max(6, w * .15), max(3, h * .07));
+  pop();
+}
+
+function drawSolarPanel(cx, cy, w, h, panelColor, loose = 0, phase = 0) {
+  push();
+  translate(cx, cy);
+  rotate(-0.14 + sin(tm * .14 + phase) * .018);
+  noStroke();
+  const paperEdge = lerpColor(color(C.paper), panelColor, .08);
+  fill(paperEdge);
+  poly([[-w*.56,-h*.47],[w*.52,-h*.39],[w*.56,h*.44],[-w*.50,h*.52]]);
+  fill(panelColor);
+  const cells = [
+    [-w*.25,-h*.20], [w*.23,-h*.17],
+    [-w*.23,h*.22], [w*.25,h*.20]
+  ];
+  for (let i = 0; i < cells.length; i++) {
+    const cellPhase = phase + i * 1.43;
     push();
-    rotate(i * HALF_PI);
-    triangle(
-      -size * 0.11, -size * 0.38,
-      0, -size * 0.66,
-      size * 0.11, -size * 0.38
+    translate(
+      cells[i][0] + sin(tm * .23 + cellPhase) * (5 + i) * loose,
+      cells[i][1] + cos(tm * .19 + cellPhase) * (6 + i) * loose
     );
+    rotate(sin(tm * .16 + cellPhase) * .08 * loose);
+    poly([[-w*.20,-h*.16],[w*.18,-h*.13],[w*.20,h*.16],[-w*.18,h*.14]]);
     pop();
   }
+  pop();
+}
+
+function drawSunPrimitive(size, restored = 1, damaged = null) {
+  const palette = damaged || { light: color(C.grey), dark: color(C.darkGrey) };
+  const orange = restoredFill(palette.light, C.orange, restored);
+  const paper = restoredFill(palette.dark, C.paper, restored);
+  push();
+  rotate(-0.08);
+  fill(orange);
+  drawOctagon(0, 0, size * 0.30);
+  fill(paper);
+  for (let i = 0; i < 4; i++) {
+    push(); rotate(i * HALF_PI + 0.12);
+    poly([[-size*.08,-size*.34],[0,-size*.64],[size*.12,-size*.38],[size*.08,-size*.28]]);
+    pop();
+  }
+  pop();
 }
 
 function drawWindPrimitive(size, angle = 0, restored = 1, loose = 0, phase = 0, damaged = null) {
-  const palette = damaged || {
-    light: color(C.grey),
-    dark: color(C.darkGrey)
-  };
+  const palette = damaged || { light: color(C.grey), dark: color(C.darkGrey) };
   push();
   rotate(angle);
   fill(restoredFill(palette.light, C.paper, restored));
@@ -1226,23 +1844,147 @@ function drawWindPrimitive(size, angle = 0, restored = 1, loose = 0, phase = 0, 
     push();
     rotate(i * TWO_PI / 3);
     translate(
-      sin(tm * 0.32 + phase + i * 1.7) * 10 * loose,
-      -loose * (5 + i * 2) + cos(tm * 0.27 + phase + i) * 7 * loose
+      sin(tm * .21 + phase + i * 1.7) * 8 * loose,
+      -loose * (4 + i * 2) + cos(tm * .18 + phase + i) * 6 * loose
     );
-    rotate(sin(tm * 0.22 + phase + i * 1.4) * 0.16 * loose);
-    triangle(
-      -size * 0.07, -size * 0.08,
-      size * 0.08, -size * 0.5,
-      size * 0.21, -size * 0.12
-    );
+    rotate(sin(tm * .14 + phase + i * 1.4) * .12 * loose);
+    poly([[-size*.055,-size*.04],[size*.06,-size*.52],[size*.22,-size*.12],[size*.08,size*.02]]);
     pop();
   }
   fill(restoredFill(palette.dark, C.orange, restored));
-  circle(0, 0, size * 0.24);
+  drawOctagon(0, 0, size * .13);
   pop();
 }
 
+function drawAdaptTree(x, y, scaleValue, variant, rec, damaged, phase = 0) {
+  push();
+  translate(x, y);
+  rotate(sin(tm * .35 + phase) * .018);
+  scale(scaleValue);
+  const trunk = restoredFill(damaged.dark, '#8A3F00', rec);
+  const crownPalette = [C.blue, C.orange, C.lime, C.lime];
+  const crown = restoredFill(damaged.highlight, crownPalette[variant % crownPalette.length], rec);
+  fill(trunk);
+  if (variant % 4 === 3) poly([[-6,10],[-5,-37],[-15,-55],[-8,-61],[-2,-49],[7,-71],[13,-67],[7,-38],[6,10]]);
+  else poly([[-5,10],[-3,-58],[4,-58],[6,10]]);
+  fill(crown);
+  if (variant % 4 === 0) {
+    poly([[-30,-51],[-10,-84],[26,-64],[18,-54],[-4,-60]]);
+    poly([[-34,-34],[-10,-66],[32,-44],[20,-33],[-7,-40]]);
+  } else if (variant % 4 === 1) {
+    poly([[-27,-49],[-20,-75],[-4,-88],[18,-76],[26,-51],[10,-31],[-14,-33]]);
+    poly([[-8,-77],[-2,-102],[17,-108],[31,-86],[22,-65],[2,-62]]);
+  } else if (variant % 4 === 2) {
+    poly([[-29,-62],[-7,-91],[24,-84],[29,-62],[6,-53],[-14,-55]]);
+    poly([[-34,-42],[-17,-65],[18,-59],[35,-39],[10,-27],[-25,-31]]);
+  } else {
+    poly([[-12,-78],[20,-86],[37,-65],[27,-40],[-7,-46]]);
+    poly([[-34,-57],[-18,-73],[4,-62],[7,-39],[-12,-28],[-32,-36]]);
+  }
+  pop();
+}
 
+function drawForestHabitat(m, rec, damaged) {
+  partTransform(m, 0, rec, () => drawAdaptTree(-42, 24, .82, m.id % 4, rec, damaged, m.phase));
+  partTransform(m, 1, rec, () => drawAdaptTree(8, 30, .62, (m.id + 1) % 4, rec, damaged, m.phase + 1.2));
+  partTransform(m, 2, rec, () => drawAdaptTree(54, 26, .48, (m.id + 2) % 4, rec, damaged, m.phase + 2.1));
+  partTransform(m, 3, rec, () => {
+    fill(restoredFill(damaged.light, C.paper, rec));
+    poly([[34,25],[58,-8],[82,24],[72,32],[46,31]]);
+  });
+}
+
+function drawWaterHabitat(m, rec, damaged) {
+  partTransform(m, 0, rec, () => {
+    fill(restoredFill(damaged.light, C.paper, rec));
+    poly([[-72,28],[-30,-34],[18,26],[-6,34],[-56,32]]);
+  });
+  partTransform(m, 1, rec, () => {
+    fill(restoredFill(damaged.mid, C.blue, rec));
+    poly([[-78,6],[-52,-5],[-24,9],[4,-6],[31,7],[61,-2],[80,17],[50,26],[-78,22]]);
+    fill(alphaColor(C.paper, 92 * rec + 20));
+    poly([[-38,13],[-28,6],[-22,18],[-30,24]]);
+    poly([[-10,14],[-1,7],[6,18],[-1,25]]);
+    poly([[17,14],[26,7],[34,18],[26,26]]);
+  });
+  partTransform(m, 2, rec, () => {
+    fill(restoredFill(damaged.dark, C.ink, rec));
+    poly([[-56,28],[-7,5],[61,27],[48,38],[-39,40]]);
+  });
+  partTransform(m, 3, rec, () => {
+    fill(restoredFill(damaged.highlight, C.lime, rec));
+    push(); translate(56,-12); rotate(QUARTER_PI); rect(0,0,12,12); pop();
+  });
+}
+
+function drawSolarHabitat(m, rec, damaged) {
+  partTransform(m, 0, rec, (t) => {
+    drawSolarPanel(12,-14,84,48,restoredFill(damaged.highlight,C.blue,max(rec,m.sun*.92)),1-t,m.phase);
+  });
+  partTransform(m, 1, rec, (t) => {
+    drawHouseBlock(-46,30,42,40,restoredFill(damaged.light,C.paper,rec),restoredFill(damaged.mid,C.orange,rec),1-t,m.phase+1);
+  });
+  partTransform(m, 2, rec, (t) => {
+    drawHouseBlock(56,29,35,31,restoredFill(damaged.light,C.paper,rec),restoredFill(damaged.mid,C.blue,rec),1-t,m.phase+2);
+  });
+  partTransform(m, 3, rec, () => {
+    push(); translate(-62,-46); scale(.52); drawSunPrimitive(58,max(rec,m.sun),damaged); pop();
+  });
+  partTransform(m, 4, rec, () => drawAdaptTree(84,25,.38,(m.id+3)%4,rec,damaged,m.phase+2.3));
+}
+
+function drawWindHabitat(m, rec, damaged) {
+  partTransform(m, 0, rec, () => {
+    fill(restoredFill(damaged.light,C.paper,rec));
+    poly([[2,28],[7,-39],[13,-39],[17,28]]);
+  });
+  partTransform(m, 1, rec, (t) => {
+    push(); translate(10,-42); drawWindPrimitive(80,tm*m.wind*.65+m.phase,max(rec,m.wind*.85),1-t,m.phase,damaged); pop();
+  });
+  partTransform(m, 2, rec, (t) => {
+    drawHouseBlock(-46,29,40,38,restoredFill(damaged.light,C.paper,rec),restoredFill(damaged.mid,C.blue,rec),1-t,m.phase+1);
+  });
+  partTransform(m, 3, rec, (t) => {
+    drawHouseBlock(52,30,34,30,restoredFill(damaged.light,C.paper,rec),restoredFill(damaged.mid,C.lime,rec),1-t,m.phase+2);
+  });
+  partTransform(m, 4, rec, () => drawAdaptTree(84,25,.34,(m.id+1)%4,rec,damaged,m.phase+2.1));
+}
+
+function drawCommunityHabitat(m, rec, damaged) {
+  const body = restoredFill(damaged.light,C.paper,rec);
+  const roofs = [C.blue,C.orange,C.lime];
+  partTransform(m,0,rec,(t)=>drawHouseBlock(-58,30,39,34,body,restoredFill(damaged.mid,roofs[0],rec),1-t,m.phase));
+  partTransform(m,1,rec,(t)=>drawHouseBlock(-4,28,52,54,body,restoredFill(damaged.mid,roofs[1],rec),1-t,m.phase+1));
+  partTransform(m,2,rec,(t)=>drawHouseBlock(56,30,39,32,body,restoredFill(damaged.mid,roofs[2],rec),1-t,m.phase+2));
+  partTransform(m,3,rec,()=>{
+    fill(restoredFill(damaged.dark,C.ink,rec));
+    poly([[-8,28],[-6,5],[8,3],[9,28]]);
+  });
+  partTransform(m,4,rec,()=>drawAdaptTree(94,25,.35,(m.id+2)%4,rec,damaged,m.phase+3));
+}
+
+function drawWildlifeHabitat(m, rec, damaged) {
+  const animal = restoredFill(damaged.light,C.orange,rec);
+  partTransform(m,0,rec,()=>{
+    fill(animal);
+    poly([[-40,12],[-32,-14],[8,-22],[33,-5],[24,18],[-12,24]]);
+  });
+  partTransform(m,1,rec,()=>{
+    fill(animal);
+    poly([[12,-20],[38,-30],[50,-17],[40,0],[20,-1]]);
+    triangle(-36,-7,-56,-19,-43,8);
+  });
+  partTransform(m,2,rec,()=>{
+    fill(animal);
+    poly([[-23,20],[-12,19],[-15,46],[-25,46]]);
+    poly([[7,20],[18,17],[20,44],[10,45]]);
+  });
+  partTransform(m,3,rec,()=>drawAdaptTree(52,24,.44,(m.id+2)%4,rec,damaged,m.phase+2));
+  partTransform(m,4,rec,()=>{
+    fill(restoredFill(damaged.highlight,C.paper,rec));
+    poly([[76,22],[96,-4],[114,20],[106,28],[84,28]]);
+  });
+}
 
 function updateWindCursor(dt) {
   const dx = pointerX - lastMouseX;
@@ -1328,7 +2070,15 @@ function drawBurstsAndWind() {
   }
 }
 
-
+function drawPollen() {
+  noStroke();
+  for (const p of pollen) {
+    const c = color(p.col);
+    c.setAlpha(110 * p.life);
+    fill(c);
+    circle(p.x, p.y, p.size);
+  }
+}
 
 function setStatus(msg, sec) {
   statusText = msg;
@@ -1373,7 +2123,7 @@ function mouseMoved(event) {
 
 function mousePressed(event) {
   if (!isCanvasInteraction(event) || paused || stateTwoAnnounced) return true;
-  ensureAudioEnabled(true);
+  ensureAudioEnabled().then(() => playEnergySound(activeTool));
   experienceMode = 'manual';
   const point = updatePointerFromEvent(event);
   dragging = true;
@@ -1394,6 +2144,7 @@ function mouseDragged(event) {
   if (pointTarget?.closest('#artwork-controls')) return true;
   const point = updatePointerFromEvent(event);
   applyEnergy(activeTool, point.x, point.y, point.x - dragPointerX, point.y - dragPointerY);
+  playEnergySound(activeTool);
   dragPointerX = point.x;
   dragPointerY = point.y;
   return false;
@@ -1514,7 +2265,6 @@ function applyEnergy(tool, x, y, dx, dy) {
     windLines.push({ x, y, dx: ndx, dy: ndy, life: 1 });
   }
 
-  playEnergySound(tool);
 
   const radius = ENERGY_BRUSH_RADIUS;
   const movementStrength = constrain(len / 24, 0.25, 1);
@@ -1557,7 +2307,7 @@ function toggleSound() {
     publishProgress(true);
   } else {
     audioMuted = false;
-    ensureAudioEnabled(true).then(() => publishProgress(true));
+    ensureAudioEnabled().then(() => publishProgress(true));
   }
 }
 
@@ -1578,7 +2328,7 @@ function createAudioGraph(AudioContextClass = window.AudioContext || window.webk
   audioContext = new AudioContextClass();
   audioMaster = audioContext.createGain();
   audioMaster.gain.value = 0.0001;
-  audioMaster.connect(audioContext.destination);
+  audioMaster.connect(HEALMaster.bus(audioContext));
   SOUND_MIX_CHANNELS.forEach(({ id, recommended }) => {
     const channel = audioContext.createGain();
     channel.gain.value = soundMixLevels[id] / recommended;
@@ -1592,9 +2342,10 @@ function preloadAudioSamples() {
   document.body.dataset.audioAssets = 'loading';
   audioFetchPromise = Promise.all(
     Object.entries(AUDIO_FILES).map(async ([name, path]) => {
-      const response = await fetch(path);
-      if (!response.ok) throw new Error(`Unable to load ${path}: ${response.status}`);
-      audioFileData.set(name, await response.arrayBuffer());
+      const encoded = HEAL_MASTERED_AUDIO[name];
+      if (!encoded) throw new Error('Missing mastered recording: ' + name);
+      const data = Uint8Array.from(atob(encoded), char => char.charCodeAt(0)).buffer;
+      audioFileData.set(name, data);
     })
   ).then(() => {
     document.body.dataset.audioAssets = 'fetched';
@@ -1626,27 +2377,21 @@ async function decodeAudioSamples() {
   await audioDecodePromise;
 }
 
-async function ensureAudioEnabled(playConfirmation = false) {
+async function ensureAudioEnabled() {
   // A visitor's explicit mute survives tool selection, strokes and regeneration.
   if (audioMuted) return;
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
-  const isFirstActivation = !audioContext;
   createAudioGraph(AudioContextClass);
   try {
     if (!paused) await audioContext.resume();
     await decodeAudioSamples();
+    if (audioBuffers.size !== Object.keys(AUDIO_FILES).length) throw new Error('Recorded audio failed to decode');
     // A mute click may occur while the browser is decoding its first samples.
     if (audioMuted) return;
     audioEnabled = true;
     document.body.dataset.audioEnabled = 'true';
-    audioMaster.gain.setTargetAtTime(0.72, audioContext.currentTime, 0.025);
-    if (isFirstActivation && playConfirmation) {
-      if (!playSample('confirmation', { gain: 0.58 })) {
-        playTone(392, 0.12, 'sine', 0.24);
-        playTone(587, 0.18, 'sine', 0.15, 0.07);
-      }
-    }
+    audioMaster.gain.setTargetAtTime(1, audioContext.currentTime, 0.025);
   } catch (error) {
     audioEnabled = false;
     document.body.dataset.audioEnabled = 'false';
@@ -1676,12 +2421,13 @@ function playSample(name, options = {}) {
   if (!buffer) return false;
 
   const {
-    gain: level = 0.5,
     rate = 1,
     delay = 0,
     exclusive = null,
     finishPrevious = false
   } = options;
+
+  const level = SOUND_MIX_CHANNELS.find(channel => channel.id === name).recommended / 100;
 
   // Sustained strokes let the current cue end naturally before retriggering it.
   if (exclusive && finishPrevious && activeSampleSources.has(exclusive)) return true;
@@ -1715,80 +2461,32 @@ function playSample(name, options = {}) {
   return true;
 }
 
-function playTone(frequency, duration, type = 'sine', level = 0.2, delay = 0, channel = 'confirmation') {
-  if (!audioEnabled || paused || !audioContext || !audioMaster) return;
-  const start = audioContext.currentTime + delay;
-  const oscillator = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-  oscillator.type = type;
-  oscillator.frequency.setValueAtTime(frequency, start);
-  gain.gain.setValueAtTime(0.0001, start);
-  gain.gain.exponentialRampToValueAtTime(level, start + 0.025);
-  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-  oscillator.connect(gain);
-  gain.connect(audioChannelGains.get(channel) || audioMaster);
-  oscillator.start(start);
-  oscillator.stop(start + duration + 0.03);
-}
-
 function playSelectSound(tool) {
   if (tool === 'sun') {
-    if (!playSample('solarSelect', { gain: 0.48, exclusive: 'selection' })) {
-      playTone(440, 0.16, 'sine', 0.2, 0, 'solarSelect');
-      playTone(660, 0.2, 'sine', 0.12, 0.04, 'solarSelect');
-    }
+    playSample('solarSelect', { gain: 0.48, exclusive: 'tool-selection' });
   } else {
-    if (!playSample('windPaper', { gain: 0.38, rate: 0.94, exclusive: 'selection' })) {
-      playTone(220, 0.2, 'triangle', 0.18, 0, 'windPaper');
-      playTone(330, 0.18, 'sine', 0.1, 0.04, 'windPaper');
-    }
+    playSample('windPaper', { gain: 0.3, rate: 0.96, exclusive: 'tool-selection' });
   }
 }
 
 function playEnergySound(tool) {
-  if (!audioEnabled || paused || !audioContext || activeSampleSources.has('energy')) return;
+  if (!audioEnabled || paused || !audioContext) return;
   const now = performance.now();
   const cooldown = tool === 'sun' ? 1050 : 720;
   if (now - lastEnergySoundAt[tool] < cooldown) return;
   lastEnergySoundAt[tool] = now;
-  const recoveryLift = globalRecovery * 90;
-  if (tool === 'sun') {
-    if (!playSample('solarEnergy', {
-      gain: 0.24,
-      rate: 0.96 + globalRecovery * 0.08,
-      exclusive: 'energy',
-      finishPrevious: true
-    })) {
-      playTone(360 + recoveryLift, 0.11, 'sine', 0.085, 0, 'solarEnergy');
-    }
-  } else {
-    if (!playSample('windPaper', {
-      gain: 0.3,
-      rate: 0.9 + globalRecovery * 0.12,
-      exclusive: 'energy',
-      finishPrevious: true
-    })) {
-      playTone(180 + recoveryLift * 0.55, 0.13, 'triangle', 0.07, 0, 'windPaper');
-    }
-  }
+  playSample(tool === 'sun' ? 'solarEnergy' : 'windPaper', {
+    gain: tool === 'sun' ? 0.24 : 0.3,
+    rate: tool === 'sun' ? 0.98 + globalRecovery * 0.05 : 0.94 + globalRecovery * 0.08,
+    exclusive: 'energy-brush',
+    finishPrevious: true
+  });
 }
 
 function playAssemblySound() {
-  if (!playSample('assemblyKeyboard', { gain: 0.98, exclusive: 'assembly' })) {
-    [246, 294, 370].forEach((note, index) => {
-      playTone(note, 0.18, 'triangle', 0.1, index * 0.09, 'assemblyKeyboard');
-    });
-  } else {
-    document.body.dataset.assemblyCue = 'keyboard';
-  }
-}
-
-function playCompletionSound() {
-  if (!playSample('recoveryWater', { gain: 0.72, exclusive: 'recovery' })) {
-    [392, 494, 587, 784].forEach((note, index) => {
-      playTone(note, 0.42, index % 2 ? 'triangle' : 'sine', 0.13, index * 0.085, 'recoveryWater');
-    });
-  } else {
-    document.body.dataset.recoveryCue = 'water';
-  }
+  // The shutter supplies the decisive assembly transient; the keyboard recording
+  // sits beneath it as a quieter mechanical texture while pieces reconnect.
+  playSample('cameraShutter', { gain: 0.8, exclusive: 'assembly-shutter' });
+  playSample('assemblyKeyboard', { gain: 0.35, exclusive: 'assembly-texture' });
+  document.body.dataset.assemblyCue = 'camera-shutter';
 }

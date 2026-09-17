@@ -10,6 +10,15 @@ const geometry = {
   finalStart:3300, finalEnd:4000, exitStart:4192, exitEnd:4642
 };
 const pose = (y, reduced=false) => JSON.parse(JSON.stringify(context.logoPose(y, geometry, reduced)));
+
+test('without a final banner the logo stays in navigation through both conclusion stops', () => {
+  const withoutBanner={landing:geometry.landing,nav:geometry.nav,landingEnd:720};
+  for(const reduced of [false,true]) {
+    for(const y of [720,4000,5200,7000,5200,720]) {
+      assert.deepEqual(JSON.parse(JSON.stringify(context.logoPose(y,withoutBanner,reduced))),geometry.nav);
+    }
+  }
+});
 test('landing contracts continuously into the precise navigation position', () => {
   assert.deepEqual(pose(0), geometry.landing);
   assert.deepEqual(pose(720), geometry.nav);

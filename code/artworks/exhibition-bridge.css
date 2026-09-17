@@ -1,7 +1,7 @@
 /* Integration-only controls: authored canvas compositions remain intact. */
 /* The catalogue supplies its own corner pin. Keep the source badge only when
    entering the installation; standalone artwork styling is unaffected. */
-body[data-heal-embedded]:not([data-heal-mode="full"]) :is(.stage2-badge-layer,.stage2-badge-title,.stage2-badge-stage,.badge-layer,.badge-title,.badge-stage,#liven-ui .badge) {
+body[data-heal-embedded]:not([data-heal-mode="full"]) :is(.stage2-badge-layer,.stage2-badge-title,.stage2-badge-stage,.badge-layer,.badge-title,.badge-stage,#liven-ui .badge,.harm-caption,.stage-heading) {
   visibility:hidden;
 }
 body[data-heal-embedded] button:focus-visible,

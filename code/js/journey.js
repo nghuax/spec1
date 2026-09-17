@@ -1,11 +1,12 @@
 import { stages } from './exhibition-content.js';
 import { healMark } from './heal-mark.js';
-import { endings } from './artwork-endings.js';
+import { endings, EndingSequence } from './artwork-endings.js';
 import { SectionScroll } from './section-scroll.js';
 import { MotionPreference, LivingMotion } from './living-motion.js';
 import { introMarkup, briefMarkup, StageIntros } from './stage-intros.js';
 import { Installation } from './installation.js';
 import { LogoFlight } from './logo-flight.js';
+import { UISounds } from './ui-sounds.js';
 
 const initialHash = location.hash.slice(1);
 history.scrollRestoration = 'manual';
@@ -33,12 +34,11 @@ document.querySelector('[data-chapters]').innerHTML = stages.map((stage,i) => `
         <button data-action="sound" disabled aria-pressed="false">SOUND OFF</button>
         <button data-action="pause" disabled aria-pressed="false">PAUSE</button>
         <button data-action="close">BACK TO CHAPTER ↙</button>
-        <button type="button" data-motion-toggle aria-pressed="false">MOTION OFF</button>
+
       </div><div class="keyboard-controls">${keyboardControls[stage.id]}<button data-action="reset">RESET</button><button data-action="info">ARTWORK INFO</button><a href="#${stages[i+1]?.id || 'heal'}">CONTINUE ↓</a></div><output aria-live="polite" data-artwork-status></output></div></details>
-      <div class="artwork-ending" role="region" aria-labelledby="${stage.id}-ending" tabindex="-1" hidden>
-        <p id="${stage.id}-ending" class="ending-message">${endings[stage.id].message}</p>
-        ${endings[stage.id].detail ? `<p class="ending-detail">${endings[stage.id].detail}</p>` : ''}
-        <div class="ending-actions"><button data-action="reset">RESTART <span aria-hidden="true">↺</span></button><a href="#${stages[i+1]?.id || 'heal'}" aria-label="NEXT — ${stages[i+1]?.title || 'HEAL'}">NEXT <span aria-hidden="true">↓</span></a></div>
+      <div class="artwork-ending" role="region" aria-labelledby="${stage.id}-ending" aria-describedby="${stage.id}-ending-copy" tabindex="-1" hidden>
+        <div class="ending-content"><p id="${stage.id}-ending" class="ending-message"></p><div id="${stage.id}-ending-copy"><p class="ending-subtitle" hidden></p><p class="ending-detail"></p></div></div>
+        <div class="ending-actions"><button type="button" data-action="info" data-ending-final>INFORMATION</button><button type="button" data-action="reset" data-ending-final>RESTART</button><button type="button" data-action="continue-ending">CONTINUE</button></div>
       </div>
     </dialog>
     <button class="preview-trigger" aria-label="Open ${stage.title} artwork in fullscreen"><span class="preview-hover-label" aria-hidden="true">CLICK TO EXPERIENCE</span></button>
@@ -46,6 +46,10 @@ document.querySelector('[data-chapters]').innerHTML = stages.map((stage,i) => `
   </section>`).join('');
 
 const sections = [...document.querySelectorAll('[data-section]')];
+new UISounds({ sources: {
+  hover: new URL('../assets/audio/COMM2754-2026-S4010990-A2w09-Heal-KeyboardReverse.mp3', import.meta.url).href,
+  click: new URL('../assets/audio/COMM2754-2026-S4010990-A2w09-Heal-MouseClick.wav', import.meta.url).href
+} });
 const chrome = [...document.querySelectorAll('[data-chrome]')];
 const rail = document.querySelector('.journey-rail');
 const railLinks = [...rail.querySelectorAll('a')];
@@ -70,6 +74,10 @@ const sectionScroll = new SectionScroll({ reducedMotion: reduceMotion, onChange:
 } });
 
 const installation = new Installation({frames,preference:reduceMotion,scroll:sectionScroll,fit:measure,onChange:()=>frames.forEach(activity)});
+stages.forEach((stage,i)=>{
+  const frame=frames.get(stage.id);
+  frame.ending=new EndingSequence(frame.section.querySelector('.artwork-ending'),endings[stage.id],reduceMotion,()=>navigate(stages[i+1]?.id || 'heal'));
+});
 
 function command(frame, action, detail = {}) {
   if (frame.loaded) frame.iframe.contentWindow?.postMessage({ type: 'heal:command', action, ...detail }, location.origin);
@@ -128,11 +136,6 @@ function measure() {
     const scale=Math.min(viewport.clientWidth/1920,viewport.clientHeight/1080);
     viewport.style.setProperty('--art-width',`${1920*scale}px`);
     viewport.style.setProperty('--art-height',`${1080*scale}px`);
-    // A portrait viewport has room for the ending beneath the complete scene.
-    const ending=frame.section.querySelector('.artwork-ending');
-    const availableBelow=(viewport.clientHeight-1080*scale)/2;
-    frame.section.classList.toggle('ending-below-art',availableBelow>=ending.offsetHeight+28 && !ending.hidden);
-    frame.section.style.setProperty('--ending-top',`${viewport.offsetTop+(viewport.clientHeight+1080*scale)/2+14}px`);
   });
   state.bounds = sections.map(section => {
     const rect = section.getBoundingClientRect();
@@ -197,7 +200,8 @@ function update() {
     const visible=Math.max(0,Math.min(scrollY+innerHeight,bound.bottom)-Math.max(scrollY,bound.top));
     link.style.setProperty('--chapter-presence',Math.min(1,visible/innerHeight).toFixed(3));
   }
-  const journey = state.bounds.slice(1);
+  // Both conclusion stops share the existing rail interval before ABOUT.
+  const journey = railLinks.map(link => state.bounds.find(bound => '#'+bound.id === link.hash)).filter(Boolean);
   let position = 0;
   for(let i=0;i<journey.length;i++) {
     if(scrollY >= journey[i].top) {
@@ -274,6 +278,7 @@ frames.forEach(frame => {
       load(frame); return;
     }
     if(action === 'close') { installation.close(); return; }
+    if(action === 'continue-ending') { frame.ending.advance(); return; }
     if(!frame.ready) { load(frame); return; }
     if(action === 'sound') { frame.muted = !frame.muted; command(frame,'mute',{muted:frame.muted}); }
     else if(action === 'pause') {
@@ -325,6 +330,13 @@ window.addEventListener('message', event => {
     if(typeof data.background==='string' && CSS.supports('color',data.background)) frame.section.querySelector('.chapter-inner').style.setProperty('--scene-background',data.background);
     frame.lightSurface=Boolean(data.lightSurface);
     if(state.section===frame.section.id) document.body.dataset.navTone=frame.lightSurface?'dark':'light';
+    const completionPanel=frame.section.querySelector('.artwork-ending');
+    if(data.completed && frame.completed && frame.endingInfoOpen !== Boolean(data.infoOpen)) {
+      frame.endingInfoOpen=Boolean(data.infoOpen);
+      completionPanel.hidden=frame.endingInfoOpen;
+      if(frame.endingInfoOpen && installation.frame===frame) frame.iframe.focus();
+      if(!frame.endingInfoOpen && installation.frame===frame) completionPanel.querySelector('[data-action="info"]').focus({preventScroll:true});
+    }
     if(data.completed && !frame.completed) {
       frame.completed=true;
       const ending=frame.section.querySelector('.artwork-ending');
@@ -332,11 +344,12 @@ window.addEventListener('message', event => {
       measure();
       if(installation.frame===frame) {
         frame.section.querySelector('.artwork-tools').open=false;
-        document.querySelector('[data-announcement]').textContent=`${frame.section.id.toUpperCase()} complete. ${endings[frame.section.id].message} Restart or continue to the next chapter.`;
+        document.querySelector('[data-announcement]').textContent=`${frame.section.id.toUpperCase()} complete. ${endings[frame.section.id][0].message}`;
         ending.focus({preventScroll:true});
       }
     }
     if(!data.completed) {
+      if(frame.completed)frame.ending.reset();
       const ending=frame.section.querySelector('.artwork-ending');
       if(ending.contains(document.activeElement)) frame.section.querySelector('.chapter-inner h2').focus({preventScroll:true});
       ending.hidden=true;

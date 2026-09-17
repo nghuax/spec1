@@ -1,99 +1,64 @@
-# HARM — STAGE 1 / SEMANTIC SOUND MIX
+# HARM v21
 
-This build keeps the visual and interaction systems intact while replacing the previous crowded audio timing with a quieter, more stable hierarchy.
+Giải nén rồi mở HARM/index.html hoặc chạy qua máy chủ tĩnh cục bộ.
 
-## Sound logic
-- **Mouse Click** — foreground cue for real canvas presses, including coal and UI/info interactions. Hover demand is silent so clicks do not appear randomly.
-- **Microwave** — a long, quiet central-machine bed. Its natural ting is removed from ordinary operation and plays only once at true 100% (20 burns).
-- **Water Tap** — very low smoke/air atmosphere that follows active factory chimneys and ducks under the machine.
-- **Rice** — very light factory-formation texture, delayed by a fixed 0.65 s for stable rhythm.
-- **Oral Irrigator** — tiny secondary factory/mechanical accent at a fixed 1.80 s after formation begins.
-- **Plastic Bag** — clearer environmental-damage texture, limited by cooldown and controlled pollution milestones so it is noticeable without becoming repetitive.
+## Bổ sung v21
+- Nhà và cây trôi vào từ trái, phải hoặc dưới trong khoảng 4.8–6.6 giây, sau đó lơ lửng nhẹ. Nhà vẫn chỉ xuất hiện khi được mở bằng than.
+- Điểm chọn, cửa sổ và đường điện dùng cùng vị trí chuyển động. Nhà chỉ nhận nhu cầu sau khi gần tới vị trí.
+- Mảnh nền tăng từ 48 lên 76, sắc độ rõ hơn ở vùng ô nhiễm.
+- Vệt generative xám–cam có thêm hai nét song song mảnh.
+- Máy lớn hơn khoảng 10%, thêm các mảng tương phản lệch phía sau.
+- Click vùng trống tạo gió nhẹ trên mảnh nền. Hiệu ứng tối đa 4 đợt, tự hết sau 1.8 giây, không đổi than, năng lượng hoặc AIR LOAD.
+- Bố cục thay đổi vừa phải theo seed; vẫn giữ 1–2 nhà máy phía dưới.
 
-## Mixer
-Six semantic user-facing controls:
-- **CLICK** — interaction feedback.
-- **MACHINE** — central coal-machine hum and the 100% completion ting.
-- **SMOKE** — very low factory chimney ambience.
-- **CONSTRUCTION** — light factory-forming texture.
-- **FACTORY** — subtle mechanical factory accent.
-- **DAMAGE** — environmental damage texture.
+Kiểm tra v21: Chrome headless chạy lại luồng tương tác v20, kiểm tra vật thể bắt đầu ngoài khung và tới đích, số hạt 76, gió tác động mảnh nền nhưng không đổi tiến trình, tự dọn hiệu ứng. Không có lỗi JavaScript chưa bắt trong lượt kiểm tra. Đã xem ảnh toàn cảnh.
 
-The percentage in parentheses is the recommended starting point. `M` toggles mute. Settings are stored in localStorage.
+## Nền tảng giữ từ v20
+- Đúng 7 cục than đã bay vào máy sẽ đạt 100%, không phụ thuộc tốc độ bấm.
+- Giữ hoạt ảnh tách bốn mảnh, hút vào miệng máy; đốt một lần khi đủ bốn mảnh.
+- STAGE 1: HARM cùng hàng và cùng kiểu chữ với AIR LOAD, không còn nền đen hay viền.
+- Mỗi lần reset chọn 1–2 nhà máy xuống các khoảng trống phía dưới, có biến thiên nhỏ theo seed.
+- Research thay toàn bộ nội dung About cũ; giữ bảng xanh/nền sáng/viền cam và xanh lá. Chân bảng chỉ có tên và SID nhỏ.
+- Ẩn giao diện nền khi xem research. Đóng bằng X, I hoặc Escape.
+- 100% vẫn tự nén–xả; giữ và thả trên máy hoặc dùng Space là tùy chọn.
 
-## Performance / safety
-Audio is isolated in `sound.js`. The p5 loop only passes existing visual state (factory-smoke activity and pollution level) into the sound system; it does not run decoding, audio DSP or restart samples per frame. Smoke ambience is smoothed on a lightweight 100 ms timer. Visual animation, particle budgets, pollution simulation and object timing are unchanged.
+## Nguồn research
+[1] United Nations — Causes and Effects of Climate Change:
+https://www.un.org/en/node/188439
 
-## Existing controls
-- Click coal: burn coal.
-- Drag coal into the hopper: burn coal.
-- Hover a formed house/factory: create demand.
-- Move pointer: gently influence the shared air field.
-- R: reset.
-- S: save PNG.
-- M: mute/unmute.
+[2] UNEP & ISWA (2024) — Global Waste Management Outlook 2024:
+https://www.unep.org/resources/global-waste-management-outlook-2024
 
-## V7 six-channel sound mix
-- All six designed recordings now have independent volume sliders in the MIX panel.
-- Recommended starting levels are displayed beside each source name and can be restored with RESET RECOMMENDED.
-- Mouse Click is the foreground interaction cue.
-- Microwave starts immediately when coal is committed to the machine, but normal operation stops before the recording's natural bell.
-- The Microwave bell/ting is isolated from the same recording and plays only once when the machine reaches its visual 100% threshold (20 burns / full 8-cell indicator).
-- Water Tap is reserved for a low, continuous factory-smoke background bed.
-- Rice is a quiet factory-formation texture; Oral Irrigator is a small secondary industrial accent; Plastic Bag is a rare damage texture.
-- Sound scheduling remains outside the p5 draw/particle loops, preserving animation timing and performance.
+Nội dung được biên tập từ chủ đề trong ảnh tham khảo; không giữ các tỷ lệ tiêu thụ nhiên liệu 1950–2025 chưa có nguồn xác nhận trong ảnh. AIR LOAD là tiến trình nghệ thuật, không phải thang đo ô nhiễm khoa học.
 
-## V8 semantic sound mix
-- Sound settings now use semantic roles instead of recording filenames: CLICK, MACHINE, SMOKE, CONSTRUCTION, FACTORY, DAMAGE.
-- All six designed recordings remain independently adjustable; the value in parentheses is the recommended mix.
-- Recommended mix: CLICK 70%, MACHINE 38%, SMOKE 8%, CONSTRUCTION 14%, FACTORY 12%, DAMAGE 26%.
-- Microwave is pre-shaped into one longer, quiet machine bed (~6.1 s) with a crossfaded continuation of its pre-bell material; the natural bell/tail is preserved later in the same WAV for the 100% cue.
-- The natural Microwave bell/ting is isolated from normal machine playback and is triggered only once when the machine reaches its true 100% threshold (20 burns).
-- Water Tap is reduced to a very quiet factory-smoke ambience and ducks further while the machine/ting is active.
-- Plastic Bag is more audible and is also triggered at controlled pollution milestones so the environmental-damage sound is not missed.
-- These audio changes read existing visual state only; smoke, pollution, particles, physics, architecture formation and animation timing are unchanged.
+## Kiểm tra
+Chrome headless: click than thật, bốn mảnh và một lần đốt, đúng 7 cục đến hoàn tất, bấm nhanh/chậm, tự xả, giữ/thả tùy chọn, thả chuột ngoài canvas, research mở/đóng, reset, màu HUD sau reset, giới hạn số hạt khi chạy lâu, căn nhãn tại kích thước nhỏ, bố cục 16 lần reset. Kiểm tra ảnh 1440×900 và 640×360. Các lượt này không có lỗi JavaScript chưa bắt; không khẳng định bao phủ mọi thiết bị. Một số kiểm tra dùng bước thời gian tăng tốc.
+
+## Âm thanh — v34
+- Giữ `HARM/` và `designed-sounds/` ở cùng một thư mục cha. `sound.js` dùng đường dẫn `../designed-sounds/`.
+- Keyboard Reverse chỉ dùng cho hover các button; popup 100% không phát âm này.
+- Mouse Click = click UI, Exhaust = mỗi lần đốt than, Microwave = machine bed, Water Tap = smoke ambience, Rice + Oral Irrigator = formation, Plastic Bag = damage, Car Signal = critical alert khi AIR LOAD vừa đạt 100%.
+- Popup hậu quả vẫn xuất hiện sau 5 giây và không có sound cue riêng.
+- SOUND MIX có MASTER + 9 channel sliders, MUTE và USE RECOMMENDED. Mức âm được lưu bằng localStorage.
+
+Các tài liệu refinement đi kèm chỉ là ghi chú lịch sử.
 
 
-## Damage sound + visual synchronization
-- The **DAMAGE** channel (Plastic Bag recording) is now paired with a dedicated wind-blown litter/plastic animation.
-- Structural damage releases small plastic bags, wrappers and torn strips from the exact damage position.
-- Pollution milestones at 28%, 55% and 78% also create a restrained litter gust near an active factory/machine.
-- Damage audio milestone playback is controlled inside `js/systems.js`, so every scheduled Plastic Bag damage cue has a corresponding visual event.
-- The litter layer is capped at 105 lightweight sprites and is separate from the existing debris/smoke physics.
+## v35 layered soundscape
+- Soundscape attempts to begin immediately with a very quiet Water Tap bed. Browsers that block audible autoplay begin it on the first user gesture.
+- Before coal interaction, sparse Rice / Oral Irrigator / Exhaust details create a subtle industrial environment.
+- AIR LOAD 100% uses the full Microwave recording as the hero machine climax, supported by low Exhaust, Car Signal, Irrigator and Plastic textures.
+- The delayed completion popup remains silent.
+- AMBIENCE is independently adjustable in the sound mixer, in addition to Master and per-sound levels.
 
 
-## Damage shape variation
-- Expanded the DAMAGE visual from 3 litter silhouettes to 8 stylised waste/industrial-fragment families.
-- Added bags, wrappers, film ribbons, crushed cans, bottle/label shards, loop fragments, jagged foil and hooked strap shapes.
-- Shape variation is visual-only: the approved machine/factory sound mapping and audio mix are unchanged.
-- Damage particles remain capped and lightweight so the main smoke/animation system keeps its existing performance.
+## v36 sound refinement
+- Sound mixer labels now use the supplied recording names: Keyboard Reverse, Mouseclick, Exhaust, Microwave, Water Tap, Rice, Oral Irrigator, PlasticBag, and Car Signal.
+- Smoke is no longer represented by Water Tap alone. Water Tap is a quiet, rate-drifting bed, with irregular low Exhaust breaths and occasional Oral Irrigator hiss as pollution rises.
+- Smoke texture layers use independent ambient voices, so they do not interrupt interaction cues.
 
-## V9 factory smoke refinement
-- Factory smoke is intentionally only **slightly denser**, not redesigned, so the approved composition remains intact.
-- Factory chimney cadence is about 10–12% more continuous, reducing empty gaps between puffs without making both chimneys pulse together.
-- Factory smoke particles begin a little fuller, grow to a moderately larger plume, remain visible slightly longer, and have a small opacity lift.
-- The global smoke cap is raised from 560 to 620 to give the extra factory exhaust headroom without removing the existing performance guard.
-- Machine smoke, sound logic, six WAV files, DAMAGE shapes, pollution logic, object formation and interaction timings are unchanged.
 
-## Compact code structure — behavior preserved
-The artwork uses four compact feature bundles instead of many small nested modules. No function body, constant, animation value, particle rule, timing value, random call, sound cue or interaction rule was rewritten. `sketch.js` contains shared configuration/state and setup; the four files inside `js/` are loaded in the exact original order.
-
-```text
-code/
-├── index.html
-├── style.css
-├── p5.js                    # vendor library — unchanged
-├── sound.js                 # six-channel audio system — unchanged
-├── sketch.js                # constants, shared state, setup/reset
-└── js/
-    ├── scene.js             # world creation, draw loop, demand
-    ├── systems.js           # coal, energy, environment, damage, smoke
-    ├── render.js            # backdrop, world and particle rendering
-    └── interface.js         # HUD, input events and shared helpers
-```
-
-### Compact-structure validation
-- Concatenating the compact sketch files in HTML load order reproduces the previous modular source **byte-for-byte** (same SHA-256).
-- Every JavaScript file passes `node --check`.
-- Sound files and `sound.js` are not modified by this structure pass.
-- The browser loads the scripts as classic scripts, preserving the shared global lexical scope used by the original p5 global-mode sketch.
+## Sound refinement v37
+- Fresh page load starts SOUND ON at the recommended mix.
+- Coal fracture has a short Rice + PlasticBag granular crack, followed ~110 ms later by Exhaust/Microwave machine response.
+- Coal no longer stacks the generic Mouseclick cue, keeping the interaction cleaner.

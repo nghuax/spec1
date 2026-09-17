@@ -2,6 +2,7 @@
   const infoButton = document.getElementById('info-button');
   const infoPopover = document.getElementById('info-popover');
   const infoClose = document.getElementById('info-close');
+  const infoNudge = document.getElementById('info-nudge');
   const subtitle = document.getElementById('state-subtitle');
   const subtitleText = document.getElementById('state-subtitle-text');
   const controls = document.getElementById('artwork-controls');
@@ -26,29 +27,42 @@
     mixRows.append(row);
   });
 
+  // The first button click unlocks browser audio; hovering respects that gesture and mute.
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('button')) return;
+    ensureAudioEnabled().then(() => {
+      playSample('mouseClick', { gain: 0.58, exclusive: 'ui-click' });
+    });
+  });
+  document.addEventListener('pointerover', (event) => {
+    const control = event.target.closest('button, a[href], input, select, textarea, summary, [role="button"], [role="link"], [data-command], canvas');
+    if (!control || control.matches(':disabled, [aria-disabled="true"]') || control.contains(event.relatedTarget) || event.pointerType === 'touch') return;
+    if (control.tagName === 'CANVAS' && (paused || stateTwoAnnounced || document.body.matches('.info-is-open, .sound-is-open'))) return;
+    // Let the recorded hover cue reach its natural end. Further hover events
+    // during playback are ignored instead of cutting and restarting the sample.
+    playSample('keyboardReverse', {
+      gain: 0.4,
+      exclusive: 'ui-hover',
+      finishPrevious: true
+    });
+  });
   const soundIsOpen = () => soundPanel.matches(':popover-open');
   function positionSoundPanel() {
     if (!soundIsOpen()) return;
     const stage = document.getElementById('artwork-stage').getBoundingClientRect();
-    const stack = document.querySelector('.utility-controls').getBoundingClientRect();
-    // Anchor to the resting button box, independent of hover/focus transforms.
-    const button = {
-      left: stack.left + soundButton.offsetLeft,
-      top: stack.top + soundButton.offsetTop,
-      height: soundButton.offsetHeight,
-      bottom: stack.top + soundButton.offsetTop + soundButton.offsetHeight
-    };
+    const button = soundButton.getBoundingClientRect();
     const gap = 12;
-    const available = Math.max(1, button.left - stage.left - gap - 12);
-    soundPanel.style.width = `${Math.min(260, available)}px`;
-    const portrait = window.matchMedia('(max-width: 700px) and (min-height: 430px)').matches;
-    const targetHeight = Math.min(button.bottom - stage.top - 12, Math.max(portrait ? 320 : 230, stack.height + 80));
-    soundPanel.style.setProperty('--sound-height', `${targetHeight}px`);
-    const height = soundPanel.getBoundingClientRect().height;
-    const top = button.bottom - height;
-    soundPanel.style.left = `${button.left - gap - Math.min(260, available)}px`;
+    const margin = 12;
+    soundPanel.style.removeProperty('--sound-height');
+    soundPanel.style.width = '';
+    const panel = soundPanel.getBoundingClientRect();
+    const left = Math.max(stage.left + margin, button.left - panel.width - gap);
+    const top = Math.max(
+      stage.top + margin,
+      Math.min(button.bottom - panel.height, stage.bottom - panel.height - margin)
+    );
+    soundPanel.style.left = `${left}px`;
     soundPanel.style.top = `${top}px`;
-    soundPanel.style.setProperty('--sound-pointer-top', `${Math.max(16, Math.min(height - 16, button.top + button.height / 2 - top))}px`);
   }
   function setSoundOpen(open, returnFocus = true) {
     if (open && !soundIsOpen()) {
@@ -95,7 +109,7 @@
   const announcement = document.getElementById('artwork-announcement');
   const completionCopy = 'A connected clean-energy network is ready';
   const subtitleCopy = {
-    1: 'Balance clean energy to clear pollution and restore life',
+    1: 'Drag SUN across the habitats, then add WIND to reconnect them.',
     2: completionCopy
   };
   const embedded = window.parent !== window;
@@ -105,26 +119,84 @@
     bar: document.getElementById(`${name}-progress`),
     value: document.getElementById(`${name}-value`)
   }));
-  let subtitleTimer;
+  let subtitleShowTimer;
+  let subtitleHideTimer;
   let announcementTimer;
+  let infoNudgeTimer;
+  let infoNudgeHideTimer;
   let previousAnnouncementKey = '';
   let previousCompletion = false;
+  let previousHintStatus = '';
+  let previousRecoveryBand = 0;
+  let initialProgressSeen = false;
   let latestAnnouncement = { status: '', recovery: 0, paused: false };
+
+  function hideSubtitle() {
+    window.clearTimeout(subtitleShowTimer);
+    window.clearTimeout(subtitleHideTimer);
+    subtitle.classList.remove('is-visible');
+    subtitle.setAttribute('aria-hidden', 'true');
+  }
+
+  function showSubtitle(message, { delay = 0, duration = 3400, state } = {}) {
+    if (!message) return;
+    window.clearTimeout(subtitleShowTimer);
+    window.clearTimeout(subtitleHideTimer);
+    subtitle.classList.remove('is-visible');
+    subtitle.setAttribute('aria-hidden', 'true');
+    if (state != null) subtitle.dataset.state = String(state);
+    subtitleText.textContent = message;
+    subtitle.setAttribute('aria-label', message);
+    subtitleShowTimer = window.setTimeout(() => {
+      subtitle.classList.add('is-visible');
+      subtitle.setAttribute('aria-hidden', 'false');
+      subtitleHideTimer = window.setTimeout(hideSubtitle, duration);
+    }, delay);
+  }
 
   function queueSubtitle(state) {
     const safeState = Number(state) === 2 ? 2 : 1;
-    const copy = subtitleCopy[safeState];
     document.body.dataset.artworkState = String(safeState);
-    window.clearTimeout(subtitleTimer);
-    subtitle.classList.remove('is-visible');
-    subtitle.setAttribute('aria-hidden', 'true');
-    subtitle.dataset.state = String(safeState);
-    subtitleText.textContent = copy;
-    subtitle.setAttribute('aria-label', copy);
-    subtitleTimer = window.setTimeout(() => {
-      subtitle.classList.add('is-visible');
-      subtitle.setAttribute('aria-hidden', 'false');
-    }, 1000);
+    showSubtitle(subtitleCopy[safeState], {
+      delay: safeState === 1 ? 850 : 250,
+      duration: safeState === 1 ? 3900 : 5000,
+      state: safeState
+    });
+  }
+
+  function hideInfoNudge() {
+    window.clearTimeout(infoNudgeHideTimer);
+    if (!infoNudge) return;
+    infoNudge.classList.remove('is-visible');
+    infoNudge.setAttribute('aria-hidden', 'true');
+  }
+
+  function showInfoNudge() {
+    if (!infoNudge || infoPopover.open || soundIsOpen() || document.hidden) return;
+    infoNudge.classList.add('is-visible');
+    infoNudge.setAttribute('aria-hidden', 'false');
+    window.clearTimeout(infoNudgeHideTimer);
+    infoNudgeHideTimer = window.setTimeout(hideInfoNudge, 3600);
+  }
+
+  function scheduleInfoNudge(first = false) {
+    window.clearTimeout(infoNudgeTimer);
+    const delay = first ? 8200 : 22000 + Math.random() * 12000;
+    infoNudgeTimer = window.setTimeout(() => {
+      // Keep the reminder occasional rather than permanent.
+      if (first || Math.random() < 0.62) showInfoNudge();
+      scheduleInfoNudge(false);
+    }, delay);
+  }
+
+  const buttonHighlightTimers = new WeakMap();
+  function flashButton(button) {
+    window.clearTimeout(buttonHighlightTimers.get(button));
+    button.classList.add('is-activated');
+    buttonHighlightTimers.set(button, window.setTimeout(() => {
+      button.classList.remove('is-activated');
+      buttonHighlightTimers.delete(button);
+    }, 350));
   }
 
   function command(action, extra = {}) {
@@ -139,6 +211,7 @@
 
   function setInfoOpen(open) {
     if (open && !infoPopover.open) {
+      hideInfoNudge();
       setSoundOpen(false);
       document.body.classList.add('info-is-open');
       infoButton.setAttribute('aria-expanded', 'true');
@@ -172,13 +245,41 @@
     document.body.dataset.mode = detail.mode === 'guided' ? 'guided' : 'manual';
     document.body.dataset.completed = String(completed);
     document.getElementById('recovery-label').textContent = completed ? 'NETWORK READY' : 'FIELD RECOVERY';
-    statusText.textContent = completed
+    document.getElementById('recovery-value').textContent = `${values.recovery}%`;
+    const nextHintStatus = (completed
       ? completionCopy
-      : detail.status || 'Drag SUN across the habitats, then add WIND to reconnect them.';
+      : detail.status || 'Drag SUN across the habitats, then add WIND to reconnect them.').trim();
+
+    // Keep the HUD informational only; all instructions/hints belong to the temporary subtitle box.
+    statusText.textContent = completed
+      ? 'SUN 100% · WIND 100%'
+      : `SUN ${values.sun}% · WIND ${values.wind}%`;
     document.getElementById('control-caption').textContent = guided
       ? 'Guided sequence · select SUN or WIND to take control.'
       : completed ? 'The clean-energy network is ready for the next stage.'
-        : 'Select an energy source, then drag to supply it.';
+        : 'Select SUN or WIND, then drag to restore the habitats.';
+
+    // The subtitle is a temporary instruction / hint, not a permanent banner.
+    if (!initialProgressSeen) {
+      initialProgressSeen = true;
+      previousHintStatus = nextHintStatus;
+    } else if (nextHintStatus && nextHintStatus !== previousHintStatus) {
+      previousHintStatus = nextHintStatus;
+      showSubtitle(nextHintStatus, { duration: completed ? 5000 : 3200, state: completed ? 2 : 1 });
+    }
+
+    const recoveryBand = completed ? 4 : values.recovery >= 75 ? 3 : values.recovery >= 50 ? 2 : values.recovery >= 25 ? 1 : 0;
+    if (!completed && recoveryBand > previousRecoveryBand) {
+      previousRecoveryBand = recoveryBand;
+      const milestoneHints = {
+        1: 'Good start — keep dragging across the disconnected habitats.',
+        2: 'Halfway restored — balance SUN and WIND across the field.',
+        3: 'Almost there — reconnect the remaining habitat fragments.'
+      };
+      showSubtitle(milestoneHints[recoveryBand], { delay: 180, duration: 3300, state: 1 });
+    } else if (values.recovery < 20 && previousRecoveryBand > 0) {
+      previousRecoveryBand = 0;
+    }
 
     soundMute.querySelector('use').setAttribute('href', sound ? '#icon-sound' : '#icon-muted');
     soundMute.setAttribute('aria-pressed', String(!sound));
@@ -191,7 +292,7 @@
     }
 
     // Announce phases and broad milestones, not every animation frame or brush stroke.
-    latestAnnouncement = { status: statusText.textContent, recovery: values.recovery, paused };
+    latestAnnouncement = { status: nextHintStatus, recovery: values.recovery, paused };
     const announcementKey = [detail.phase, selectedTool, paused, sound, completed, values.sun + values.wind === 0, Math.floor(values.recovery / 25)].join('|');
     if (announcementKey !== previousAnnouncementKey) {
       previousAnnouncementKey = announcementKey;
@@ -206,12 +307,15 @@
   controls.addEventListener('click', (event) => {
     const button = event.target.closest('button[data-command]');
     if (!button || button.disabled) return;
+    flashButton(button);
     const action = button.dataset.command;
     if (action === 'info') setInfoOpen(true);
     else if (action === 'sound-panel') setSoundOpen(!soundIsOpen());
     else command(action, action === 'tool' ? { tool: button.dataset.tool } : {});
   });
 
+  infoButton.addEventListener('pointerenter', hideInfoNudge);
+  infoButton.addEventListener('focus', hideInfoNudge);
   infoClose.addEventListener('click', () => setInfoOpen(false));
   infoPopover.addEventListener('close', () => {
     document.body.classList.remove('info-is-open');
@@ -237,6 +341,9 @@
   });
   window.addEventListener('adapt:statechange', (event) => queueSubtitle(event.detail?.state));
   window.addEventListener('adapt:progress', (event) => setProgress(event.detail));
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) hideInfoNudge();
+  });
 
   const query = new URLSearchParams(window.location.search);
   const restoredPreview = ['2', 'restored'].includes(query.get('state'));
@@ -245,4 +352,5 @@
     ? { sun: 100, wind: 100, recovery: 100, completed: true }
     : { tool: 'sun', sun: 0, wind: 0, recovery: 0 });
   if (['1', 'open'].includes(query.get('info'))) setInfoOpen(true);
+  scheduleInfoNudge(true);
 })();

@@ -91,9 +91,9 @@ function drawGraphicField() {
   const fade = 1 - p * .58;
   const drift = p * 20;
   const aShift = graphicFieldLayout.alphaShift || 0;
-  const blueField = lerpColor(color(43, 62, 255), color(57, 68, 128), p * .68);
-  const deepBlueField = lerpColor(color(16, 28, 72), color(39, 42, 63), p * .70);
-  const inkField = lerpColor(color(5, 8, 17), color(35, 31, 36), p * .62);
+  const blueField = lerpColor(color(39, 57, 240), color(52, 63, 122), p * .60);
+  const deepBlueField = lerpColor(color(18, 30, 78), color(39, 42, 63), p * .62);
+  const inkField = lerpColor(color(7, 10, 20), color(35, 31, 36), p * .56);
   const violetField = lerpColor(color(110, 90, 236), color(77, 69, 108), p * .72);
   const limeField = lerpColor(color(195, 245, 43), color(138, 120, 58), p * .92);
   const orangeField = lerpColor(color(255, 123, 31), color(172, 86, 36), p * .62);
@@ -101,33 +101,33 @@ function drawGraphicField() {
 
   // Main blue + black/navy planes. Only these larger background planes change
   // layout on reset, keeping the interaction field and object positions stable.
-  fill(red(blueField), green(blueField), blue(blueField), max(8, 29 * fade + aShift));
+  fill(red(blueField), green(blueField), blue(blueField), max(7, 22 * fade + aShift));
   drawFieldPolygon(graphicFieldLayout.blueA, -drift * .22, drift * .06);
 
-  fill(red(inkField), green(inkField), blue(inkField), 48 + p * 8 + aShift);
+  fill(red(inkField), green(inkField), blue(inkField), 36 + p * 7 + aShift);
   drawFieldPolygon(graphicFieldLayout.darkA, drift * .10, -drift * .05);
 
-  fill(red(deepBlueField), green(deepBlueField), blue(deepBlueField), max(9, 24 * (fade + .12) - aShift * .3));
+  fill(red(deepBlueField), green(deepBlueField), blue(deepBlueField), max(8, 18 * (fade + .12) - aShift * .25));
   drawFieldPolygon(graphicFieldLayout.blueB, -drift * .10, drift * .12);
 
-  fill(red(inkField), green(inkField), blue(inkField), 38 + p * 9 - aShift * .35);
+  fill(red(inkField), green(inkField), blue(inkField), 28 + p * 8 - aShift * .30);
   drawFieldPolygon(graphicFieldLayout.darkB, drift * .08, -drift * .08);
 
   // Secondary accents stay in approximately the same regions so the visual
   // identity remains recognisable across all reset variants.
-  fill(red(violetField), green(violetField), blue(violetField), 14 * (fade + p * .12));
+  fill(red(violetField), green(violetField), blue(violetField), 9 * (fade + p * .10));
   polygon([[W * .70 - drift * .22, H], [W, H], [W, H * .70 + drift], [W * .83 + drift * .15, H * .84]]);
 
-  fill(red(blueField), green(blueField), blue(blueField), 8 * (fade + .16));
+  fill(red(blueField), green(blueField), blue(blueField), 5 * (fade + .16));
   polygon([[W * .20, H * .10], [W * .61, H * .12], [W * .74, H * .36], [W * .28, H * .46]]);
 
-  fill(red(limeField), green(limeField), blue(limeField), 8 * max(.08, fade));
+  fill(red(limeField), green(limeField), blue(limeField), 5 * max(.08, fade));
   polygon([[W * .39, H * .73], [W * .55, H * .67], [W * .62, H * .83], [W * .45, H * .89]]);
 
-  fill(red(orangeField), green(orangeField), blue(orangeField), 9 + p * 5);
+  fill(red(orangeField), green(orangeField), blue(orangeField), 6 + p * 4);
   polygon([[W * .86, 0], [W, 0], [W, H * .18 + drift * .45], [W * .91 - drift * .08, H * .12]]);
 
-  fill(red(paperField), green(paperField), blue(paperField), 3 + fade * 4);
+  fill(red(paperField), green(paperField), blue(paperField), 2 + fade * 2.5);
   polygon([[W * .04, H * .78], [W * .16, H * .74], [W * .22, H * .90], [W * .08, H * .96]]);
 
   for (let i = 0; i < ambientFragments.length; i++) {
@@ -137,10 +137,10 @@ function drawGraphicField() {
     push();
     translate(a.x + sin(sceneTime * .11 + a.phase) * a.drift, a.y + cos(sceneTime * .14 + a.phase) * a.drift * .7);
     rotate(a.rot + sceneTime * a.spin);
-    if (a.kind === 'blue') fill(red(blueField), green(blueField), blue(blueField), 190 * (1 - local * .72));
-    else if (a.kind === 'lime') fill(red(limeField), green(limeField), blue(limeField), 150 * (1 - local * .46));
-    else if (a.kind === 'paper') fill(244, 241, 236, 175 * (1 - local * .62));
-    else fill(red(orangeField), green(orangeField), blue(orangeField), 135 * (1 - local * .52));
+    if (a.kind === 'blue') fill(red(blueField), green(blueField), blue(blueField), 130 * (1 - local * .72));
+    else if (a.kind === 'lime') fill(red(limeField), green(limeField), blue(limeField), 100 * (1 - local * .46));
+    else if (a.kind === 'paper') fill(244, 241, 236, 118 * (1 - local * .62));
+    else fill(red(orangeField), green(orangeField), blue(orangeField), 92 * (1 - local * .52));
     drawShard(a.shape, a.size);
     pop();
   }
@@ -151,8 +151,8 @@ function drawSmokeCeiling() {
   if (smokeCeiling < 2 || p < .08) return;
 
   noStroke();
-  for (let layer = 0; layer < 6; layer++) {
-    const alpha = 4 + p * (8 + layer * 2.2);
+  for (let layer = 0; layer < 5; layer++) {
+    const alpha = 3.3 + p * (6.6 + layer * 1.75) * completionSmokeVisibility();
     const topColor = lerpColor(color(64 - layer * 2.0, 65 - layer * 1.8, 71 - layer * 1.6), color(84, 70, 52), constrain(max(0, p - .42) * 1.15, 0, 1));
     fill(red(topColor), green(topColor), blue(topColor), alpha);
     beginShape();
@@ -165,18 +165,18 @@ function drawSmokeCeiling() {
   }
 
   if (p > .42) {
-    for (let i = 0; i < FIELD_COLS; i += 3) {
+    for (let i = 1; i < FIELD_COLS; i += 4) {
       const x = (i + .5) / FIELD_COLS * W;
       const local = getColumnPollution(x);
       if (local < .22) continue;
       const y = getCeilingDepthAtX(x, 5) * .58;
-      const w = 120 + local * 220;
-      const h = 34 + local * 92;
+      const w = 92 + local * 150;
+      const h = 28 + local * 60;
       const cloud = lerpColor(color(46, 47, 53), color(82, 66, 48), constrain((p - .4) * 1.2 + local * .2, 0, 1));
-      fill(red(cloud), green(cloud), blue(cloud), (local * 12 + p * 4));
+      fill(red(cloud), green(cloud), blue(cloud), (local * 8.5 + p * 3.0) * completionSmokeVisibility());
       push(); translate(x, y); rotate((noise(i * 3.2, sceneTime * .01) - .5) * .07);
       scale(1, constrain(h / max(1, w), .28, .62));
-      smokeFamily(i % 6, w * .38);
+      smokeFamily(i % 6, w * .32);
       pop();
     }
   }
@@ -188,9 +188,9 @@ function drawStains() {
   if (p < .12) return;
   noStroke();
   for (const s of stains) {
-    if (s.accent === 'orange') fill(255, 122, 26, s.a * .42 * p);
-    else if (s.accent === 'violet') fill(108, 88, 232, s.a * .45 * p);
-    else fill(62, 64, 70, s.a * 1.2 * p);
+    if (s.accent === 'orange') fill(255, 122, 26, s.a * .28 * p);
+    else if (s.accent === 'violet') fill(108, 88, 232, s.a * .30 * p);
+    else fill(62, 64, 70, s.a * .85 * p);
     ellipse(s.x + sin(sceneTime * .09 + s.phase) * 2, s.y, s.w, s.h);
   }
 }
@@ -205,7 +205,7 @@ function drawAtmosphereVeil() {
   for (let i = 0; i < bands; i++) {
     const y = 130 + i * (H - 220) / max(1, bands - 1) + sin(sceneTime * .07 + i) * 9;
     const veil = lerpColor(color(74, 76, 82), color(93, 76, 56), constrain(max(0, p - .5) * 1.05, 0, 1));
-    fill(red(veil), green(veil), blue(veil), 1.5 + p * 4.8);
+    fill(red(veil), green(veil), blue(veil), 1.0 + p * 3.4);
     beginShape();
     vertex(-120, y - 16);
     for (let x = -120; x <= W + 120; x += 128) {
@@ -221,25 +221,21 @@ function drawAtmosphereVeil() {
 }
 
 
-function drawPatches() {
-  const p = pollution / 100;
-  for (const g of patches) {
-    const owner = g.ownerType === 'house'
-      ? houses.find(h => h.id === g.ownerId)
-      : g.ownerType === 'factory'
-        ? factories.find(f => f.id === g.ownerId)
-        : null;
-    const q = owner ? formationProgress(owner, 0) : 1;
-    if (q <= .001) continue;
-    groundPatch(g.x, g.y, g.w, g.r, p, q);
-  }
-}
+// Flat 2D pass: ground/island patches were removed so architecture sits directly
+// in the composition without grey bases or faux depth.
+function drawPatches() {}
 
 // ------------------------------------------------------------
 // WORLD DRAW
 // ------------------------------------------------------------
 
 function drawWorldSorted() {
+  // Re-sort by the current wandering Y position so overlaps still layer naturally.
+  worldDrawOrder.sort((a, b) => {
+    const ay = a.type === 'machine' ? MACHINE.y + machineVisualPose().y : objectVisualPosition(a.ref).y;
+    const by = b.type === 'machine' ? MACHINE.y + machineVisualPose().y : objectVisualPosition(b.ref).y;
+    return ay - by;
+  });
   for (const item of worldDrawOrder) {
     if (item.type === 'tree') drawTree(item.ref);
     else if (item.type === 'house') {
@@ -257,20 +253,148 @@ function withFormPart(o, index, fn) {
   if (q <= .001) return;
   const a = o.appear[index];
   const inv = 1 - q;
-  // Keep the structural base of houses/factories pinned to the ground while it
-  // assembles. Other parts can still fly in, preserving the generative motion.
   const anchoredArchitectureBase = index === 0 && (o.kind === 'house' || o.kind === 'factory');
+  const localFold = o.revealMode === 'fold';
+
   push();
-  translate(
-    a.x * inv * (anchoredArchitectureBase ? .16 : 1),
-    anchoredArchitectureBase ? 0 : a.y * inv
-  );
-  rotate(a.r * inv * (anchoredArchitectureBase ? .08 : 1));
-  scale(lerp(anchoredArchitectureBase ? .90 : a.sc, 1, q));
-  drawingContext.globalAlpha = constrain(q * 1.12, 0, 1);
+  if (localFold) {
+    // Local "paper-fold" reveal: the form is already in the right place and
+    // unfolds from its own anchor instead of flying in from outside the frame.
+    // Alternate part directions keep it generative while the distances stay small.
+    const dir = (o.revealDir || 1) * (index % 2 === 0 ? 1 : -1);
+    const isTree = o.motionType === 'tree';
+    const isPole = o.motionType === 'pole';
+    const isBase = index === 0;
+    const lateral = isPole ? 3 : isTree ? 9 : 11;
+    const rise = isPole ? 10 : isTree ? 18 : 14;
+    const biasX = o.revealBiasX || 0;
+    const biasY = o.revealBiasY || 8;
+    const hinge = sin(q * PI) * (isTree ? 3.5 : 2.5);
+
+    translate(
+      (dir * lateral + biasX * .25) * inv + dir * hinge,
+      (rise + biasY * .35) * inv - hinge * .55
+    );
+    rotate(dir * inv * (isTree ? .045 : isPole ? .018 : .032));
+
+    if (isBase) {
+      // Bases grow from their authored footing; no floating ground contact.
+      // Factory geometry uses y=78 as its floor, so scale around that floor line.
+      if (o.kind === 'factory') translate(0, 78);
+      scale(lerp(isTree ? .72 : .88, 1, q), lerp(isTree ? .32 : .70, 1, smooth01(q)));
+      if (o.kind === 'factory') translate(0, -78);
+    } else {
+      // Crowns/roofs/accent planes open like a restrained hinge rather than scatter.
+      scale(lerp(isTree ? .76 : .84, 1, q), lerp(isTree ? .68 : .80, 1, q));
+    }
+    drawingContext.globalAlpha = constrain(.20 + q * .92, 0, 1);
+  } else {
+    translate(
+      a.x * inv * (anchoredArchitectureBase ? .16 : 1),
+      anchoredArchitectureBase ? 0 : a.y * inv
+    );
+    rotate(a.r * inv * (anchoredArchitectureBase ? .08 : 1));
+    scale(lerp(anchoredArchitectureBase ? .90 : a.sc, 1, q));
+    drawingContext.globalAlpha = constrain(q * 1.12, 0, 1);
+  }
+
+  applyGenerativePart(o, index, q);
   fn(q);
   drawingContext.globalAlpha = 1;
   pop();
+}
+
+// A tiny registration mark makes the reveal feel designed rather than like a
+// stock spawn animation. It only exists during formation and never becomes UI.
+function drawFormationRegister(o, halfWidth = 50, y = 4) {
+  const q = formationProgress(o, 0);
+  if (q <= .01 || q >= .985) return;
+  const pulse = sin(q * PI);
+  const dir = o.revealDir || 1;
+  const reach = halfWidth * (.20 + q * .58);
+  push();
+  strokeWeight(1.05);
+  stroke(244, 241, 236, 24 * pulse);
+  line(-halfWidth * .42, y, halfWidth * .42, y);
+  stroke(255, 121, 0, 46 * pulse);
+  line(-dir * halfWidth * .10, y, dir * reach, y);
+  noStroke();
+  fill(179, 255, 54, 58 * pulse);
+  rect(dir * reach, y, 3.2, 3.2);
+  pop();
+}
+
+
+function housePalette(v, soot = 0, damage = 0) {
+  const i = ((v % 4) + 4) % 4;
+  const defs = [
+    { body: '#2930FF', roofA: '#FF7900' },
+    { body: '#B3FF36', roofA: '#2930FF' },
+    { body: '#FF7900', roofA: '#141414' },
+    { body: '#FF2424', roofA: '#141414' }
+  ];
+  const d = defs[i];
+  const grime = constrain(soot * .42 + damage * .24, 0, .34);
+  return {
+    body: lerpColor(color(d.body), color('#5F534C'), grime),
+    roofA: lerpColor(color(d.roofA), color('#5A4E48'), grime * .62),
+    roofB: lerpColor(color(d.roofA), color('#5A4E48'), grime * .62),
+    cutout: lerpColor(color('#F6F0E8'), color('#D9CCBE'), grime * .44)
+  };
+}
+
+function houseFeatureLayout(v) {
+  const i = ((v % 4) + 4) % 4;
+  // v25: one graphic aperture / notch per building. Enough to read as habitation,
+  // but less literal than a conventional door-window facade.
+  if (i === 1) return { w1: [-18,-24,22,12], w2:[0,0,0,0], door:[27,-8,10,16], cap:[0,0,0,0] };
+  if (i === 2) return { w1: [11,-34,10,24],  w2:[0,0,0,0], door:[0,0,0,0],     cap:[0,0,0,0] };
+  if (i === 3) return { w1: [-6,-21,24,10],  w2:[0,0,0,0], door:[-30,-8,12,12],cap:[0,0,0,0] };
+  return { w1: [10,-29,10,24], w2:[0,0,0,0], door:[0,0,0,0], cap:[0,0,0,0] };
+}
+
+function houseMotionAccent(h, demand, hovered) {
+  const t = sceneTime;
+  const base = t * (.78 + (h.seed % 7) * .018) + h.seed * .013;
+  const roofFloat = sin(base * 1.24 + .8) * .6;
+  const bodyBob = sin(base) * 1.4 + cos(base * .62) * .7;
+  const bodyLean = sin(base * .92) * .007 + cos(base * .54) * .003;
+  const roofLean = -bodyLean * .48 + sin(base * 1.38) * .008;
+  const stretch = 1 + sin(base * 1.02) * .012;
+  const cutShift = sin(base * 1.18) * 1.3;
+  return { roofFloat, bodyBob, bodyLean, roofLean, stretch, cutShift };
+}
+
+function drawHouseRoof(v, palette, glowCharge = 0, damage = 0) {
+  const i = ((v % 4) + 4) % 4;
+  const heatBoost = constrain(glowCharge * .18 + damage * .08, 0, .24);
+  const roofA = lerpColor(palette.roofA, color(C.heat), heatBoost);
+  fill(roofA);
+  // Offset planes instead of conventional peaked roofs: still architectural,
+  // but now they share the same cut-paper language as the airflow and machine.
+  if (i === 0) polygon([[-60,-43],[-14,-73],[48,-53],[38,-37],[-8,-55],[-52,-31]]);
+  else if (i === 1) polygon([[-54,-46],[-8,-70],[58,-57],[48,-38],[-20,-38]]);
+  else if (i === 2) polygon([[-38,-37],[12,-80],[48,-56],[33,-38],[12,-57],[-27,-25]]);
+  else polygon([[-54,-35],[-2,-61],[62,-18],[42,-8],[0,-39],[-46,-23]]);
+}
+
+function drawHouseCutouts(v, palette, glowCharge, damage, soot, ft, cutShift = 0) {
+  const warmWin = lerpColor(palette.cutout, color(255, 212, 132), constrain(glowCharge * 1.15, 0, 1));
+  const warm = lerpColor(warmWin, color(C.sootDeep), damage * .12);
+  const neutral = lerpColor(palette.cutout, color(90, 74, 56), constrain(soot * .22 + damage * .34, 0, 1));
+
+  if (ft.w1[2] > 0) {
+    fill(warm);
+    push();
+    translate(ft.w1[0], ft.w1[1] + cutShift * .22);
+    const w = ft.w1[2] / 2, h = ft.w1[3] / 2;
+    polygon([[-w,-h],[w,-h*.78],[w*.78,h],[-w,h*.8]]);
+    pop();
+  }
+  if (ft.door[2] > 0) {
+    fill(neutral);
+    rect(ft.door[0], ft.door[1], ft.door[2], ft.door[3]);
+  }
 }
 
 function drawHouse(h) {
@@ -283,153 +407,146 @@ function drawHouse(h) {
   const vitality = objectVitality(damage);
   const liveCharge = charge * (.34 + vitality * .92);
   const glowCharge = max(liveCharge, demand * .20);
-
-  const driftX = sin(sceneTime * .22 + h.seed * .73) * (.35 + damage * .25)
-    + (noise(h.seed * .011, sceneTime * .08) - .5) * .55;
-  const driftY = cos(sceneTime * .18 + h.seed * .41) * (.22 + damage * .16)
-    + (noise(h.seed * .017 + 40, sceneTime * .07) - .5) * .38;
+  const palette = housePalette(h.variant, soot, damage);
+  const ft = houseFeatureLayout(h.variant);
+  const pose = objectVisualPose(h);
+  const motion = houseMotionAccent(h, demand, hovered);
 
   push();
-  translate(h.x + driftX, h.y + driftY);
-  rotate(h.rot + sin(sceneTime * .11 + h.seed) * .0018 * damage + sin(sceneTime * .19 + h.seed * .31) * .0015 + (hovered ? sin(sceneTime * 3 + h.seed) * .0018 : 0));
-  scale(h.s);
+  translate(h.x + pose.x, h.y + pose.y + motion.bodyBob);
+  rotate(h.rot + pose.rot + motion.bodyLean + (hovered ? sin(sceneTime * 3 + h.seed) * .0026 : 0));
+  scale(h.s * motion.stretch * (pose.scale || 1));
   noStroke();
 
-  fill(20, 20, 20, 16 + soot * 28);
-  ellipse(0, 8, 108, 12);
-
+  withFormPart(h, 3, () => {
+    const c = houseChimney(h.variant);
+    fill(palette.cutout);
+    rect(c.x, (c.top + c.bottom) / 2, 10, c.bottom - c.top);
+    fill(palette.roofA);
+    rect(c.x, c.top, 15, 5);
+  });
   withFormPart(h, 0, () => {
-    push(); translate(5, 5); fill(lerpColor(color(110, 116, 128), color(45, 48, 56), soot)); houseBody(h.variant); pop();
-    fill(structuralBodyColor(C.paper, soot, damage));
+    push();
+    translate(0, motion.cutShift * .12);
+    fill(palette.body);
     houseBody(h.variant);
+    pop();
   });
 
   withFormPart(h, 1, () => {
     push();
-    translate(0, -demand * 4.5);
-    rotate((hovered ? sin(sceneTime * 4.4 + h.seed) : 0) * .008 * hoverProgress);
-    const roofIdle = mixColor(C.blue, C.heatDeep, demand * .20 + damage * .12);
-    const roofLive = lerpColor(color(C.blue), color(C.heat), constrain(glowCharge * .16 + damage * .08, 0, .28));
-    fill(charge > .03 ? roofLive : roofIdle);
-    polygon([[-55, -42], [-18, -76], [57, -51], [55, -36], [-18, -60]]);
+    translate(0, motion.roofFloat - demand * .8);
+    rotate(motion.roofLean * (.70 + hoverProgress * .55));
+    drawHouseRoof(h.variant, palette, glowCharge, damage);
     pop();
   });
 
-  const warmWin = lerpColor(color(C.ink), color(255, 212, 132), constrain(glowCharge * 1.15, 0, 1));
-  const coolWin = lerpColor(color(C.ink), energyGlowColor(glowCharge, damage), constrain(glowCharge * 1.10, 0, 1));
-  withFormPart(h, 2, () => { fill(lerpColor(warmWin, color(C.sootDeep), damage * .24)); rect(-26, -44, 16, 18); });
-  withFormPart(h, 3, () => { fill(lerpColor(coolWin, color(C.sootDeep), damage * .20)); rect(2, -47, 18, 18); });
-  withFormPart(h, 4, () => { fill(lerpColor(color(C.ink), color(90, 74, 56), constrain(soot * .34 + damage * .46, 0, 1))); rect(18, -16, 23, 38); });
-  withFormPart(h, 5, () => { fill(damage > .62 ? C.heatDeep : C.ink); rect(32, -50 - demand * 2, 8, 17 + demand * 4); });
+  withFormPart(h, 2, () => drawHouseCutouts(h.variant, palette, glowCharge, damage, soot, ft, motion.cutShift));
+  withFormPart(h, 3, () => {});
+  withFormPart(h, 4, () => {});
+  withFormPart(h, 5, () => {});
+  drawFormationRegister(h, 50, 5);
 
   if (demand > .08) {
-    for (let i = 0; i < 3; i++) {
-      const a = sceneTime * (.7 + i * .12) + h.seed + i * TWO_PI / 3;
+    for (let i = 0; i < 2; i++) {
+      const a = sceneTime * (.62 + i * .08) + h.seed + i * PI;
       const ember = emberAccentColor(demand);
-      fill(red(ember), green(ember), blue(ember), 70 + demand * 90);
-      diamond(cos(a) * (46 + i * 5), -39 + sin(a) * 18, 4 + demand * 3);
+      fill(red(ember), green(ember), blue(ember), 52 + demand * 68);
+      diamond(cos(a) * (34 + i * 7), -24 + sin(a * 1.18) * 12, 3.8 + demand * 2);
     }
   }
 
   if (glowCharge > .03 && !h.detached[0]) {
-    const pulse = .82 + .18 * sin(sceneTime * 3.5 + h.seed);
+    const pulse = .84 + .16 * sin(sceneTime * 3.1 + h.seed);
     const barCol = energyGlowColor(glowCharge, damage);
-    fill(red(barCol), green(barCol), blue(barCol), 18 + glowCharge * 34 * pulse);
-    rect(-10, -43, 67, 31);
+    fill(red(barCol), green(barCol), blue(barCol), 10 + glowCharge * 18 * pulse);
+    rect(0, -6, 56, 4);
   }
 
   if (h.powerPulse > .02) {
     const pulseCol = energyGlowColor(h.powerPulse, damage);
-    noFill(); stroke(red(pulseCol), green(pulseCol), blue(pulseCol), 82 * h.powerPulse); strokeWeight(2);
-    line(-62, -7, 60 + 18 * h.powerPulse, -7);
-    line(-50, 7, 35 + 12 * h.powerPulse, 7);
+    noFill(); stroke(red(pulseCol), green(pulseCol), blue(pulseCol), 58 * h.powerPulse); strokeWeight(2);
+    line(-42, 8, 44 + 8 * h.powerPulse, 8);
     noStroke();
   }
   pop();
 }
 
-
 function houseBody(v) {
-  beginShape();
-  if (v === 1) {
-    vertex(-54, 0); vertex(-54, -42); vertex(-20, -72); vertex(53, -54); vertex(58, -13); vertex(22, 0);
-  } else if (v === 2) {
-    vertex(-56, 0); vertex(-54, -45); vertex(-10, -72); vertex(56, -48); vertex(54, -12); vertex(20, 0);
-  } else if (v === 3) {
-    vertex(-54, 0); vertex(-52, -39); vertex(-18, -76); vertex(54, -51); vertex(58, -15); vertex(25, 0);
-  } else {
-    vertex(-54, 0); vertex(-54, -42); vertex(-16, -74); vertex(56, -50); vertex(56, -12); vertex(24, 0);
-  }
-  endShape(CLOSE);
-  rect(-18, -8, 38, 20);
+  const i = ((v % 4) + 4) % 4;
+  // v25: clip one corner / skew the footprint so these read as spatial symbols,
+  // not miniature cartoon houses.
+  if (i === 1) polygon([[-58,0],[-52,-39],[-17,-47],[51,-39],[58,-5],[42,0]]);
+  else if (i === 2) polygon([[-30,0],[-31,-30],[-13,-49],[18,-69],[42,-47],[38,-8],[28,0]]);
+  else if (i === 3) polygon([[-51,0],[-44,-29],[1,-45],[51,-14],[44,0],[15,-4]]);
+  else polygon([[-53,0],[-51,-39],[-9,-59],[47,-40],[43,-5],[25,0]]);
+}
+
+
+function flatTreeColor(baseHex, health, damage) {
+  // Keep the reference palette vivid and flat. Pollution only darkens the
+  // solid fill slightly so the interaction still reads without turning the
+  // trees into muddy gradients or shaded forms.
+  const stress = constrain((1 - health) * .14 + damage * .10, 0, .22);
+  return lerpColor(color(baseHex), color(C.sootDeep), stress);
 }
 
 function drawTree(t) {
   const damage = getObjectDamageLevel(t);
-  const local = t.localAir || 0;
   const health = constrain(t.health, 0, 1);
-  const sway = sin(sceneTime * .38 + t.seed) * (.006 + health * .004);
-  const driftX = sin(sceneTime * .26 + t.seed * .52) * (.65 + (1 - health) * .35)
-    + (noise(t.seed * .014, sceneTime * .09) - .5) * .72;
-  const driftY = cos(sceneTime * .21 + t.seed * .36) * (.32 + (1 - health) * .18)
-    + (noise(t.seed * .019 + 23, sceneTime * .08) - .5) * .42;
+  const pose = objectVisualPose(t);
+  const sway = sin(sceneTime * .52 + t.seed) * (.005 + health * .0032);
+  const breathe = 1 + sin(sceneTime * .58 + t.seed * .22) * .010;
+  const v = ((t.variant % 4) + 4) % 4;
 
   push();
-  translate(t.x + driftX, t.y + driftY);
-  rotate(t.rot + sway + sin(sceneTime * 1.9 + t.seed) * damage * .004 + sin(sceneTime * .27 + t.seed * .18) * .0032);
-  scale(t.s);
+  translate(t.x + pose.x, t.y + pose.y);
+  rotate(t.rot + pose.rot + sway);
+  scale(t.s * breathe * (pose.scale || 1));
   noStroke();
 
-  fill(15, 16, 18, 10 + local * 24);
-  ellipse(2, 2, 76, 11);
-
   withFormPart(t, 0, q => {
-    const trunkBase = treeLifeColor(max(.02, health * .42), damage);
-    const trunkTone = lerpColor(color(72, 51, 28), trunkBase, .34);
-    fill(trunkTone);
-    beginShape();
-    vertex(-6, 0);
-    vertex(-4.5, -72 * q);
-    vertex(1.5, -91 * q);
-    vertex(6, -70 * q);
-    vertex(5, 0);
-    endShape(CLOSE);
-
-    stroke(trunkTone);
-    strokeWeight(7);
-    line(0, -54 * q, -23 * q, -77 * q);
-    line(1, -62 * q, 25 * q, -88 * q);
-    strokeWeight(4);
-    line(-15 * q, -69 * q, -29 * q, -88 * q);
-    noStroke();
+    const trunk = lerpColor(color('#8A3F00'), color('#3E2412'), constrain((1 - health) * .24 + damage * .34, 0, .52));
+    fill(trunk);
+    if (v === 3) {
+      polygon([[-14,0],[-12,-56*q],[-28*q,-92*q],[-18*q,-98*q],[-4,-76*q],[14*q,-120*q],[26*q,-114*q],[12,-66*q],[12,0]]);
+    } else if (v === 1) {
+      polygon([[-10,0],[-6,-112*q],[6,-112*q],[10,0]]);
+    } else {
+      polygon([[-10,0],[-6,-108*q],[5,-108*q],[10,0]]);
+    }
   });
 
-  const crowns = treeCrownParts(t.variant);
-  for (let i = 0; i < crowns.length; i++) {
-    withFormPart(t, i + 1, q => {
-      const c = crowns[i];
-      const micro = sin(sceneTime * (.20 + i * .025) + t.seed + i * 1.41);
-      push();
-      translate(c.x + micro * (1.4 + damage * 4.5), c.y + damage * c.drop);
-      rotate(c.r + micro * .012 * health + damage * c.breakDir);
+  if (v === 0) {
+    const c = flatTreeColor(C.blue, health, damage);
+    withFormPart(t, 1, q => { fill(c); push(); scale(q); polygon([[-54,-94],[-18,-154],[46,-118],[30,-101],[-6,-112]]);  pop(); });
+    withFormPart(t, 2, q => { fill(c); push(); scale(q); polygon([[-62,-68],[-18,-123],[58,-86],[37,-67],[-12,-78]]);  pop(); });
+    withFormPart(t, 3, q => { fill(c); push(); scale(q); polygon([[-66,-42],[-10,-96],[61,-54],[39,-39],[-18,-49]]);  pop(); });
+  } else if (v === 1) {
+    const c = flatTreeColor(C.orange, health, damage);
+    withFormPart(t, 1, q => { fill(c); push(); translate(-20, -100); scale(q); polygon([[-42,14],[-34,-26],[-6,-46],[30,-30],[42,8],[16,40],[-20,38]]);  pop(); });
+    withFormPart(t, 2, q => { fill(c); push(); translate(9, -142); scale(q); polygon([[-34,16],[-26,-32],[12,-42],[38,-8],[24,30],[-8,38]]);  pop(); });
+    withFormPart(t, 3, q => { fill(c); push(); translate(38, -105); scale(q); polygon([[-28,-20],[4,-36],[34,-8],[22,30],[-16,34],[-34,8]]);  pop(); });
+  } else if (v === 2) {
+    const c = flatTreeColor(C.lime, health, damage);
+    withFormPart(t, 1, q => { fill(c); push(); scale(q); polygon([[-50,-112],[-11,-158],[41,-143],[49,-111],[9,-98],[-23,-101]]);  pop(); });
+    withFormPart(t, 2, q => { fill(c); push(); scale(q); polygon([[-61,-80],[-31,-117],[31,-106],[61,-73],[18,-51],[-45,-57]]);  pop(); });
+    withFormPart(t, 3, q => { fill(c); push(); scale(q); polygon([[-48,-47],[-5,-82],[44,-63],[45,-33],[-14,-25]]);  pop(); });
+  } else {
+    const c = flatTreeColor(C.lime, health, damage);
+    withFormPart(t, 1, q => { fill(c); push(); translate(24, -118); scale(q); polygon([[-22,-34],[34,-44],[64,-8],[46,34],[-12,22]]);  pop(); });
+    withFormPart(t, 2, q => { fill(c); push(); translate(-38, -90); scale(q); polygon([[-30,-18],[-4,-42],[30,-24],[34,12],[8,28],[-28,18]]);  pop(); });
+    withFormPart(t, 3, q => { fill(c); push(); translate(54, -66); scale(q * .66); polygon([[-18,-16],[8,-24],[24,-4],[14,18],[-14,14],[-24,-2]]);  pop(); });
+  }
 
-      const crownColor = treeLifeColor(health - i * .03, damage);
-      fill(crownColor);
-      drawTreePlate(c.w * q, c.h * q, c.cut, t.seed + i * 53, damage);
+  drawFormationRegister(t, 44, 3);
 
-      if (q > .68 && health > .12) {
-        fill(lerpColor(color(C.ink), color(C.treeBrown), constrain(damage * .52 + (1 - health) * .30, 0, 1)));
-        const notch = c.cut % 3;
-        if (notch === 0) polygon([[-c.w*.10,-c.h*.04],[c.w*.10,-c.h*.15],[c.w*.02,c.h*.08]]);
-        else if (notch === 1) polygon([[c.w*.06,-c.h*.20],[c.w*.25,-c.h*.08],[c.w*.13,c.h*.06]]);
-        else polygon([[-c.w*.22,-c.h*.06],[-c.w*.03,-c.h*.15],[-c.w*.08,c.h*.08]]);
-      }
-      pop();
-    });
+  if (health > .42) {
+    fill(255, 255, 255, 18 + health * 12);
+    rect(0, -34, 10, 3);
   }
   pop();
 }
-
 
 function treeCrownParts(v) {
   return TREE_CROWN_SETS[v % TREE_CROWN_SETS.length];
@@ -470,17 +587,14 @@ function drawPole(po) {
   const pulse = constrain(po.energy, 0, 1);
   const powerColor = lerpColor(color(82, 100, 255), color(150, 120, 255), pulse * .24 + damage * .06);
   const currentAlive = lit ? pulse * (.55 + objectVitality(damage) * 1.08) : 0;
-  const poleBody = lit
-    ? lerpColor(color(17, 20, 34), color(40, 50, 88), currentAlive * .34)
-    : lerpColor(color(C.ink), color(70, 71, 76), soot * .60 + damage * .16);
-  const crossBody = lit
-    ? lerpColor(color(22, 24, 36), color(54, 68, 118), currentAlive * .38)
-    : color(C.ink);
+  const poleBody = lerpColor(color(C.paper), color(C.lime), lit ? .32 : .08);
+  const crossBody = color(C.orange);
 
+  const pose = objectVisualPose(po);
   push();
-  translate(po.x, po.y);
-  rotate(po.rot + sin(sceneTime * .18 + po.seed) * .003 * damage);
-  scale(po.s);
+  translate(po.x + pose.x, po.y + pose.y);
+  rotate(po.rot + pose.rot + sin(sceneTime * .18 + po.seed) * .003 * damage);
+  scale(po.s * (pose.scale || 1));
   noStroke();
 
   if (lit) {
@@ -509,10 +623,10 @@ function drawPole(po) {
 
   withFormPart(po, 1, q => {
     fill(crossBody);
-    polygon([[-52*q,-145],[-46*q,-151],[40*q,-151],[54*q,-144],[40*q,-138],[-47*q,-139]]);
-    stroke(crossBody); strokeWeight(4);
-    line(-3, -143, -31 * q, -123);
-    line(3, -143, 30 * q, -124);
+    polygon([[-54*q,-145],[-42*q,-153],[18*q,-151],[55*q,-143],[34*q,-136],[-49*q,-139]]);
+    stroke(crossBody); strokeWeight(3.2);
+    line(-4, -143, -29 * q, -125);
+    line(7, -143, 27 * q, -126);
     noStroke();
   });
 
@@ -575,8 +689,10 @@ function drawPowerGridCables() {
     const energy = max(a.energy, b.energy);
     const damage = max(getObjectDamageLevel(a), getObjectDamageLevel(b));
     const vitality = objectVitality(damage);
-    const sag = 22 + abs(p2.x - p1.x) * .022 + damage * 30;
-    const midX = (p1.x + p2.x) * .5;
+    const cableWave = sin(sceneTime * (.78 + i * .12) + a.seed * .01) * 10
+      + (noise(a.seed * .017 + b.seed * .013, sceneTime * .16) - .5) * 18;
+    const sag = 22 + abs(p2.x - p1.x) * .022 + damage * 30 + cableWave;
+    const midX = (p1.x + p2.x) * .5 + sin(sceneTime * .44 + i * 1.7) * 10;
     const flicker = damage > .78 && floor(sceneTime * 10 + a.seed + b.seed) % 7 === 0;
     if (flicker) continue;
 
@@ -594,13 +710,29 @@ function drawPowerGridCables() {
     strokeWeight(2.6);
     bezier(p1.x, p1.y, lerp(p1.x, midX, .72), p1.y + sag, lerp(midX, p2.x, .28), p2.y + sag, p2.x, p2.y);
 
-    stroke(8, 9, 13, 95);
-    strokeWeight(1.8);
-    bezier(p1.x, p1.y + 8, lerp(p1.x, midX, .68), p1.y + sag + 12, lerp(midX, p2.x, .32), p2.y + sag + 12, p2.x, p2.y + 8);
   }
   pop();
 }
 
+
+
+function factoryPalette(v, soot = 0, damage = 0) {
+  const i = ((v % 3) + 3) % 3;
+  const defs = [
+    { body: '#FF7900', accent: '#141414' },
+    { body: '#2930FF', accent: '#FF7900' },
+    { body: '#B3FF36', accent: '#2930FF' }
+  ];
+  const d = defs[i];
+  const grime = constrain(soot * .34 + damage * .22, 0, .30);
+  return {
+    body: lerpColor(color(d.body), color('#5C514A'), grime),
+    accent: lerpColor(color(d.accent), color('#675C55'), grime * .60),
+    accent2: lerpColor(color(d.accent), color('#5C514A'), grime * .54),
+    cut: lerpColor(color('#F6F0E8'), color('#D8CBB8'), grime * .46),
+    dark: lerpColor(color('#141414'), color('#383942'), grime * .34)
+  };
+}
 
 function drawFactory(f) {
   const hot = f.activity > .12;
@@ -611,202 +743,243 @@ function drawFactory(f) {
   const demand = max(f.demandReady || 0, f.demandFlash * .65, hoverProgress);
   const vitality = objectVitality(damage);
   const currentLive = max(f.energy, f.activity * .55) * (.28 + vitality * .92);
+  const pal = factoryPalette(f.variant, f.soot, damage);
+  const v = ((f.variant % 3) + 3) % 3;
 
+  const pose = factoryRenderPose(f);
   push();
-  translate(f.x, f.y);
-  const shake = hot ? sin(sceneTime * 8 + f.seed) * (.06 + f.activity * .10 + overdrive * .05) : 0;
-  translate(shake, 0);
-  rotate(f.rot + (hovered ? sin(sceneTime * 3.2 + f.seed) * .002 * hoverProgress : 0));
-  scale(f.s);
+  translate(pose.x, pose.y);
+  rotate(pose.rot);
+  scale(pose.scale);
   noStroke();
 
-  fill(20, 20, 20, 17 + f.soot * 26);
-  ellipse(0, 82, 270, 18);
-
+  // Chimneys sit behind the colored building silhouette, matching the flat reference.
   const chimneys = factoryChimneys(f.variant);
   withFormPart(f, 2, q => drawFactoryChimney(chimneys[0], min(1, q + demand * .08), hot || demand > .6, f.soot));
   withFormPart(f, 3, q => { if (chimneys[1]) drawFactoryChimney(chimneys[1], min(1, q + demand * .12), hot || demand > .6, f.soot); });
 
   withFormPart(f, 0, () => {
-    push(); translate(5, 5); fill(lerpColor(color(104, 109, 120), color(42, 45, 54), f.soot)); factoryBaseBody(f.variant); pop();
-    fill(structuralBodyColor(C.light, f.soot, damage));
-    factoryBaseBody(f.variant);
+    fill(pal.body);
+    factoryBaseBody(v);
   });
 
-  withFormPart(f, 1, () => {
-    push(); translate(0, -demand * 3);
-    fill(lerpColor(structuralBodyColor(C.light, f.soot * .92, damage), color(120, 102, 84), constrain(max(0, pollutionN() - .62) * .60, 0, 1)));
-    polygon([[-136,-34],[-108,-58],[-108,-96],[-72,-72],[-34,-106],[0,-78],[28,-104],[68,-66],[136,-40],[136,4],[-136,4]]);
+  // One bold secondary plane instead of the old literal roof/base construction.
+  withFormPart(f, 1, q => {
+    fill(pal.accent);
+    push();
+    scale(.96 + q * .04);
+    factoryAccentBody(v);
     pop();
+    // no extra third color plane
   });
 
-  const moduleColor = energyGlowColor(currentLive, damage);
-  withFormPart(f, 4, () => { const cc = hot ? emberAccentColor(currentLive) : live ? moduleColor : lerpColor(color(C.ink), color(emberAccentColor(demand)), demand * .55); fill(cc); rect(-72, 18, 22, 23); });
-  withFormPart(f, 5, () => { const cc = hot ? emberAccentColor(currentLive) : live ? moduleColor : lerpColor(color(C.ink), color(emberAccentColor(demand)), demand * .36); fill(cc); rect(-34, 18, 22, 23); rect(4, 18, 22, 23); });
-  withFormPart(f, 6, () => { fill(hot ? emberAccentColor(currentLive) : live ? lerpColor(moduleColor, color(C.violet), .35) : C.ink); rect(78, 28, 28, 48); });
+  // One cut-out is enough to suggest function without turning the factory into an icon.
+  withFormPart(f, 4, () => {
+    fill(pal.cut);
+    if (v === 0) rect(-18, 30, 20, 18);
+    else if (v === 1) rect(-10, 22, 18, 18);
+    else rect(-14, 30, 22, 16);
+  });
 
-  if (!f.detached[0]) {
-    const lineCol = energyGlowColor(currentLive, damage);
-    fill(red(lineCol), green(lineCol), blue(lineCol));
-    rect(0, 80, 240 * (1 - damage * .28), 6);
-    if (demand > .04) {
-      const demandCol = emberAccentColor(demand);
-      fill(red(demandCol), green(demandCol), blue(demandCol));
-      rect(-106 + demand * 64, 60, 42 + demand * 64, 5);
-    }
-  }
-
-  if (demand > .08) {
-    for (let i = 0; i < 4; i++) {
-      const a = sceneTime * (.55 + i * .09) + f.seed + i * 1.8;
-      push();
-      translate(-42 + i * 28 + cos(a) * 5, -48 + sin(a * 1.2) * 9);
-      rotate(a * .18);
-      const ember = emberAccentColor(demand);
-      fill(red(ember), green(ember), blue(ember), 60 + demand * 85);
-      drawShard(i % 4, 4 + demand * 3 + sin(a) * 1.2);
-      pop();
-    }
-  }
+  withFormPart(f, 5, () => {});
+  withFormPart(f, 6, () => {});
+  drawFormationRegister(f, 104, 84);
 
   if (f.powerPulse > .02) {
     const pulseCol = energyGlowColor(f.powerPulse, damage);
-    noFill(); stroke(red(pulseCol), green(pulseCol), blue(pulseCol), 86 * f.powerPulse); strokeWeight(2);
-    line(-145, 92, 145 + f.powerPulse * 18, 92);
+    noFill(); stroke(red(pulseCol), green(pulseCol), blue(pulseCol), 72 * f.powerPulse); strokeWeight(2);
+    line(-116, 92, 116 + f.powerPulse * 14, 92);
     noStroke();
   }
   pop();
 }
 
-
 function factoryBaseBody(v) {
-  beginShape();
-  vertex(-136, 80);
-  vertex(-136, -34);
-  vertex(136, -40);
-  vertex(136, 80);
-  endShape(CLOSE);
+  if (v === 0) {
+    // Low saw-tooth factory.
+    polygon([[-116,78],[-116,18],[-83,-4],[-78,-45],[-33,-17],[-28,-55],[18,-29],[116,-7],[116,78]]); } else if (v === 1) {
+    // Tower + base, very clean.
+    polygon([[-112,78],[-112,2],[-55,-5],[-31,-104],[14,-98],[8,-36],[112,-15],[112,78]]); } else {
+    // Simple stepped block.
+    polygon([[-116,78],[-116,22],[-64,15],[-58,-25],[-12,-28],[-4,-70],[58,-65],[51,-16],[116,-14],[116,78]]); }
+}
+
+function factoryAccentBody(v) {
+  if (v === 0) {
+    polygon([[-116,12],[-82,-8],[-82,-50],[-38,-18],[-38,8],[-116,26]]);
+  } else if (v === 1) {
+    polygon([[-50,-2],[-34,-104],[10,-104],[10,-34],[-8,-20]]);
+  } else {
+    polygon([[-116,18],[-60,18],[-60,-24],[-8,-24],[-8,8],[-116,28]]);
+  }
 }
 
 function factoryChimneys(v) {
-  if (v === 1) return [{x:34,y:-124,w:24,h:126},{x:72,y:-111,w:20,h:104}];
-  if (v === 2) return [{x:62,y:-142,w:27,h:160}, null];
-  return [{x:58,y:-128,w:25,h:142}, null];
+  const i = ((v % 3) + 3) % 3;
+  if (i === 0) return [
+    { x: 30, y: -92, w: 18, h: 108, cap: 7, lip: 6, embed: 14 },
+    { x: 58, y: -108, w: 20, h: 122, cap: 8, lip: 6, embed: 16 }
+  ];
+  if (i === 1) return [
+    { x: 44, y: -126, w: 24, h: 136, cap: 9, lip: 7, embed: 16 },
+    { x: 18, y: -90, w: 14, h: 88, cap: 6, lip: 5, embed: 12 }
+  ];
+  return [
+    { x: 44, y: -102, w: 18, h: 106, cap: 7, lip: 6, embed: 14 },
+    { x: 72, y: -116, w: 20, h: 118, cap: 8, lip: 6, embed: 16 }
+  ];
 }
 
 function drawFactoryChimney(c, q, hot, soot = 0) {
   if (!c) return;
   const h = c.h * q;
-  const stack = lerpColor(color(C.ink), color(54, 55, 60), soot * .45 + pollutionN() * .12);
-  fill(stack);
+  const embed = c.embed || 12;
+  const topY = c.y + c.h * .50 - h;
+  const bottomY = max(24, c.y + c.h * .50 + embed);
+  const bodyCol = lerpColor(color('#FFFDF6'), color('#E8E0CF'), constrain(soot * .16 + pollutionN() * .05, 0, .20));
+
+  // Main chimney body — slightly thicker and sunk into the factory body.
+  fill(bodyCol);
   beginShape();
-  vertex(c.x - c.w * .50, c.y + c.h * .50);
-  vertex(c.x - c.w * .40, c.y + c.h * .50 - h);
-  vertex(c.x + c.w * .40, c.y + c.h * .50 - h);
-  vertex(c.x + c.w * .50, c.y + c.h * .50);
+  vertex(c.x - c.w * .54, bottomY);
+  vertex(c.x - c.w * .42, topY + 6);
+  vertex(c.x - c.w * .30, topY);
+  vertex(c.x + c.w * .30, topY);
+  vertex(c.x + c.w * .42, topY + 6);
+  vertex(c.x + c.w * .54, bottomY);
   endShape(CLOSE);
-  const cap = hot ? emberAccentColor(.75) : mixColor(C.grey, C.soot, pollutionN() * .38);
-  fill(cap);
-  rect(c.x, c.y + c.h * .50 - h - 2, c.w * .86, 5);
-  fill(C.ink);
-  rect(c.x, c.y + c.h * .50 - h - 5, c.w * .62, 3);
-}
 
 
-function machineHopperPoint() {
-  return { x: MACHINE.x, y: MACHINE.y - 218 * MACHINE.scale };
+  // Top rim.
+  fill('#F1EBDD');
+  rect(c.x, topY - 2, c.w * 1.02, max(4, c.cap || 6));
+  fill('#141414');
+  rect(c.x, topY + 1, c.w * .34, max(3, (c.cap || 6) * .36));
+
+  // Base collar overlaps into the building so the pipe does not float.
+  fill('#EDE5D6');
+  rect(c.x, bottomY - 8, c.w * 1.08, max(5, c.lip || 5));
+  fill(255, 255, 255, 54);
+  rect(c.x, bottomY - max(14, h * .16), c.w * .20, max(14, h * .18));
+
+  if (hot) {
+    fill(C.orange);
+    rect(c.x, topY + 7, c.w * .46, 4);
+  }
 }
 
-function machineDemandPoint() {
-  return { x: MACHINE.x + 64 * MACHINE.scale, y: MACHINE.y - 32 * MACHINE.scale };
+// Draw and interaction anchors share the same moving coordinate system.
+function machineRenderPose() {
+  const p = machineVisualPose();
+  return {x: MACHINE.x + p.x, y: MACHINE.y + p.y, rot: p.rot,
+    sx: 1 + pressure.compression * .05 - pressure.kick * .035,
+    sy: 1 - pressure.compression * .07 + pressure.kick * .05,
+    scale: MACHINE.scale * (p.scale || 1) * (1 + feedPulse * .0018)};
 }
-
-function machineEnergyPoint() {
-  return { x: MACHINE.x + 108 * MACHINE.scale, y: MACHINE.y + 14 * MACHINE.scale };
+function machineLocalToWorld(x, y) {
+  const p = machineRenderPose();
+  x *= p.sx; y *= p.sy;
+  return {x:p.x+(x*cos(p.rot)-y*sin(p.rot))*p.scale,
+    y:p.y+(x*sin(p.rot)+y*cos(p.rot))*p.scale};
 }
+function machineHopperPoint() { return machineLocalToWorld(-70, -128); }
+function machineDemandPoint() { return machineLocalToWorld(-4, -8); }
+function machineEnergyPoint() { return machineLocalToWorld(140, 6); }
 
 function drawFurnace() {
-  const p = pollution / 100;
-  const hover = dist(mouseX, mouseY, MACHINE.x, MACHINE.y - 50 * MACHINE.scale) < 138;
+  const pose = machineRenderPose();
+  const hover = dist(mouseX, mouseY, pose.x, pose.y - 10 * pose.scale) < 180 * pose.scale;
   const active = burnCount > 0 || burnPulse > .02;
-  const level = active ? constrain(.20 + burnPulse * .70 + min(1, burnCount / 12) * .24 + overdrive * .35, 0, 1) : 0;
-  const shakeX = active ? (sin(sceneTime * 10.8) * (.45 + level * .65 + overdrive * .75) + sin(sceneTime * 23.0) * (.08 + level * .12 + overdrive * .22)) : 0;
-  const shakeY = active ? cos(sceneTime * 12.4) * (.15 + level * .26 + overdrive * .32) : 0;
-  const tilt = active ? sin(sceneTime * 5.8) * (.002 + level * .005 + overdrive * .006) : 0;
-  const pump = 1 + feedPulse * .005;
-
+  const level = active ? constrain(.18 + burnPulse * .72 + min(1, burnCount / COMPLETION_BURNS) * .24 + overdrive * .30, 0, 1) : 0;
   push();
-  translate(MACHINE.x + shakeX, MACHINE.y + feedPulse * 1.7 + shakeY);
-  rotate(tilt);
-  scale(MACHINE.scale * pump);
+  translate(pose.x, pose.y);
+  rotate(pose.rot);
+  scale(pose.scale * pose.sx, pose.scale * pose.sy);
   noStroke();
 
-  fill(12, 12, 15, 18 + p * 18);
-  ellipse(0, 170, 320, 26);
+  // v23: no large backing panel behind the hero machine.
+  // The negative space remains open so the airflow lines can pass behind it.
+  // Dark shapes below are only structural details *inside* the machine itself.
 
-  fill(C.blue);
-  rect(0, 160, 262, 9);
-
-  push(); translate(5, 5); fill(104, 109, 120); furnaceBody(); hopperShape(); pop();
-  fill(C.light);
-  furnaceBody();
-
-  fill(C.ink);
-  rect(0, 30, 126, 96);
-  fill(burnPulse > .02 ? C.orange : burnCount > 0 ? lerpColor(color(C.violet), color(C.orange), .44) : C.grey);
-  rect(0, 30, 82 + burnPulse * 8, 54 + burnPulse * 6);
-
+  // Separate exhaust: smoke emerges from the dark mouth at (54,-160).
   fill(C.paper);
-  hopperShape();
+  polygon([[40,-67],[44,-160],[64,-160],[72,-70]]);
+  fill(C.violet);
+  polygon([[58,-154],[64,-160],[72,-70],[61,-74]]);
   fill(C.ink);
-  quad(-68, -218, 68, -218, 51, -187, -51, -187);
+  polygon([[39,-164],[68,-164],[66,-156],[41,-156]]);
+
+  // Wide lime hopper centered on the actual coal target (-70,-128).
+  fill(C.lime);
+  polygon([[-110,-138],[-28,-131],[-49,-106],[-88,-110]]);
+  polygon([[-84,-111],[-51,-106],[-58,-70],[-77,-76]]);
+  fill(C.ink);
+  polygon([[-99,-132],[-40,-128],[-49,-120],[-90,-123]]);
+
+
+  // Off-axis paper planes, with one clear coal inlet and exhaust.
+  fill(C.ink);
+  polygon([[-122,62],[102,56],[116,77],[-114,80]]);
+  fill(C.violet);
+  polygon([[8,-88],[96,-66],[106,52],[70,66],[-8,12]]);
+
   fill(C.blue);
-  rect(0, -203, 74 + feedPulse * 8, 6);
+  stroke(C.paper); strokeWeight(2);
+  polygon([[-118,62],[-108,-48],[-74,-58],[-62,-86],[66,-68],[78,58],[-18,70]]);
+  noStroke();
 
-  push();
-  translate(-92, -10);
-  for (let i = 0; i < 8; i++) {
-    const on = i < min(8, floor(map(burnCount, 0, 20, 0, 8)));
-    fill(on ? (i % 3 === 0 ? C.orange : C.blue) : C.grey);
-    rect(0, 98 - i * 13, 14, 5);
-  }
-  fill(C.ink); textAlign(CENTER, TOP); textStyle(BOLD); textSize(9); text(`${burnCount}`, 0, 112);
-  fill(burnCount ? C.orange : C.grey); textSize(7); text(burnPulse > .1 ? 'BURN' : burnCount ? 'ONLINE' : 'IDLE', 0, 128);
-  pop();
 
-  fill(C.ink); rect(82, 92, 34, 12);
-  if (active) {
-    fill(C.orange); rect(82, 92, 18 + level * 12, 4);
-    stroke(C.ink); strokeWeight(2);
-    line(-146, 122, -158 + sin(sceneTime * 16) * 5, 130);
-    line(148, 120, 160 + cos(sceneTime * 17) * 5, 128);
-    noStroke();
+
+  // A single framed opening keeps the focal point clear at small scales.
+  fill(C.ink);
+  polygon([[-86,-35],[-27,-47],[-2,10],[-29,44],[-88,25]]);
+  fill(C.paper);
+  polygon([[-78,-29],[-32,-38],[-12,8],[-34,34],[-80,19]]);
+  fill(C.orange);
+  polygon([[-64,-6],[-40,-15],[-25,9],[-43,26],[-67,15]]);
+
+
+  // Slim dark control plane separates the indicators from the blue body.
+  fill(C.ink);
+  polygon([[20,-43],[60,-47],[70,45],[31,51]]);
+
+  // Three slanted indicator plates retain readable machine progress.
+  for (let i = 0; i < 3; i++) {
+    const on = i < min(3, floor(map(burnCount, 0, COMPLETION_BURNS, 0, 3)));
+    fill(on ? C.lime : C.blue);
+    const y = -30 + i * 27;
+    polygon([[28,y],[53,y-5],[59,y+9],[34,y+14]]);
   }
-  if (burnPulse > .02) drawSpark(0, 30, 21 + sin(sceneTime * 8) * 2 + burnPulse * 5 + overdrive * 6);
-  if (overdrive > .12) {
-    for (let i = 0; i < 6; i++) {
-      const a = sceneTime * (1.6 + i * .08) + i * TWO_PI / 6;
-      push(); translate(cos(a) * (105 + overdrive * 22), -15 + sin(a) * (75 + overdrive * 18)); rotate(a);
-      fill(i % 2 ? C.orange : C.blue); drawShard(i % 5, 4 + overdrive * 5); pop();
-    }
+
+  fill(C.lime);
+  polygon([[72,-3],[140,-4],[145,14],[80,22]]);
+  fill(C.ink);
+  polygon([[134,-4],[145,-4],[145,14],[134,16]]);
+
+  if (burnPulse > .02) {
+    fill('#FF2424');
+    diamond(-46, 7, 4 + burnPulse * 5);
   }
+
   if (hover && !dragState) {
-    noFill(); stroke(C.blue); strokeWeight(2); line(-55, -250, 55, -250); noStroke();
+    noFill();
+    stroke('#B3FF36');
+    strokeWeight(2);
+    line(-102, -150, 102, -150);
+    noStroke();
   }
   pop();
 }
 
 function furnaceBody() {
-  beginShape();
-  vertex(-126, 138); vertex(-126, -72); vertex(-88, -108); vertex(86, -108); vertex(126, -70); vertex(126, 138);
-  endShape(CLOSE);
-  rect(0, 150, 284, 24);
+  // Kept for compatibility with older references; the machine is now drawn
+  // directly inside drawFurnace() as a flat abstract industrial composition.
 }
 
 function hopperShape() {
-  quad(-92, -242, 92, -242, 58, -176, -58, -176);
-  rect(0, -142, 54, 68);
+  // Compatibility stub — current hopper is part of drawFurnace().
 }
+
 
 function drawSpark(x, y, r) {
   push();
@@ -853,12 +1026,6 @@ function drawCoalPiece(c, active) {
     noStroke();
   }
 
-  push();
-  translate(3.5, 3.5);
-  fill(lerpColor(emberDeep, ember, .45));
-  coalShape(c.type, c.size * 1.02);
-  pop();
-
   fill(coalCore);
   coalShape(c.type, c.size * .98);
 
@@ -880,10 +1047,17 @@ function coalShape(type, s) {
 function drawFragments() {
   for (const f of fragments) {
     push();
-    translate(f.x, f.y);
-    rotate(f.rot);
-    fill(C.ink); noStroke(); coalShape(f.type, f.size);
-    fill(C.orange); rect(-f.size * .08, -f.size * .04, f.size * .20, max(2, f.size * .07));
+    if (f.trail.length > 1) {
+      noFill(); stroke(255, 145, 60, 90); strokeWeight(1.3);
+      beginShape(); for (const pt of f.trail) vertex(pt.x, pt.y); endShape();
+    }
+    translate(f.x, f.y); rotate(f.rot);
+    const shrink = 1 - smooth01(constrain((f.t - .88) / .12, 0, 1)) * .8;
+    scale(shrink);
+    fill(f.tone); stroke(C.paper); strokeWeight(.8);
+    polygon(f.points);
+    stroke(C.orange); strokeWeight(1.5);
+    line(f.points[0][0], f.points[0][1], f.points[1][0], f.points[1][1]);
     pop();
   }
 }
@@ -941,14 +1115,14 @@ function drawSmoke(frontLayer) {
     if (s.legacyFactorySmoke || s.kind === 'factoryV21') {
       const fadeIn = constrain(s.age / .42, 0, 1);
       const fadeOut = 1 - constrain((s.age / s.life - .72) / .28, 0, 1);
-      const alpha = fadeIn * fadeOut * (61 + pollution * .36) * (frontLayer ? 1.03 : .96);
+      const alpha = fadeIn * fadeOut * (57 + pollution * .33) * (frontLayer ? 1.0 : .91) * completionSmokeVisibility();
       drawIndustrySmokeV21(s, alpha);
       continue;
     }
 
     const fadeIn = constrain(s.age / .30, 0, 1);
     const fadeOut = 1 - constrain((s.age / s.life - .72) / .28, 0, 1);
-    const alpha = fadeIn * fadeOut * (38 + p * 48) * (frontLayer ? .94 : .76);
+    const alpha = fadeIn * fadeOut * (35 + p * 43) * (frontLayer ? .91 : .72) * completionSmokeVisibility();
     drawSmokeGlyph(s, alpha);
   }
 }
@@ -957,6 +1131,7 @@ function drawIndustrySmokeV21(s, alpha) {
   push();
   translate(s.x, s.y);
   rotate(s.rot);
+  applyGenerativeSmokeShape(s);
   noStroke();
 
   const p = pollutionN();
@@ -969,17 +1144,17 @@ function drawIndustrySmokeV21(s, alpha) {
   if (s.accent === 'orange') fill(255, 122, 26, alpha * .20);
   else if (s.accent === 'violet') fill(108, 88, 232, alpha * .15);
   else fill(red(outerGrey), green(outerGrey), blue(outerGrey), greyA * .26);
-  polygonFromPoints(INDUSTRY_SMOKE_OUTER[family], s.size);
+  polygonFromPoints(INDUSTRY_SMOKE_OUTER[family], s.size * .92);
 
   if (s.accent === 'orange') fill(255, 122, 26, alpha * .30);
   else if (s.accent === 'violet') fill(108, 88, 232, alpha * .22);
   else fill(red(midGrey), green(midGrey), blue(midGrey), greyA * .42);
-  polygonFromPoints(INDUSTRY_SMOKE_MID[family], s.size);
+  polygonFromPoints(INDUSTRY_SMOKE_MID[family], s.size * .90);
 
   if (alpha > 22 && s.size < 88) {
     const core = lerpColor(color(30, 31, 40), color(50, 40, 28), warmBias * .65);
     fill(red(core), green(core), blue(core), alpha * .16);
-    polygonFromPoints(INDUSTRY_SMOKE_CORE[family], s.size);
+    polygonFromPoints(INDUSTRY_SMOKE_CORE[family], s.size * .88);
   }
   pop();
 }
@@ -990,6 +1165,7 @@ function drawSmokeGlyph(s, alpha) {
   push();
   translate(s.x, s.y);
   rotate(s.rot);
+  applyGenerativeSmokeShape(s);
   noStroke();
 
   const p = pollutionN();
@@ -1002,16 +1178,16 @@ function drawSmokeGlyph(s, alpha) {
   if (s.accent === 'orange') fill(255, 122, 26, outerA * .54);
   else if (s.accent === 'violet') fill(108, 88, 232, outerA * .48);
   else fill(red(outerGrey), green(outerGrey), blue(outerGrey), outerA * .96);
-  smokeFamily(s.family, s.size * 1.02);
+  smokeFamily(s.family, s.size * .94);
 
   if (s.accent === 'orange') fill(255, 122, 26, innerA * .52);
   else if (s.accent === 'violet') fill(108, 88, 232, innerA * .44);
   else fill(red(innerGrey), green(innerGrey), blue(innerGrey), innerA * .92);
-  smokeFamily((s.family + 2) % 6, s.size * .70);
+  smokeFamily((s.family + 2) % 6, s.size * .65);
 
   const core = lerpColor(color(30, 31, 36), color(54, 42, 30), constrain(sourceHeat * .36 + max(0, p - .46) * .40, 0, 1));
   fill(red(core), green(core), blue(core), alpha * .15);
-  smokeFamily((s.family + 4) % 6, s.size * .26);
+  smokeFamily((s.family + 4) % 6, s.size * .24);
   pop();
 }
 
@@ -1092,3 +1268,21 @@ function drawShard(shape, s) {
 }
 
 // ------------------------------------------------------------
+
+function houseChimney(v) {
+  return [{x:24,top:-78,bottom:-36},{x:34,top:-78,bottom:-35},
+    {x:26,top:-87,bottom:-42},{x:22,top:-67,bottom:-20}][((v%4)+4)%4];
+}
+
+// One transform for the factory silhouette and its emission origins.
+function factoryRenderPose(f) {
+  const pose = objectVisualPose(f);
+  const hovered = hoveredNode && hoveredNode.id === f.id && !dragState;
+  const progress = hovered ? constrain((sceneTime - hoverStarted) / DEMAND_HOLD, 0, 1) : 0;
+  const shake = f.activity > .12 ? sin(sceneTime * 8 + f.seed) * (.09 + f.activity * .10 + overdrive * .03) : 0;
+  return {
+    x: f.x + pose.x + shake, y: f.y + pose.y,
+    rot: f.rot + pose.rot + (hovered ? sin(sceneTime * 3.2 + f.seed) * .002 * progress : 0),
+    scale: f.s * (pose.scale || 1)
+  };
+}

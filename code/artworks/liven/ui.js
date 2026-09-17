@@ -13,16 +13,11 @@
   const root = document.createElement('div');
   root.id = 'liven-ui';
   root.innerHTML = `
-    <div class="badge" aria-label="STAGE 4 · LIVEN">
-      <img class="badge-back" src="assets/figma-ui/title-layer-back.svg" alt="">
-      <img class="badge-middle" src="assets/figma-ui/title-layer-middle.svg" alt="">
-      <img class="badge-front" src="assets/figma-ui/title-layer-front.svg" alt="">
-      <span class="badge-stage">STAGE 4</span><span class="badge-title">LIVEN</span>
-    </div>
+    <div class="stage-heading">STAGE 4: LIVEN</div>
     <section class="recovery-status" aria-label="Earth recovery">
       <div class="recovery-heading"><span>EARTH RECOVERY</span><strong id="recovery-value">0%</strong></div>
       <progress id="recovery-progress" max="3" value="0" aria-label="Renewable energy pieces placed"></progress>
-      <p>Bring solar, wind and water back to Earth.</p>
+      <p>Bring clean-energy homes back to Earth.</p>
     </section>
     <div class="subtitle" aria-live="polite"><img class="subtitle-shadow" src="assets/figma-ui/subtitle-shadow.svg" alt=""><img class="subtitle-frame" src="assets/figma-ui/subtitle-frame.svg" alt=""><img class="subtitle-panel" src="assets/figma-ui/subtitle-panel.svg" alt=""><p id="story-text"></p></div>
     <div class="utility-controls" role="group" aria-label="Sound, reset and information">
@@ -40,9 +35,29 @@
   info.className = 'info-popover';
   info.id = 'info-popover';
   info.setAttribute('aria-labelledby', 'info-title');
-  info.innerHTML = `<header><h2 id="info-title">ABOUT LIVEN</h2>${button('info-close', 'close', 'Close information')}</header>
-    ${livenInformationContent()}`;
+  info.innerHTML = `<header><h2 id="info-title">LIVEN / RESEARCH</h2>${button('info-close', 'close', 'Close information')}</header>
+    <div class="research-body">
+      <p>Bringing Earth back to life starts with changing how we power our world.</p>
+      <p>Solar, wind and hydropower can generate electricity without continuously burning fossil fuels, helping reduce greenhouse-gas emissions and harmful air pollution. Renewable energy is projected to provide around <strong>43% of global electricity by 2030</strong> (International Energy Agency 2025).</p>
+      <p>Reducing these environmental pressures gives nature more space to recover. Healthier ecosystems can support biodiversity, fertile soil, cleaner water and greater carbon storage (United Nations Environment Programme 2024).</p>
+      <p><strong>LIVEN represents this transition.</strong><br>Every clean-energy source placed back into the Earth is a step toward recovery.</p>
+      <p>But change does not only happen at a global scale.<br><strong>It starts where we live.</strong></p>
+      <footer>NGUYEN TRAN PHUC DUONG · SID: S4001970</footer>
+    </div>`;
   document.body.append(info);
+  ['sound-button', 'reset-button', 'info-button'].forEach(id => {
+    document.getElementById(id).addEventListener('pointerenter', event => {
+      if (event.pointerType === 'touch' || soundMuted) return;
+      playSound('uiHover');
+    });
+  });
+  function flashButton(control) {
+    control.classList.remove('click-flash');
+    void control.offsetWidth;
+    control.classList.add('click-flash');
+    clearTimeout(control.flashTimer);
+    control.flashTimer = setTimeout(() => control.classList.remove('click-flash'), 240);
+  }
   const $ = id => document.getElementById(id);
   const sound = $('sound-panel');
   $('sound-button').setAttribute('aria-controls', 'sound-panel');
@@ -56,6 +71,15 @@
   $('info-button').onclick = toggleInfo;
   $('info-close').onclick = () => { infoOpen = false; sync(); };
   $('reset-button').onclick = () => { stopAllSounds(); regenerateScene(); infoOpen = soundPanelOpen = false; sync(); };
+  ['sound-button', 'reset-button', 'info-button'].forEach(id => {
+    const control = $(id);
+    const action = control.onclick;
+    control.onclick = event => {
+      if (id === 'reset-button') flashButton(control);
+      action(event);
+      playSound('uiClick');
+    };
+  });
   $('sound-mute').onclick = () => { toggleSoundMute(); sync(); };
   $('sound-recommended').onclick = () => { useRecommendedMix(); sync(); };
   sound.querySelectorAll('input').forEach(input => {
@@ -116,6 +140,11 @@
     if (!infoOpen && info.open) { info.close(); $('info-button').focus(); }
   }
   function positionSoundPanel() {
+    if (innerWidth < innerHeight) {
+      sound.style.bottom = 'calc(84px + env(safe-area-inset-bottom, 0px))';
+      sound.style.maxHeight = 'calc(100dvh - 120px - env(safe-area-inset-bottom, 0px))';
+      return;
+    }
     const rail = root.querySelector('.utility-controls');
     const button = $('sound-button');
     const buttonBottom = rail.offsetTop + button.offsetTop + button.offsetHeight;

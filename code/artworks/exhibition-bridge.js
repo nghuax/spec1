@@ -18,7 +18,7 @@
       :lerpColor(color(C.skyMid),color(C.skyDirty),smooth01((p-.4)/.6))).toString();
   }
   function mute(value) {
-    if(stage==='harm') window.HarmSound?.setMuted(true); // Referenced recordings are absent.
+    if(stage==='harm') window.HarmSound?.setMuted(value);
     if(stage==='exhaust' && projectMuted!==value) toggleProjectMute();
     if(stage==='adapt' && audioMuted!==value) adaptCommand('sound');
     if(stage==='liven' && soundMuted!==value) {toggleSoundMute();window.livenUI?.sync();}
@@ -44,22 +44,21 @@
   }
   function publish(force=false) {
     if(!ready) return;
-    const muted=stage==='harm'?true:stage==='exhaust'?projectMuted:stage==='adapt'?audioMuted:soundMuted;
+    const muted=stage==='harm'?window.HarmSound.muted:stage==='exhaust'?projectMuted:stage==='adapt'?audioMuted:soundMuted;
     if(active && mode!=='preview') wantedMute=muted;
-    // HARM's original full machine indicator and completion cue share the 20-burn
-    // threshold. EXHAUST's original environmental-destruction progress caps at 21.
-    // Neither ending is inferred from scrolling, elapsed time, or rounded text.
-    const completed=stage==='harm'?burnCount>=MACHINE_SOUND_COMPLETE_BURNS
-      :stage==='exhaust'?environmentDestructionClicks>=21
+    // Follow the supplied source completion flags, never a proxy click count.
+    const completed=stage==='harm'?completionShown && pollution>=99.5
+      :stage==='exhaust'?artworkComplete
       :stage==='adapt'?document.body.dataset.completed==='true'&&globalRecovery>=1
       :stage==='liven'?earthIsRestored():false;
-    const progress=stage==='harm'?`${burnCount} coal pieces burned.`:stage==='exhaust'?`${environmentDestructionClicks} fossil-energy actions.`:stage==='adapt'?`Field recovery: ${Math.round(globalRecovery*100)}%.`:`Earth recovery: ${Math.round(renewableCount()/3*100)}%.`;
+    const progress=stage==='harm'?`${burnCount} coal pieces burned.`:stage==='exhaust'?`Environment damage: ${Math.floor(displayedEnvironmentProgress*100)}%.`:stage==='adapt'?`Field recovery: ${Math.round(globalRecovery*100)}%.`:`Earth recovery: ${Math.round(renewableCount()/3*100)}%.`;
     const background=sceneBackground();
     const paint=background?color(background):null;
     // Public accessors work in both p5 1.x and EXHAUST's p5 2.x.
     const channels=paint?[red(paint),green(paint),blue(paint)].map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}):[0,0,0];
     const lightSurface=channels[0]*.2126+channels[1]*.7152+channels[2]*.0722>.179;
-    const data={type:'heal:state',stage,muted:wantedMute,completed,background,lightSurface,audioAvailable:stage!=='harm',status:status?`${status} ${progress}`:progress,active};
+    const infoOpen=stage==='exhaust'?informationPanelOpen:document.getElementById(stage==='harm'?'info-ui':'info-button')?.getAttribute('aria-expanded')==='true';
+    const data={type:'heal:state',infoOpen,stage,muted:wantedMute,completed,background,lightSurface,audioAvailable:true,status:status?`${status} ${progress}`:progress,active};
     const encoded=JSON.stringify(data);
     if(force||encoded!==last){last=encoded;emit(data);}
   }
@@ -112,7 +111,8 @@
       const style=getComputedStyle(element);
       return !element.hidden && style.display!=='none' && style.visibility!=='hidden';
     });
-    if(panel)panelEscapes.add(event);
+    const infoVisible=stage==='exhaust'?informationPanelOpen:document.getElementById(stage==='harm'?'info-ui':'info-button')?.getAttribute('aria-expanded')==='true';
+    if(panel || infoVisible)panelEscapes.add(event);
   },true);
   document.addEventListener('keydown',event=>{
     if(event.defaultPrevented || panelEscapes.has(event))return;
@@ -141,7 +141,6 @@
       fossilEnergyButton.elt.addEventListener('click',event=>{if(event.detail===0)launchFossilParticles();});
       informationButton.elt.addEventListener('click',event=>{if(event.detail===0)setInformationPanelOpen(!informationPanelOpen);});
     }
-    if(stage==='harm') {const button=document.getElementById('sound-button');if(button){button.disabled=true;button.title='Sound recordings were not included in this package.';}}
     setActive(false,'off');
     startPublishing();
   }

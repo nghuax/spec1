@@ -1,27 +1,18 @@
-/* Shared motion preference. System settings are the default; an explicit
-   session choice lets the visitor preview or pause the exhibition shell. */
+/* Exhibition motion is always enabled in the UI. Only the operating system's
+   accessibility preference reduces motion; old session toggles are ignored. */
 export class MotionPreference {
-  constructor({ media = matchMedia('(prefers-reduced-motion: reduce)'), root = document.documentElement, storage } = {}) {
-    this.media=media; this.root=root; this.storage=storage; this.listeners=new Set();
-    // Accessing the storage property itself can throw in restricted contexts.
-    try { this.storage ??= sessionStorage; this.choice=this.storage.getItem('heal-motion'); } catch { this.choice=null; }
-    if(!['full','reduced'].includes(this.choice)) this.choice=null;
+  constructor({ media = matchMedia('(prefers-reduced-motion: reduce)'), root = document.documentElement } = {}) {
+    this.media=media; this.root=root; this.listeners=new Set();
     this.sync();
-    media.addEventListener('change',()=>{ if(!this.choice) this.sync(true); });
+    media.addEventListener('change',()=>this.sync(true));
   }
-  get matches() { return this.choice ? this.choice==='reduced' : this.media.matches; }
+  get matches() { return this.media.matches; }
   addEventListener(name,callback) { if(name==='change') this.listeners.add(callback); }
   sync(notify=false) {
     this.root.dataset.motion=this.matches?'reduced':'full';
     if(notify) this.listeners.forEach(callback=>callback({matches:this.matches}));
   }
-  toggle() {
-    this.choice=this.matches?'full':'reduced';
-    try { this.storage.setItem('heal-motion',this.choice); } catch { /* session-only in memory */ }
-    this.sync(true);
-  }
 }
-
 export class LivingMotion {
   constructor(preference) {
     this.preference=preference;
@@ -43,14 +34,6 @@ export class LivingMotion {
     // Faceted planes and small environmental fragments echo LIVEN's layered
     // background language while remaining separate from its central artwork.
     this.ambient.innerHTML=Array.from({length:12},(_,i)=>`<i class="ambient-piece ambient-piece-${i+1} ${i%4===2?'ambient-outline':''}">${shardPlates[i%shardPlates.length]}</i>`).join('')+Array.from({length:14},(_,i)=>`<i class="ambient-mark ambient-mark-${i+1}">${mark}</i>`).join('')+Array.from({length:6},(_,i)=>`<i class="ambient-arrow ambient-arrow-${i+1}"><svg viewBox="0 0 160 112" aria-hidden="true" focusable="false">${arrowForms[i%arrowForms.length]}</svg></i>`).join('');
-    this.buttons=[...document.querySelectorAll('[data-motion-toggle]')];
-    const sync=()=>this.buttons.forEach(button=>{
-      button.textContent=preference.matches?'MOTION OFF':'MOTION ON';
-      button.setAttribute('aria-pressed',String(!preference.matches));
-      button.setAttribute('aria-label',preference.matches?'Turn exhibition motion on':'Pause exhibition motion');
-    });
-    this.buttons.forEach(button=>button.addEventListener('click',()=>preference.toggle()));
-    preference.addEventListener('change',sync);sync();
     const revealGroups=[...document.querySelectorAll('.conclusion-inner > *, .about-heading, .about-overview > div, .sdg-section, .about-journey, .about-credits')];
     revealGroups.forEach((element,i)=>{
       element.dataset.reveal='';

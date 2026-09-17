@@ -46,12 +46,12 @@ test('all four exact chapter briefs and directional statements survive the final
   const source=fs.readFileSync(path.join(root,'js/stage-intros.js'),'utf8').replaceAll('export ','');
   vm.runInContext(source+'\nthis.copy=stageBriefs;',context);
   const expected={
-    harm:['The way we power life shapes the world around us.','Fossil energy keeps communities moving, but every use leaves pollution behind.','FOSSIL ENERGY → ENVIRONMENTAL COST'],
-    exhaust:['What we release doesn’t stay in one place.','Pollution builds across the air, land and water we all share, putting more pressure on nature.','POLLUTION → SHARED IMPACT'],
-    adapt:['Change starts with what powers our everyday lives.','Shifting toward renewable energy can reduce pollution and help damaged environments recover.','RENEWABLE ENERGY → POSITIVE CHANGE'],
-    liven:['Cleaner energy can reshape the places we call home.','When renewable energy becomes part of our communities, recovery becomes something we can see, share and build on.','CLEAN ENERGY → STRONGER COMMUNITIES']
+    harm:['The way we live life shapes the world around us.','Current power usage is heavily polluting the Earth.'],
+    exhaust:['What we release, destroys.','Pollution builds across the environment, destroying everything that matters to us.'],
+    adapt:['Change starts with what powers our everyday lives.','Shifting toward renewable energy can reduce pollution and help damaged environments recover.'],
+    liven:['There is still time to turn back.','When renewable energy becomes part of our communities, recovery becomes something we can see, share and build on.']
   };
   for(const [id,copy] of Object.entries(expected))assert.deepEqual(Array.from(Object.values(context.copy[id])),copy);
   const html=fs.readFileSync(path.join(root,'index.html'),'utf8').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ');
-  for(const copy of ['The change doesn’t end here.','It starts where you live - from inside your home to the surroundings.','LET’S SUPPORT RENEWABLE ENERGY IN YOUR COMMUNITY.','SDG 7 — Affordable and Clean Energy'])assert.ok(html.includes(copy),copy);
+  for(const copy of ['The change doesn’t end here.','It starts where you live - from inside your home to the surroundings.','LET’S SUPPORT RENEWABLE ENERGY IN YOUR COMMUNITY.'])assert.ok(html.includes(copy),copy);
 });

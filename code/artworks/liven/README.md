@@ -2,7 +2,7 @@
 
 Liven is an interactive p5.js artwork connected to Sustainable Development Goal 7: Affordable and Clean Energy.
 
-The project uses a puzzle-game interaction to communicate environmental cause and effect. Renewable-energy pieces help restore Earth, while waste pieces darken it. Completing all three renewable-energy elements brings the planet back to life.
+The project uses a puzzle-game interaction to communicate environmental cause and effect. Clean-energy home continents restore Earth, while polluting factories temporarily darken it and bounce back to orbit. Completing all three clean-home continents brings the planet back to life.
 
 A white storytelling panel at the bottom of the artwork advances through the narrative sequence as the user clicks and interacts. After all ten messages have appeared, later interactions continue showing the messages in random order without immediately repeating the same line.
 
@@ -14,8 +14,7 @@ A white storytelling panel at the bottom of the artwork advances through the nar
 - Landscape retains the 1920 × 1080 composition. Portrait rearranges orbital paths around Earth and gives the title, controls, mixer and storytelling panel dedicated screen positions.
 - Animation frame rate: 30 FPS
 - Built with HTML, CSS, JavaScript and p5.js
-- Artwork elements are drawn directly in `sketch.js`
-- No PNG or SVG image assets are required
+- Artwork elements are drawn directly in `sketch.js` and `graphics.js`; the interface uses bundled SVG assets.
 
 ## Files
 
@@ -23,6 +22,7 @@ A white storytelling panel at the bottom of the artwork advances through the nar
 - `style.css`
 - `sketch.js`
 - `ui.js` — HTML interface connected to the p5.js artwork
+- `graphics.js` — continent outlines, geometric clean homes and factories, recovering trees and ocean, and the completion circle of people
 - `assets/fonts/` — Stack Sans Notch and its SIL Open Font License
 - `assets/figma-ui/` — shared HEAL paper layers from ADAPTS
 - `assets/sounds/*.wav`
@@ -31,7 +31,7 @@ A white storytelling panel at the bottom of the artwork advances through the nar
 
 ## How to Run
 
-Extract the complete ZIP before opening `index.html`. Keep `ui.js`, `sketch.js`, `style.css` and the entire `assets` folder together. p5.js, fonts and sounds are bundled locally, so no Internet connection is required. For the most reliable preview, use the local server below.
+Extract the complete ZIP before opening `index.html`. Keep `ui.js`, `sketch.js`, `graphics.js`, `style.css` and the entire `assets` folder together. p5.js, fonts and sounds are bundled locally, so no Internet connection is required. For the most reliable preview, use the local server below.
 
 Open a terminal in the `code` directory and start a local web server.
 
@@ -51,16 +51,14 @@ http://localhost:8000/
 
 - Click or interact with the artwork to advance the storytelling text. After the full sequence has appeared, later interactions continue with randomized storytelling messages.
 - Hover interactive puzzle pieces to see them react.
-- Drag renewable-energy pieces onto Earth.
-- Drag waste pieces onto Earth to darken the planet.
-- Click a waste piece placed on Earth to remove it and return it to orbit.
-- Complete the solar panel, wind turbine and water wheel pieces to restore Earth.
+- Drag clean-home continents into their matching spaces on Earth.
+- Drop a factory onto Earth to trigger its sound and temporarily darken the planet. It automatically bounces back to orbit.
+- Complete all three clean-home continents to restore Earth and reveal the circle of people holding hands.
 - Use the speaker button to open Sound Mix and adjust each interaction sound independently.
 - Use `M` to mute or unmute all sound effects. The Sound Mix panel also includes a recommended preset.
 - The clickable `MUTE` / `UNMUTE` button uses the same style as `USE RECOMMENDED`. Control tooltips appear to the left, at their original text size.
 - Use the reload button to regenerate the composition.
 - Use the `!` utility button to open or close Project Information.
-- Click the flashing `!` puzzle piece to open Project Information.
 - Press `I` to open or close Project Information.
 - Press `R` to regenerate the composition.
 - Press `S` to save the current artwork as a PNG.
@@ -69,25 +67,25 @@ The interface shares ADAPTS' Stack Sans Notch typeface, layered title and subtit
 
 ## Interaction Sounds
 
-- `drag-element.wav`: starts when a renewable-energy or waste piece is picked up.
-- `correct-element.wav`: plays when a renewable-energy piece is placed correctly.
-- `earth-restore.wav`: plays when the third renewable-energy piece restores Earth.
-- `trash-element.wav`: plays when waste is placed on Earth.
-- `trash-remove.wav`: plays when placed waste is removed.
+- `drag-element.wav`: starts when a clean-home or factory piece is picked up.
+- `correct-element.wav`: plays when a clean-home piece is placed correctly.
+- `earth-restore.wav`: plays when the third clean-home piece restores Earth.
+- `trash-element.wav`: plays when a factory is dropped onto Earth, before it returns to orbit.
+- `trash-remove.wav`: retained as a previewable channel in Sound Mix; manual factory removal is no longer needed.
 - `wrong-placement.wav`: plays when a piece is released outside a valid target.
 
 ## Storytelling Sequence
 
-1. Earth is waiting for a cleaner source of energy.
-2. Drag a renewable energy piece toward the planet.
-3. Every clean-energy choice helps Earth recover.
-4. Solar, wind and water can restore what was damaged.
-5. Be careful — not every piece brings life.
-6. Waste and pollution will make the planet darker.
-7. Placed the wrong piece? Click it to remove the damage.
-8. Keep restoring Earth with renewable energy.
-9. Complete all three clean-energy pieces to bring life back.
-10. A renewable future begins with the choices we make.
+1. Earth is waiting for clean-energy homes to bring life back.
+2. Drag a clean home into its matching continent on Earth.
+3. Each clean-energy home helps the planet recover.
+4. As clean homes return, dry trees grow back to life.
+5. Be careful — polluting factories harm the planet.
+6. Factory emissions temporarily darken Earth.
+7. Factories bounce away and return to orbit automatically.
+8. Choose clean homes to keep restoring the planet.
+9. Complete all three clean-home continents to bring Earth back to life.
+10. A living planet brings everyone together.
 
 ## Project Brief
 

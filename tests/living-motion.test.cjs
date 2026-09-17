@@ -11,38 +11,19 @@ function fixture({system=true,saved=null,blocked=false}={}) {
   const preference=new context.MotionPreference({media,root,storage});
   return {preference,root,media,events,saved:()=>saved};
 }
-test('the system reduced-motion preference wins until the visitor explicitly chooses motion',()=>{
-  const f=fixture();assert.equal(f.preference.matches,true);assert.equal(f.root.dataset.motion,'reduced');
-  let calls=0;f.preference.addEventListener('change',()=>calls++);f.preference.toggle();
-  assert.equal(f.preference.matches,false);assert.equal(f.saved(),'full');assert.equal(calls,1);
-  f.media.matches=true;f.events.change();assert.equal(f.preference.matches,false);assert.equal(calls,1);
+test('motion stays enabled and ignores obsolete saved pause choices',()=>{
+  const f=fixture({system:false,saved:'reduced'});
+  assert.equal(f.preference.matches,false);assert.equal(f.root.dataset.motion,'full');
+  assert.equal(typeof f.preference.toggle,'undefined');
 });
-test('system changes update every listener while no explicit choice exists',()=>{
+test('operating-system accessibility changes remain supported',()=>{
   const f=fixture({system:false});const changes=[];f.preference.addEventListener('change',e=>changes.push(e.matches));
   f.media.matches=true;f.events.change();assert.equal(f.root.dataset.motion,'reduced');
   f.media.matches=false;f.events.change();assert.deepEqual(changes,[true,false]);
 });
-test('a saved pause remains paused even on a motion-enabled system',()=>{
-  const f=fixture({system:false,saved:'reduced'});assert.equal(f.preference.matches,true);
-  f.preference.toggle();assert.equal(f.root.dataset.motion,'full');
+test('blocked storage cannot affect motion initialization',()=>{
+  const f=fixture({system:false,blocked:true});assert.equal(f.preference.matches,false);
 });
-test('storage denial and invalid values preserve functionality and safe defaults',()=>{
-  const f=fixture({blocked:true});assert.equal(f.preference.matches,true);
-  assert.doesNotThrow(()=>f.preference.toggle());assert.equal(f.preference.matches,false);
-  assert.equal(fixture({saved:'invalid'}).preference.matches,true);
-});
-
-test('a denied sessionStorage getter cannot prevent the exhibition from initializing',()=>{
-  const env={};
-  Object.defineProperty(env,'sessionStorage',{get(){throw new Error('SecurityError');}});
-  const context=vm.createContext(env);vm.runInContext(source,context);
-  let preference;
-  assert.doesNotThrow(()=>{preference=new context.MotionPreference({media:{matches:true,addEventListener(){}},root:{dataset:{}}});});
-  assert.equal(preference.matches,true);
-  assert.doesNotThrow(()=>preference.toggle());
-  assert.equal(preference.matches,false);
-});
-
 test('a delayed explicit reset is accepted while settling and restores the suspended lifecycle',()=>{
   const journey=fs.readFileSync('code/js/journey.js','utf8');
   const helper=journey.slice(journey.indexOf('function performCommand('),journey.indexOf('function activity('));
