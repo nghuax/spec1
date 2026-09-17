@@ -26,7 +26,7 @@
   function setActive(value, nextMode='full') {
     mode=nextMode;
     document.body.dataset.healMode=mode;
-    if(typeof frameRate==='function')frameRate(mode==='preview'?24:stage==='liven'?30:60);
+    if(typeof frameRate==='function')frameRate(30);
     active=value;document.body.dataset.healActive=String(value);
     if(!value) {
       if(typeof noLoop==='function') noLoop();
@@ -160,3 +160,4 @@
   });
   boot();
 })();
+

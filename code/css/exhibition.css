@@ -72,7 +72,7 @@ body[data-exhibition][data-page='artwork']{height:auto;min-height:100dvh}.exhibi
 .research-hero{min-height:65svh}.research-section{grid-template-columns:1fr;gap:24px}.research-topics{gap:24px}.renewable-list{grid-template-columns:1fr 1fr}.research-index{gap:12px 24px}
 }
 @media(max-width:480px){.research-topics,.renewable-list{grid-template-columns:1fr}.target-list li{grid-template-columns:60px 1fr;gap:12px}.archive-links{grid-template-columns:1fr 1fr}}
-@media(prefers-reduced-motion:reduce){[data-exhibition] main{animation:none}}
+
 /* HEAL group exhibition: the artwork is the main viewport surface. */
 .heal-hero { position:relative; min-height:82svh; padding:calc(var(--header-height) + 24px) var(--page-gutter) 30px; display:grid; grid-template-rows:auto 1fr auto; gap:24px; background:var(--heal-orange); }
 .heal-hero > :not(.exhibition-typefield) { position:relative; z-index:1; }

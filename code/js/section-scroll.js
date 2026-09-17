@@ -303,10 +303,13 @@ export class SectionScroll {
     this.isSectionTransitioning = true;
     this.phase('settling');
     if (!this.animation.duration) { this.finish(); return; }
+    let lastPaint=-Infinity;
     const tick = () => {
       const animation = this.animation;
       if (!animation) return;
       const progress = Math.min(1, (this.now() - animation.started) / animation.duration);
+      if(progress<1 && this.now()-lastPaint<1000/30){animation.raf=this.view.requestAnimationFrame(tick);return;}
+      lastPaint=Number.isFinite(lastPaint)?this.now()-((this.now()-lastPaint)%(1000/30)):this.now();
       const position = sectionCurve(progress, animation.tangent);
       animation.velocity = (animation.end-animation.start)/animation.duration * sectionSlope(progress, animation.tangent);
       this.transitionProgress = position;
@@ -351,3 +354,6 @@ export class SectionScroll {
     if (notify) this.phase('free');
   }
 }
+
+
+

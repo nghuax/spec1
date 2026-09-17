@@ -21,9 +21,7 @@
   80% { transform:translateY(7px);opacity:.55; }
 }
 .motion-suspended .enter-arrow svg { animation-play-state:paused; }
-@media(prefers-reduced-motion:reduce) {
-  html:not([data-motion="full"]) .enter-arrow svg { animation:none; }
-}
+
 .angled-label span,.angled-label::before,.angled-label::after {
   transition: translate var(--motion-medium) var(--ease-ui);
 }

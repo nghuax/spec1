@@ -216,16 +216,7 @@ body[data-artwork-state='2'] .figma-ui img {
   white-space: nowrap;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .figma-subtitle {
-    transform: none;
-    transition: opacity 120ms linear;
-  }
 
-  .figma-subtitle.is-visible {
-    transform: none;
-  }
-}
 
 /* The original Figma information button is the shared control silhouette. */
 .icon-library { position: absolute; width: 0; height: 0; overflow: hidden; }
@@ -423,12 +414,7 @@ progress::-moz-progress-bar { background: #8cff00; }
   #interaction-status { font-size: 10px; margin-top: 5px; }
   .utility-controls { grid-template-columns: 1fr; gap: 5px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .icon-button, .icon-button::after { transition: none; }
-  .icon-button:not(:disabled):hover,
-  .icon-button:not(:disabled):focus-visible,
-  .icon-button:not(:disabled):active { transform: none; }
-}
+
 
 /* A compact sound bubble stays attached to the speaker's left edge. */
 .sound-panel {
@@ -826,12 +812,7 @@ body.sound-is-open .info-nudge { opacity: 0; visibility: hidden; }
 .info-popover-body { align-items: start; }
 .research-copy { max-width: 980px; }
 
-@media (prefers-reduced-motion: reduce) {
-  .figma-subtitle,
-  .info-nudge { transition: opacity 120ms linear, visibility 120ms linear; transform: none; }
-  .figma-subtitle.is-visible,
-  .info-nudge.is-visible { transform: none; }
-}
+
 
 @media (max-width: 700px) and (min-height: 430px) {
   .stage-title-text {

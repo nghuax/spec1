@@ -73,9 +73,7 @@
   .preview-trigger:hover .preview-hover-label { opacity:1;transform:translate(-50%,0) scale(1); }
   .preview-trigger:hover::before { opacity:.18; }
 }
-@media(prefers-reduced-motion:reduce) {
-  html:not([data-motion="full"]) .artwork-slot { --frame-hover:0!important;--frame-shard-scale:1!important;--frame-pin-turn:0deg!important;--frame-pin-scale:1!important; }
-}
+
 .preview-trigger:focus-visible::before { opacity:.18; }
 .preview-trigger:focus-visible .preview-hover-label { opacity:1;transform:translate(-50%,0) scale(1); }
 body[data-stage-phase="preview"] .heal-atmosphere { opacity:.62;color:var(--liven-violet); }

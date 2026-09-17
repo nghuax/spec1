@@ -213,7 +213,15 @@ function update() {
   railLinks.forEach((link,i) => link.classList.toggle('is-travelled',i < position));
   frames.forEach(activity);
 }
-function schedule() { if(!state.pending) state.pending = requestAnimationFrame(update); }
+let lastShellFrame=0;
+function schedule() {
+  if(state.pending)return;
+  const tick=timestamp=>{
+    if(timestamp-lastShellFrame<1000/30){state.pending=requestAnimationFrame(tick);return;}
+    lastShellFrame=timestamp-((timestamp-lastShellFrame)%(1000/30));update();
+  };
+  state.pending=requestAnimationFrame(tick);
+}
 async function navigate(id, {push = true, focus = true, behavior} = {}) {
   if(installation.frame)await installation.close({focus:false});
   const target = document.getElementById(id);
@@ -390,3 +398,5 @@ requestAnimationFrame(()=>{
   else update();
 });
 document.fonts.ready.then(measure);
+
+

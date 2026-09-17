@@ -356,7 +356,7 @@ function setup() {
   const cnv = createCanvas(W, H);
   cnv.parent('canvas-holder');
   pixelDensity(RENDER_DENSITY);
-  frameRate(60);
+  frameRate(30);
   rectMode(CENTER);
   ellipseMode(CENTER);
   strokeJoin(MITER);
@@ -448,4 +448,5 @@ function resetScene() {
     window.HarmSound.restartSceneSoundscape();
   }
 }
+
 

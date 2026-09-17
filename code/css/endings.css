@@ -49,7 +49,7 @@
   .artwork-ending .ending-detail { margin-top:16px;font-size:14px; }
   .artwork-ending .ending-actions { margin-top:18px; }
 }
-@media(prefers-reduced-motion:reduce) { .artwork-ending { animation:none; } }
+
 html[data-motion="reduced"] .artwork-ending { animation:none; }
 /* One balanced action row; only the last LIVEN message exposes final actions. */
 .artwork-ending .ending-actions { align-items:center;gap:clamp(10px,1.4vw,22px);flex-wrap:wrap; }

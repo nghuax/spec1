@@ -198,13 +198,13 @@ test('wheel release starts moving without a raw delta jump or a delayed second s
   assert.equal(f.view.scrollY,900,'Input must not instantly displace the page by 120px');
   assert.equal(f.controller.isSectionTransitioning,true,'Release must not wait on an idle timer');
   const positions=[];
-  for(let i=0;i<55;i++){ f.advance(16); positions.push(f.view.scrollY); }
+  for(let i=0;i<30;i++){ f.advance(i===0?16:34); positions.push(f.view.scrollY); }
   const steps=positions.map((y,i)=>y-(i?positions[i-1]:900));
   assert.ok(steps[0]>0 && steps[0]<12,'Acceleration begins with a small displacement');
-  assert.ok(steps[4]>steps[0]*2,'Motion gains momentum');
+  assert.ok(Math.max(...steps.slice(1,8))>steps[0]*2,'Motion gains momentum');
   assert.ok(steps.every(step=>step>=-1e-8),'The trajectory cannot bounce or reverse');
-  assert.ok(Math.max(...steps)<55,'A normal transition has no large frame jump');
-  assert.ok(steps.filter(step=>step>0&&step<2).length>=4,'The final approach has a gentle tail');
+  assert.ok(Math.max(...steps)<160,'A 30 FPS transition has no large frame jump');
+  assert.ok(steps.filter(step=>step>0&&step<2).length>=2,'The final approach has a gentle tail');
   assert.equal(positions.at(-1),1800);
 });
 
@@ -277,3 +277,6 @@ test('a tall catalogue chapter preserves its readable range before releasing onw
   f.controller.key('ArrowDown',false,true);f.advance(1500);
   assert.equal(f.view.scrollY,940);
 });
+
+
+

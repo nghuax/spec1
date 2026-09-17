@@ -1,17 +1,8 @@
-/* Exhibition motion is always enabled in the UI. Only the operating system's
-   accessibility preference reduces motion; old session toggles are ignored. */
+/* Full exhibition motion is unconditional; no stored or system pause override. */
 export class MotionPreference {
-  constructor({ media = matchMedia('(prefers-reduced-motion: reduce)'), root = document.documentElement } = {}) {
-    this.media=media; this.root=root; this.listeners=new Set();
-    this.sync();
-    media.addEventListener('change',()=>this.sync(true));
-  }
-  get matches() { return this.media.matches; }
-  addEventListener(name,callback) { if(name==='change') this.listeners.add(callback); }
-  sync(notify=false) {
-    this.root.dataset.motion=this.matches?'reduced':'full';
-    if(notify) this.listeners.forEach(callback=>callback({matches:this.matches}));
-  }
+  constructor({root=document.documentElement}={}) { this.root=root;this.root.dataset.motion='full'; }
+  get matches() { return false; }
+  addEventListener() {}
 }
 export class LivingMotion {
   constructor(preference) {
@@ -61,3 +52,4 @@ export class LivingMotion {
     this.ambient.style.setProperty('--ambient-passage',phase.toFixed(4));
   }
 }
+

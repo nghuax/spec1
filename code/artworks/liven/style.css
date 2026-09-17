@@ -97,8 +97,7 @@ progress::-moz-progress-bar { background: #8cff00; }
 #reset-button.click-flash .button-shell,
 #sound-button[aria-expanded='true'] .button-shell,
 #info-button[aria-expanded='true'] .button-shell { color: #fe7d21; }
-@media (prefers-reduced-motion: reduce) {
-}
+
 .research-body { padding: 1.4vw 2.35vw 1vw; font-size: clamp(16px, 1.3vw, 30px); line-height: 1.45; }
 .research-body p { margin: 0 0 1.5em; }
 .research-body a { color: #1d39b7; text-decoration: none; }
@@ -129,7 +128,7 @@ cite { display: block; font-size: 12px; margin-top: 6px; }
 .info-shortcuts p:last-child { margin-bottom: 0; }
 .info-shortcuts .info-student { display: flex; justify-content: flex-start; align-items: baseline; flex-wrap: wrap; gap: 10px 8vw; padding-top: 10px; color: #ff6600; font-size: clamp(16px, 1.04vw, 30px); font-weight: 700; line-height: 1.25; overflow-wrap: normal; }
 @media (max-width: 700px) { .info-body { grid-template-columns: 1fr; } .sound-panel { max-height: 85dvh; overflow-y: auto; } .recovery-status p { display: none; } }
-@media (prefers-reduced-motion: reduce) { .icon-button { transition: none; } }
+
 
 /* Full-window UI; the artwork retains its 1920 × 1080 design coordinates. */
 html, body { overscroll-behavior: none; }

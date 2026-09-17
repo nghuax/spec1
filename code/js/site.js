@@ -482,7 +482,7 @@ function renderAbout() {
 
 function setupReveal() {
   const elements = document.querySelectorAll('[data-reveal]');
-  if (!elements.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+  if (!elements.length || !('IntersectionObserver' in window)) return;
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -516,3 +516,4 @@ function init() {
 }
 
 init();
+

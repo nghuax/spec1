@@ -186,7 +186,7 @@ function loadStackSansNotch() {
 
 function setup() {
   loadStackSansNotch();
-  reducedMotionPreference = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+  reducedMotionPreference = ({matches:false,addEventListener(){}});
 
   const createdCanvas = createCanvas(ARTBOARD_WIDTH, ARTBOARD_HEIGHT);
 
@@ -196,7 +196,7 @@ function setup() {
   );
 
   pixelDensity(1);
-  frameRate(60);
+  frameRate(30);
   strokeJoin(MITER);
   strokeCap(SQUARE);
 
@@ -1055,17 +1055,7 @@ function installFigmaStage2Styles() {
       .project-info-header { padding: 18px 22px; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .stage2-subtitle.subtitle-pop {
-        animation:
-          none;
-      }
-
-      .figma-control {
-        transition:
-          none;
-      }
-    }
+    
   `;
 
   document.head.appendChild(styleElement);
@@ -1893,7 +1883,7 @@ function drawTree(object, distant = false) {
 
 function createSlicedHouse(object) {
   const reducedMotion = typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    false;
   for (const side of [-1, 1]) {
     slicedHousePieces.push({
       house: { ...object, state: "alive" }, side, age: 0,
@@ -3789,7 +3779,7 @@ function recordDestructionForPopup() {
 
 function updateAndDrawImpactPopups(dt) {
   const reducedMotion = typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    false;
   for (const popup of impactPopups) {
     popup.age += dt * 4.175;
     const progress = Math.min(1, popup.age / 6);
@@ -4244,3 +4234,4 @@ function drawStorm() {
   }
   ctx.restore();
 }
+

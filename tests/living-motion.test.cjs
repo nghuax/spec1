@@ -16,10 +16,9 @@ test('motion stays enabled and ignores obsolete saved pause choices',()=>{
   assert.equal(f.preference.matches,false);assert.equal(f.root.dataset.motion,'full');
   assert.equal(typeof f.preference.toggle,'undefined');
 });
-test('operating-system accessibility changes remain supported',()=>{
-  const f=fixture({system:false});const changes=[];f.preference.addEventListener('change',e=>changes.push(e.matches));
-  f.media.matches=true;f.events.change();assert.equal(f.root.dataset.motion,'reduced');
-  f.media.matches=false;f.events.change();assert.deepEqual(changes,[true,false]);
+test('system reduced motion cannot disable exhibition motion',()=>{
+  const f=fixture({system:true,saved:'reduced'});
+  assert.equal(f.preference.matches,false);assert.equal(f.root.dataset.motion,'full');
 });
 test('blocked storage cannot affect motion initialization',()=>{
   const f=fixture({system:false,blocked:true});assert.equal(f.preference.matches,false);
@@ -45,3 +44,4 @@ test('an active artwork receives its explicit action without a lifecycle interru
   vm.runInContext(helper,context);context.performCommand({active:true},'place',{piece:'solar',slot:'solar'});
   assert.deepEqual(calls,['place']);
 });
+

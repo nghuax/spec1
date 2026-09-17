@@ -137,7 +137,7 @@ const AUDIO_FILES = Object.freeze({
   keyboardReverse: 'assets/audio/COMM2754-2026-S4099019-A2w08-ADAPTS-KeyboardReverse.mp3'
 });
 
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reducedMotion = false;
 const motionScale = reducedMotion ? 0.18 : 1;
 const ENERGY_BRUSH_RADIUS = 580;
 // Moderately relaxed pacing for charging, guided replay, assembly, and recovery.
@@ -170,7 +170,7 @@ function setup() {
     'Balance solar and wind energy across modular environmental habitats'
   );
   createdCanvas.attribute('data-target-fps', '60');
-  frameRate(60);
+  frameRate(30);
   rectMode(CENTER);
   strokeJoin(MITER);
   strokeCap(SQUARE);
@@ -2490,3 +2490,4 @@ function playAssemblySound() {
   playSample('assemblyKeyboard', { gain: 0.35, exclusive: 'assembly-texture' });
   document.body.dataset.assemblyCue = 'camera-shutter';
 }
+

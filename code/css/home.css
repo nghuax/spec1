@@ -419,12 +419,7 @@
   transform: translateY(0);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  [data-reveal].reveal-pending {
-    opacity: 1;
-    transform: none;
-  }
-}
+
 
 .home-about {
   min-height: 70vh;

@@ -179,7 +179,7 @@ test('a deliberate interaction can resume a paused visible artwork', () => {
 test('preview animation is throttled, muted and cannot accept primary gameplay',()=>{
   const f=fixture();f.send({action:'activity',active:true,mode:'full'});f.send({action:'mute',muted:false});
   f.send({action:'activity',active:true,mode:'preview'});
-  assert.equal(f.calls.fps,24);assert.equal(f.context.soundMuted,true);
+  assert.equal(f.calls.fps,30);assert.equal(f.context.soundMuted,true);
   f.send({action:'place',piece:'solar',slot:'solar'});assert.equal(f.calls.drops,0);
   f.send({action:'activity',active:true,mode:'full'});
   assert.equal(f.calls.fps,30);assert.equal(f.context.soundMuted,false);
@@ -230,3 +230,4 @@ test('Escape closes an artwork panel before exiting the installation, including 
   f.keyCaptures.keydown(handled);f.keys.keydown(handled);
   assert.equal(f.messages.length,count+1);
 });
+

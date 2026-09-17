@@ -185,7 +185,4 @@ html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-mo
 html[data-motion="reduced"] :is(.ambient-piece,.ambient-mark,.ambient-arrow,.landing-mark,[data-reveal],.angled-label,.ending-actions,.ending-message,.ending-detail) { translate:none !important; }
 html[data-motion="reduced"] :is([data-reveal],.landing-mark) { opacity:1 !important; }
 html[data-motion="reduced"] :is(.ambient-piece,.ambient-mark,.ambient-arrow) svg { transform:none; }
-@media(prefers-reduced-motion:reduce) {
-  html:not([data-motion="full"]) *,html:not([data-motion="full"]) *::before,html:not([data-motion="full"]) *::after { animation:none !important; transition-duration:0s !important; }
-  html:not([data-motion="full"]) :is(.ambient-piece,.ambient-mark,.ambient-arrow) { translate:none !important; }
-}
+
