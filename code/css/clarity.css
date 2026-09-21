@@ -22,7 +22,7 @@ h1,h2,h3,.landing-chapters,.landing-cta,.conclusion-cta,.ending-message,.stage-b
 /* Preserve the original closing CTA, including its selective lime emphasis. */
 .conclusion-cta { color:#fff; }
 .conclusion-cta strong { color:#b3ff3b; }
-.conclusion-bridge p { font-family:var(--font-body);line-height:1.6; }
+.conclusion-bridge { font-family:var(--font-display); }
 .sdg-section .research-blocks { display:grid;grid-template-columns:1fr 1fr;gap:28px 36px;margin-top:32px; }
 .sdg-section .research-blocks h4,.sdg-section .research-sources h4 {
   margin:0 0 10px;font:650 14px/1.4 var(--font-body);letter-spacing:.07em;color:inherit;
