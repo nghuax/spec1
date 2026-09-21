@@ -143,23 +143,23 @@ function drawInformationOverlay() {
   noStroke();
   pop();
 
-  // Research replaces instructions and course metadata; retain the original palette.
+  // Concise research and interaction meaning, within the existing information panel.
   const leftX = x + pad;
   const contentW = w - pad * 2;
   const topY = bodyY + 30;
   fill(12,16,27); textAlign(LEFT,TOP); textStyle(NORMAL);
-  textSize(24); textLeading(34);
-  text('With the way most of us live, we are constantly producing harmful substances into the air, the soil, and the water, polluting them and harming the very thing that gave us a place to live. There are several ways we are harming the Earth. and here are some of them.',
+  textFont('Inter'); textSize(26); textLeading(36);
+  text('YOUR ACTION / Click coal to power the machine. Every burn also adds pollution. The growing AIR LOAD makes that environmental cost visible.',
     leftX,topY,contentW,110);
-  text('Fossil fuels have been a fundamental part of our lives ever since the Industrial Revolution took place. In 2025, we have burned more than twice the amount of coal, 5 times the amount of oil, and 7 times the amount of gas compared to 1950. However, as many benefits as fossil fuels give us, they also produce much CO2 in the air, which gets stuck in the atmosphere, causing the greenhouse effect on our planet.',
+  text('ENERGY + ENVIRONMENT / Burning fossil fuels releases greenhouse gases. HARM lets you explore the tension between powering daily life and protecting the world around us.',
     leftX,topY+126,contentW,120);
-  text('Each year, over 2 billion metric tons of unsustainable waste are thrown away worldwide',
+  text('SDG 7 / Affordable, reliable and sustainable energy for everyone.',
     leftX,topY+264,contentW,46);
   fill(35,63,184);
-  text('(United Nations Environment Programme and International Solid Waste Association 2024).',
+  text('Sources: UN DESA — Goal 7; UN — What is renewable energy?',
     leftX,topY+306,contentW,32);
   fill(12,16,27);
-  text('In developing countries, trash is also thrown into water sources, contaminating the water. This caused many people to not have access to clean drinking water, leading to serious health issues. We are producing much more trash than we have ever been.',
+  text('Explore the linked sources in ABOUT. The artwork is an interpretation of environmental pressure, not a scientific measurement of emissions.',
     leftX,topY+340,contentW,120);
   fill(160,166,176,120); rect(leftX,y+h-68,contentW,1);
   fill(42,47,64); textSize(16); textStyle(NORMAL);

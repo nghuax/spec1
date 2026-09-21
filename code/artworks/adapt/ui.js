@@ -257,7 +257,7 @@
     document.getElementById('control-caption').textContent = guided
       ? 'Guided sequence · select SUN or WIND to take control.'
       : completed ? 'The clean-energy network is ready for the next stage.'
-        : 'Select SUN or WIND, then drag to restore the habitats.';
+        : 'Drag SUN + WIND: clean energy reconnects habitats.';
 
     // The subtitle is a temporary instruction / hint, not a permanent banner.
     if (!initialProgressSeen) {

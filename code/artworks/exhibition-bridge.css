@@ -1,3 +1,17 @@
+@import url('../css/fonts.css');
+/* Reading text stays distinct from each artwork's display identity. */
+body[data-heal-embedded] :is(.info-body,.info-content,.sound-settings,.sound-panel,.mixer-panel) {
+  font-family:'Inter',Arial,sans-serif;line-height:1.55;
+}
+body[data-heal-embedded] :is(.info-body p,.info-content p,.info-body li) {
+  font-family:'Inter',Arial,sans-serif;line-height:1.55;
+}
+body[data-heal-embedded] #canvas-holder .stage2-subtitle-text,
+body[data-heal-embedded] .stage2-subtitle-text,
+body[data-heal-embedded] #control-caption,
+body[data-heal-embedded] #liven-ui .subtitle p {
+  font-family:'Inter',Arial,sans-serif;font-weight:550;letter-spacing:0;line-height:1.35;
+}
 /* Integration-only controls: authored canvas compositions remain intact. */
 /* The catalogue supplies its own corner pin. Keep the source badge only when
    entering the installation; standalone artwork styling is unaffected. */
@@ -100,3 +114,45 @@ body[data-heal-embedded] #artwork-controls .energy-tools { gap: .8cqw; }
     height:2px
   }
 }
+
+/* Bottom guidance: readable text over the existing neutral instruction strip. */
+body[data-heal-embedded] #canvas-holder .stage2-subtitle-text {
+  font-size:clamp(16px,1.45cqw,24px);line-height:1.35;
+  height:auto;min-height:6.2%;top:auto;bottom:4%;left:18%;width:64%;padding:8px 12px;
+}
+body[data-heal-embedded] .stage2-figma-ui .stage2-subtitle-text:not(#status-message) {
+  font-size:var(--instruction-size,28px);line-height:1.35;
+  left:220px;width:1480px;top:auto;bottom:42px;height:auto;min-height:80px;
+  padding:12px 24px;background:#f0f0ed;color:#101333;box-sizing:border-box;
+}
+body[data-heal-embedded] #control-caption {
+  font-size:clamp(16px,1.45cqw,24px);line-height:1.4;
+  white-space:normal;width:60%;padding:8px 12px;
+}
+body[data-heal-embedded] #liven-ui .subtitle { left:18%;width:64%; }
+body[data-heal-embedded] #liven-ui .subtitle-panel { visibility:hidden; }
+body[data-heal-embedded] #liven-ui .subtitle p {
+  font-size:clamp(16px,1.45cqw,24px);line-height:1.35;
+  top:auto;bottom:10%;height:auto;min-height:65%;padding:6px 10px;
+  background:#f0f0ed;color:#101333;box-sizing:border-box;
+}
+@media(max-width:700px) {
+  body[data-heal-embedded] #canvas-holder .stage2-subtitle-text { left:8%;width:74%;bottom:2%;font-size:14px; }
+  body[data-heal-embedded] #control-caption { width:62%;bottom:2%;font-size:14px; }
+  body[data-heal-embedded] #liven-ui .subtitle { left:6%;width:76%; }
+  body[data-heal-embedded] #liven-ui .subtitle p { font-size:14px; }
+}
+
+/* Secondary artwork controls share one quiet accent; selected energy tools keep their meaning. */
+body[data-heal-embedded] :is(#sound-button,#reset-ui,#info-ui) { --control-face:#625a9e; }
+body[data-heal-embedded] #artwork-controls .utility-controls .icon-button { --control-face:#625a9e; }
+body[data-heal-embedded] #liven-ui .utility-controls .button-shell { color:#625a9e; }
+body[data-heal-embedded] .info-popover :is(p,li),
+body[data-heal-embedded] .info-body :is(p,li) { font-family:'Inter',Arial,sans-serif;line-height:1.55; }
+
+body[data-heal-embedded] .project-info-body { font-family:'Inter',Arial,sans-serif;line-height:1.6; }
+body[data-heal-embedded] .figma-control { --control-face:#625a9e; }
+
+
+body[data-heal-embedded] :is(.project-info-body,.research-copy,.info-body) h3 { font-family:'Inter',Arial,sans-serif;font-size:16px;line-height:1.4;letter-spacing:.03em;margin:0 0 10px; }
+body[data-heal-embedded] :is(.research-copy,.info-body) a { color:inherit;text-decoration:underline;text-underline-offset:3px; }

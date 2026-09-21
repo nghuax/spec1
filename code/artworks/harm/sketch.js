@@ -443,7 +443,7 @@ function resetScene() {
   buildAmbientFragments();
   for (let i = 0; i < MAX_COAL; i++) coal.push(spawnCoal(true, i));
 
-  setStatus('CLICK COAL · WATCH IT SPLIT AND FLOW INTO THE MACHINE', 6.0, 2);
+  setStatus('CLICK COAL TO POWER THE MACHINE · EACH BURN ADDS AIR POLLUTION', 6.0, 2);
   if (window.HarmSound && typeof window.HarmSound.restartSceneSoundscape === 'function') {
     window.HarmSound.restartSceneSoundscape();
   }

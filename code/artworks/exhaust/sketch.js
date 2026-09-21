@@ -16,7 +16,7 @@ const FACTORY_SCALE = 0.95;
 const STACK_SANS_NOTCH_CSS_URL =
   "../../css/fonts.css";
 
-const SUBTITLE = "Click the factory to use fossil energy!";
+const SUBTITLE = "Click the factory: fossil energy adds pollution and wears nature down.";
 
 const PALETTE = {
   charcoal: [20, 20, 20],
@@ -1182,10 +1182,10 @@ function createInformationPanel() {
         </button>
       </header>
       <div class="project-info-body">
-        <p>The usage of fossil fuels has contributed greatly to climate change and especially global warming. The year 2024 was the hottest year ever recorded (NOAA National Centers for Environmental Information 2024). This has led to many negative outcomes, such as the rising sea water level due to melting ice in the poles, and the increase of relentless tycoons.</p>
-        <p>With the way humans are urbanizing lands and deforesting natural green spaces, the environment is also facing a loss in biodiversity. A report found that the population sizes of mammals, fish, birds, reptiles and amphibians have experienced a decline of an average of 68% between 1970 and 2016 (Earth.org 2020). Moreover, deforestation is causing the only natural defense against air pollution to crumble, with less and less trees to purify the dirty air.</p>
-        <p>Air pollution is also a very imminent aspect of what’s being destroyed by us. The continuous burning of fossil fuels from vehicles, factories and power plants releases harmful pollutants and greenhouse gases into the atmosphere, significantly reducing air quality. This not only contributes to global warming but also creates serious risks for human health.</p>
-        <footer class="project-info-footer">
+        <section><h3>YOUR ACTION</h3><p>Click the factory to use fossil energy. Pollution accumulates and natural forms disappear: each input makes environmental pressure visible.</p></section>
+        <section><h3>WHY THIS MATTERS</h3><p>Burning fossil fuels releases greenhouse gases. EXHAUST interprets pollution through the loss of a shared environment; its changing landscape is not a scientific forecast.</p></section>
+        <section><h3>SDG 7 CONNECTION</h3><p>Cleaner energy and greater efficiency can reduce the pressures associated with fossil-energy use. SDG 7 connects this transition with affordable, reliable energy access.</p></section>
+        <section><h3>SOURCES</h3><p><a href="https://www.un.org/en/climatechange/what-is-renewable-energy" target="_blank" rel="noopener">United Nations Climate Action — What is renewable energy?</a><br><a href="https://sdgs.un.org/goals/goal7" target="_blank" rel="noopener">United Nations DESA — Goal 7: targets and indicators</a></p></section>        <footer class="project-info-footer">
           <div class="project-info-credits"><span>Luong Duc Hung</span><span aria-hidden="true">·</span><span>SID: S4010990</span></div>
         </footer>
       </div>
@@ -2689,6 +2689,7 @@ function fitArtboardToWindow() {
 
   if (figmaUiRoot) {
     figmaUiRoot.style.transform = `translate(-50%, -50%) scale(${displayScale})`;
+    figmaUiRoot.style.setProperty('--instruction-size', `${Math.max(28,16/displayScale)}px`);
   }
 
   if (fossilEnergyButton) {

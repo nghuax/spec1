@@ -37,3 +37,6 @@ The font is redistributed without modification. Its licence remains separate fro
 ## Artwork and site code
 
 The HEAL website code is covered by the GNU General Public License version 3 in `LICENSE`. The supplied artwork source remains attributed to its group creators: Ngo Dac Phu (HARM), Luong Duc Hung (EXHAUST), Nguyen Gia Toan Phu Nghia (ADAPT), and Nguyen Tran Phuc Duong (LIVEN). Artwork previews and the ADAPT process images are captures from the supplied group files. The original package notices remain in each artwork directory. HARM’s missing recording filenames are documented in `artworks/designed-sounds/README.md`.
+
+## Inter
+Inter by Rasmus Andersson is self-hosted for body text and supporting UI under the SIL Open Font License 1.1. Source: https://github.com/rsms/inter. Licence: assets/fonts/Inter-OFL.txt.

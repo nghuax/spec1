@@ -8,7 +8,8 @@ function livenInformationContent() {
       <p>LIVEN is HEAL’s final turning point: renewable energy restores what pollution has weakened.</p>
       <div class="sdg-context">
         <h3>SDG 7 · AFFORDABLE &amp; CLEAN ENERGY</h3>
-        <p>Reliable, affordable and sustainable energy supports recovery and community life. LIVEN shows this through a simple contrast: renewable energy restores the planet, while pollution pushes it further into decline.</p>
+        <p>Reliable, affordable and sustainable energy supports community life. Placing clean-energy homes represents choosing renewables together. LIVEN’s returning life is an artistic interpretation, not an instant real-world result.</p>
+        <p><a href="https://sdgs.un.org/goals/goal7" target="_blank" rel="noopener">United Nations DESA — Goal 7: targets and indicators</a></p>
       </div>
     </section>
     <section class="info-gameplay">
@@ -44,8 +45,8 @@ const C = {
 };
 
 const storyMessages = [
-  "Earth is waiting for clean-energy homes to bring life back.",
-  "Drag a clean home into its matching continent on Earth.",
+  "Drag clean-energy homes onto Earth to bring life back.",
+  "Match each clean-energy home to a continent to support recovery.",
   "Each clean-energy home helps the planet recover.",
   "As clean homes return, dry trees grow back to life.",
   "Be careful — polluting factories harm the planet.",
