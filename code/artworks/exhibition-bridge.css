@@ -143,15 +143,10 @@ body[data-heal-embedded] #liven-ui .subtitle p {
   body[data-heal-embedded] #liven-ui .subtitle p { font-size:14px; }
 }
 
-/* Secondary artwork controls share one quiet accent; selected energy tools keep their meaning. */
-body[data-heal-embedded] :is(#sound-button,#reset-ui,#info-ui) { --control-face:#625a9e; }
-body[data-heal-embedded] #artwork-controls .utility-controls .icon-button { --control-face:#625a9e; }
-body[data-heal-embedded] #liven-ui .utility-controls .button-shell { color:#625a9e; }
 body[data-heal-embedded] .info-popover :is(p,li),
 body[data-heal-embedded] .info-body :is(p,li) { font-family:'Inter',Arial,sans-serif;line-height:1.55; }
 
 body[data-heal-embedded] .project-info-body { font-family:'Inter',Arial,sans-serif;line-height:1.6; }
-body[data-heal-embedded] .figma-control { --control-face:#625a9e; }
 
 
 body[data-heal-embedded] :is(.project-info-body,.research-copy,.info-body) h3 { font-family:'Inter',Arial,sans-serif;font-size:16px;line-height:1.4;letter-spacing:.03em;margin:0 0 10px; }
