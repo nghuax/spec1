@@ -7,7 +7,7 @@ COMM2754 Digital Media Specialisation 1 — Assignment 2, Week 8
 
 ## Concept
 
-ADAPTS is a 1920 × 1080 generative and animated p5.js artwork about SDG 7: Affordable and Clean Energy. Each run creates a new damaged field of floating habitat fragments. Solar and wind energy gradually reconnect the pieces, clear the grey atmosphere and reveal a vivid network of restored habitats. The artwork belongs to Stage 3 of the HEAL sequence: HARM → EXHAUST → ADAPT → LIVEN.
+ADAPTS is a 1920 × 1080 generative and animated p5-2026-09-22-v01.js artwork about SDG 7: Affordable and Clean Energy. Each run creates a new damaged field of floating habitat fragments. Solar and wind energy gradually reconnect the pieces, clear the grey atmosphere and reveal a vivid network of restored habitats. The artwork belongs to Stage 3 of the HEAL sequence: HARM → EXHAUST → ADAPT → LIVEN.
 
 Stage 3 ends with “A connected clean-energy network is ready.” Its transition establishes the shared renewable-energy system before LIVEN explores life returning to Earth. The guided sequence makes the animation and sound available through one clear starting action; the manual controls let viewers explore how both sources contribute.
 
@@ -18,7 +18,7 @@ No build step, plug-in installation or internet connection is required.
 1. Unzip the submission folder.
 2. Open a terminal in this `code` directory.
 3. Start a local web server, for example `python -m http.server 8000`.
-4. Open `http://localhost:8000/index.html` in a current browser.
+4. Open `http://localhost:8000/index-2026-09-22-v01.html` in a current browser.
 5. Select the **circular reset arrow** or an energy icon to enable the six local WAV sound cues. The **speaker icon** opens Sound Control Panel, with six individual volume sliders, mute, and Use Recommended.
 
 ## Controls
@@ -41,12 +41,12 @@ The artwork has five controls: SUN and WIND in their original area, plus sound c
 - Animation: target of 60fps; actual frame rate depends on the browser and device.
 - Generation: 8–10 readable habitat groups per reset; 11–13 independent habitat modules because four systems combine on the large shared land.
 - Energy network: source-to-habitat connections are generated from the current solar, wind and receiving modules. Moving energy signals show how renewable sources supply the shared system.
-- Visual media: original p5.js primitive geometry, original Figma interface silhouettes and local SVG control icons.
+- Visual media: original p5-2026-09-22-v01.js primitive geometry, original Figma interface silhouettes and local SVG control icons.
 - Sound: three revised A1 recordings and three new original A2 recordings are loaded locally and played through the Web Audio API after the first user gesture. The new keyboard cue accompanies the multi-second assembly, while paper and water support wind and recovery. Matching 48 kHz masters, raw sources and untouched originals are supplied in the submission folders.
 
 ## Functional array methods
 
-The student-authored `sketch.js` uses JavaScript's `forEach`, `map` and `filter` in the running artwork. These methods process the generated habitats, network connections and temporary particles.
+The student-authored `sketch-2026-09-22-v01.js` uses JavaScript's `forEach`, `map` and `filter` in the running artwork. These methods process the generated habitats, network connections and temporary particles.
 
 | Array method | Use in the artwork | Why it fits |
 | --- | --- | --- |
@@ -54,24 +54,24 @@ The student-authored `sketch.js` uses JavaScript's `forEach`, `map` and `filter`
 | `.map()` | `buildEnergyNetwork()` converts receiving habitats into connection objects containing a source, target and animation phase. | Creates one new connection object for each receiving habitat. |
 | `.filter()` | `buildEnergyNetwork()` selects solar/wind sources and receiving habitats, then removes connections without a source. `updateParticles()` keeps particles whose lifetime remains above zero. | Creates an array containing only items that pass a condition. |
 
-JavaScript's array `.map()` is different from p5.js's numeric `map(value, start1, stop1, start2, stop2)` helper. The array method transforms a collection; the p5.js helper converts a number between ranges. The network implementation uses the array method required by the lecturer.
+JavaScript's array `.map()` is different from p5-2026-09-22-v01.js's numeric `map(value, start1, stop1, start2, stop2)` helper. The array method transforms a collection; the p5-2026-09-22-v01.js helper converts a number between ranges. The network implementation uses the array method required by the lecturer.
 
 ## Runtime files
 
-- `index.html` — standalone browser entry point.
-- `style.css` and `fonts.css` — responsive artboard, readable interface and local typography.
-- `sketch.js` — generation, energy network, guided and manual animation, sample playback, state, particle updates and complete PNG export.
-- `ui.js` — integrated artwork controls, live progress, subtitle timing, information guide and chapter completion messages.
-- `p5.js` — local p5.js library.
+- `index-2026-09-22-v01.html` — standalone browser entry point.
+- `style-2026-09-22-v01.css` and `fonts-2026-09-22-v01.css` — responsive artboard, readable interface and local typography.
+- `sketch-2026-09-22-v01.js` — generation, energy network, guided and manual animation, sample playback, state, particle updates and complete PNG export.
+- `ui-2026-09-22-v01.js` — integrated artwork controls, live progress, subtitle timing, information guide and chapter completion messages.
+- `p5-2026-09-22-v01.js` — local p5-2026-09-22-v01.js library.
 - `assets/figma-ui/` — original interface vector exports.
 - `assets/audio/` — six local 48 kHz final WAV cues used by the artwork.
 - `assets/fonts/` — Stack Sans Notch and its SIL Open Font License.
 - `LICENSE` — GPL 3.0 licence for project code.
-- `THIRD-PARTY-LICENSES.md` — p5.js and font attribution.
+- `THIRD-PARTY-LICENSES.md` — p5-2026-09-22-v01.js and font attribution.
 
 ## Credits and licensing
 
-Concept, visual system, code adaptation, interface assets, original recordings and sound design: Nguyen Gia Toan Phu Nghia. Group identity developed with the HEAL project team. p5.js is used under the GNU Lesser General Public License; Stack Sans Notch is used under the SIL Open Font License. The student project code is released under GPL 3.0. See the included licence files for details.
+Concept, visual system, code adaptation, interface assets, original recordings and sound design: Nguyen Gia Toan Phu Nghia. Group identity developed with the HEAL project team. p5-2026-09-22-v01.js is used under the GNU Lesser General Public License; Stack Sans Notch is used under the SIL Open Font License. The student project code is released under GPL 3.0. See the included licence files for details.
 
 Contact: s4099019@rmit.edu.vn
 

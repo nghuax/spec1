@@ -18,7 +18,7 @@ The revision brief is `C:/Users/ASUS/.codex/attachments/02d715a9-71fd-47b5-a8b2-
 
 Visual truth: Figma MAIN SITE `0Lq7wYIzEhyDNLO5r8iFDj`, node 1:3; Navigation Bar 19:509; SCROLLING BAR 30:617; COMPONENT 19:560 and TEST ZONE 19:561. Saved source images: `design-audit/final-heal/figma-landing.png` (1920 × 1080) and `figma-full.png` (1920 × 3449). Original UPDATES sources and hashes remain in `design-audit/final-heal/sources/` and `source-manifest.json`.
 
-Implementation: `http://127.0.0.1:8137/code/index.html`. Screenshots are in `design-audit/fullscreen/`. Actual browser screenshots were captured at their named CSS viewport sizes with `visualViewport.scale === 1`, normalized to one image pixel per CSS pixel. No screenshot is shipped as a website visual.
+Implementation: `http://127.0.0.1:8137/code/index-2026-09-22-v01.html`. Screenshots are in `design-audit/fullscreen/`. Actual browser screenshots were captured at their named CSS viewport sizes with `visualViewport.scale === 1`, normalized to one image pixel per CSS pixel. No screenshot is shipped as a website visual.
 
 - Full landing comparison: `landing-comparison.png`, 3840 × 1124, containing Figma and the revised 1920 × 1080 landing together at identical scale.
 - Full exhibition comparison: `liven-comparison.png`, 3840 × 1124, containing the previous 1920 × 1080 exhibition and revised LIVEN at the same scale. The changed scene state (initial versus completed) is explicit; this compares the surrounding presentation and artwork size, not random particle positions.
@@ -43,7 +43,7 @@ No unresolved P0, P1 or P2 findings remain in the tested layouts.
 - **Spacing and layout:** every artwork chapter equals viewport height. All four source compositions remain 1920:1080 and are proportionally fitted; no crop, stretch or browser zoom reduction. Small top/right safe areas protect navigation and the rail; portrait uses spare space beneath the composition for endings. Native artwork controls remain inside the visible artboard.
 - **Colours and tokens:** HEAL orange #d26c00, blue #1d39b7, black and white are unchanged. Navigation is computed transparent. The unused background follows each original source palette; ADAPT changes navigation contrast with its background. New completion plates and floating blocks use the existing HEAL geometry and palette.
 - **Assets:** original editable p5, HTML, CSS and SVG remain. The HEAL logo is the same source vector. No PNG/JPG/WebP substitutes for the logo, navigation, chapter labels, completion UI or backgrounds. This follows the user's explicit code-native asset requirement.
-- **Copy:** website-level chapter explanations, duplicate visible headings and instruction bars are removed. Source artwork text remains. Four concise requested completion messages live in `js/artwork-endings.js`, with optional detail lines supported by the layout. About and the conclusion remain.
+- **Copy:** website-level chapter explanations, duplicate visible headings and instruction bars are removed. Source artwork text remains. Four concise requested completion messages live in `js/artwork-endings-2026-09-22-v01.js`, with optional detail lines supported by the layout. About and the conclusion remain.
 
 ## Viewport checks
 

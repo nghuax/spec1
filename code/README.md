@@ -16,20 +16,20 @@ Publish the contents of `code/` to GitHub Pages or another static host. The repo
 
 ## Editable implementation
 
-- `index.html`: semantic opening, navigation, six-node progress rail, conclusion and About.
-- `css/journey.css`: Figma colours, geometry, spacing, typography and responsive rules.
-- `css/fullscreen.css`: viewport chapters, transparent navigation, proportional fitting, floating geometry and endings.
-- `js/artwork-endings.js`: editable completion messages; add one or two lines through each `detail` field.
-- `js/heal-mark.js`: inline, editable SVG paths from Figma node 19:479.
-- `js/journey.js`: chapter rendering, anchors, active navigation, scroll progress, lazy loading and controls.
-- `js/section-scroll.js`: shared magnetic section controller for manual scrolling, anchors and Next.
-- `js/stage-intros.js` and `css/stage-intros.css`: brief copy, pinned title composition, scroll-driven zoom/reveal and one resting composition per chapter.
-- `js/motion.js`: continuous section interpolation, velocity tangent and distance-based timing.
-- `css/motion.css`: shared UI timing/easing, layered button feedback, navigation presence and completion departure.
-- `js/exhibition-content.js`: shared artwork titles and author credits.
-- `artworks/exhibition-bridge.js` and `.css`: same-origin integration adapters. They run only with `?exhibition=heal`.
-- `artworks/{harm,exhaust,adapt,liven}/`: isolated original p5 worlds, assets and interfaces; each `index.html` also runs independently.
-- `works/*.html` and `about.html`: compatibility redirects into the continuous exhibition.
+- `index-2026-09-22-v01.html`: semantic opening, navigation, six-node progress rail, conclusion and About.
+- `css/journey-2026-09-22-v01.css`: Figma colours, geometry, spacing, typography and responsive rules.
+- `css/fullscreen-2026-09-22-v01.css`: viewport chapters, transparent navigation, proportional fitting, floating geometry and endings.
+- `js/artwork-endings-2026-09-22-v01.js`: editable completion messages; add one or two lines through each `detail` field.
+- `js/heal-mark-2026-09-22-v01.js`: inline, editable SVG paths from Figma node 19:479.
+- `js/journey-2026-09-22-v01.js`: chapter rendering, anchors, active navigation, scroll progress, lazy loading and controls.
+- `js/section-scroll-2026-09-22-v01.js`: shared magnetic section controller for manual scrolling, anchors and Next.
+- `js/stage-intros-2026-09-22-v01.js` and `css/stage-intros-2026-09-22-v01.css`: brief copy, pinned title composition, scroll-driven zoom/reveal and one resting composition per chapter.
+- `js/motion-2026-09-22-v01.js`: continuous section interpolation, velocity tangent and distance-based timing.
+- `css/motion-2026-09-22-v01.css`: shared UI timing/easing, layered button feedback, navigation presence and completion departure.
+- `js/exhibition-content-2026-09-22-v01.js`: shared artwork titles and author credits.
+- `artworks/exhibition-bridge-2026-09-22-v01.js` and `.css`: same-origin integration adapters. They run only with `?exhibition=heal`.
+- `artworks/{harm,exhaust,adapt,liven}/`: isolated original p5 worlds, assets and interfaces; each `index-2026-09-22-v01.html` also runs independently.
+- `works/*.html` and `about-2026-09-22-v01.html`: compatibility redirects into the continuous exhibition.
 
 Older shell modules and source directories remain for reference but are not loaded by the final entry point.
 
@@ -61,7 +61,7 @@ Reduced motion removes floating geometry and interface transitions and opens art
 
 ## Known source limitation
 
-The six HARM recordings referenced by the newest package were not supplied in any project folder. The visual artwork works, and sound is explicitly unavailable without failed requests or replacement audio. See `artworks/designed-sounds/README.md` for the exact filenames. To restore the original sound, add all six recordings there, set `RECORDINGS_AVAILABLE` in `artworks/harm/sound.js` to true, and update HARM's availability/mute guard in `artworks/exhibition-bridge.js`.
+The six HARM recordings referenced by the newest package were not supplied in any project folder. The visual artwork works, and sound is explicitly unavailable without failed requests or replacement audio. See `artworks/designed-sounds/README.md` for the exact filenames. To restore the original sound, add all six recordings there, set `RECORDINGS_AVAILABLE` in `artworks/harm/sound-2026-09-22-v01.js` to true, and update HARM's availability/mute guard in `artworks/exhibition-bridge-2026-09-22-v01.js`.
 
 ## Credits and validation
 
@@ -76,12 +76,12 @@ Motion-polish evidence, reference study and performance limits: `design-audit/mo
 
 ## Living motion system
 
-`js/living-motion.js` and `css/living-motion.css` provide 12 original HEAL-derived geometric fragments (six on phones), independent drift, bounded scroll response, a staged logo entrance, grouped HEAL/About reveals, and sequenced completion actions. One section controller still owns all page settling; no extra animation library or native mandatory snap was added.
+`js/living-motion-2026-09-22-v01.js` and `css/living-motion-2026-09-22-v01.css` provide 12 original HEAL-derived geometric fragments (six on phones), independent drift, bounded scroll response, a staged logo entrance, grouped HEAL/About reveals, and sequenced completion actions. One section controller still owns all page settling; no extra animation library or native mandatory snap was added.
 
 MOTION ON/OFF follows the system preference until the visitor explicitly chooses a mode for the session. Reduced motion stops continuous motion and shows all reveal content. Restart commands remain reliable when the source is temporarily suspended during settling. See the living-exhibition section in `design-qa.md` for validation and limits.
 
 ## Catalogue and installation implementation
 
-`js/stage-intros.js` now provides concise brief copy, one chapter stop, and the approach reveal. `css/stage-intros.css` lays out title, brief and preview together; `js/installation.js` manages native-dialog expansion/return, scroll isolation and focus. The preview iframe stays in its original DOM position throughout.
+`js/stage-intros-2026-09-22-v01.js` now provides concise brief copy, one chapter stop, and the approach reveal. `css/stage-intros-2026-09-22-v01.css` lays out title, brief and preview together; `js/installation-2026-09-22-v01.js` manages native-dialog expansion/return, scroll isolation and focus. The preview iframe stays in its original DOM position throughout.
 
 The chapter fills at least one dynamic viewport. Smaller screens may scroll internally to preserve readable type and the complete preview. Fullscreen uses the full browser viewport with proportional artwork fitting and clear Close/controls; optional browser-level fullscreen is not required. Reduced motion uses a static chapter composition and a short installation fade. Evidence: repository-root `design-audit/catalogue-installations/`. 71 targeted checks pass.

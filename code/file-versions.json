@@ -1,0 +1,718 @@
+{
+  "updated": "2026-09-22",
+  "version": 1,
+  "convention": "<original-name>-2026-09-22-v01.<extension>",
+  "scope": [
+    "code",
+    "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code",
+    "scripts",
+    "tests (active code only)"
+  ],
+  "compatibilityEntries": [
+    "code/artworks/adapt/index.html",
+    "code/artworks/exhaust/index.html",
+    "code/artworks/harm/index.html",
+    "code/artworks/liven/index.html",
+    "code/index.html",
+    "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/index.html",
+    "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/index.html",
+    "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/index.html",
+    "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/index.html",
+    "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/index.html"
+  ],
+  "files": [
+    {
+      "previous": "code/about.html",
+      "current": "code/about-2026-09-22-v01.html"
+    },
+    {
+      "previous": "code/artworks/adapt/fonts.css",
+      "current": "code/artworks/adapt/fonts-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/artworks/adapt/index.html",
+      "current": "code/artworks/adapt/index-2026-09-22-v01.html"
+    },
+    {
+      "previous": "code/artworks/adapt/index.original.html",
+      "current": "code/artworks/adapt/index.original-2026-09-22-v01.html"
+    },
+    {
+      "previous": "code/artworks/adapt/mastered-audio.js",
+      "current": "code/artworks/adapt/mastered-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/adapt/p5.js",
+      "current": "code/artworks/adapt/p5-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/adapt/recorded-audio.js",
+      "current": "code/artworks/adapt/recorded-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/adapt/sketch.js",
+      "current": "code/artworks/adapt/sketch-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/adapt/sketch.original.js",
+      "current": "code/artworks/adapt/sketch.original-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/adapt/style.css",
+      "current": "code/artworks/adapt/style-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/artworks/adapt/style.original.css",
+      "current": "code/artworks/adapt/style.original-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/artworks/adapt/ui.js",
+      "current": "code/artworks/adapt/ui-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/adapt/ui.original.js",
+      "current": "code/artworks/adapt/ui.original-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/exhaust/index.html",
+      "current": "code/artworks/exhaust/index-2026-09-22-v01.html"
+    },
+    {
+      "previous": "code/artworks/exhaust/mastered-audio.js",
+      "current": "code/artworks/exhaust/mastered-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/exhaust/p5.js",
+      "current": "code/artworks/exhaust/p5-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/exhaust/p5.sound.min.js",
+      "current": "code/artworks/exhaust/p5.sound.min-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/exhaust/rain-audio.js",
+      "current": "code/artworks/exhaust/rain-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/exhaust/sketch.js",
+      "current": "code/artworks/exhaust/sketch-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/exhaust/style.css",
+      "current": "code/artworks/exhaust/style-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/artworks/exhibition-bridge.css",
+      "current": "code/artworks/exhibition-bridge-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/artworks/exhibition-bridge.js",
+      "current": "code/artworks/exhibition-bridge-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/gallery-bridge.js",
+      "current": "code/artworks/gallery-bridge-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/index.html",
+      "current": "code/artworks/harm/index-2026-09-22-v01.html"
+    },
+    {
+      "previous": "code/artworks/harm/js/atmosphere.js",
+      "current": "code/artworks/harm/js/atmosphere-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/js/generative.js",
+      "current": "code/artworks/harm/js/generative-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/js/interface.js",
+      "current": "code/artworks/harm/js/interface-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/js/pressure.js",
+      "current": "code/artworks/harm/js/pressure-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/js/render.js",
+      "current": "code/artworks/harm/js/render-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/js/scene.js",
+      "current": "code/artworks/harm/js/scene-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/js/systems.js",
+      "current": "code/artworks/harm/js/systems-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/mastered-audio.js",
+      "current": "code/artworks/harm/mastered-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/p5.js",
+      "current": "code/artworks/harm/p5-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/sketch.js",
+      "current": "code/artworks/harm/sketch-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/sound.js",
+      "current": "code/artworks/harm/sound-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/harm/style.css",
+      "current": "code/artworks/harm/style-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/artworks/liven/assets/vendor/p5.min.js",
+      "current": "code/artworks/liven/assets/vendor/p5.min-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/liven/graphics.js",
+      "current": "code/artworks/liven/graphics-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/liven/index.html",
+      "current": "code/artworks/liven/index-2026-09-22-v01.html"
+    },
+    {
+      "previous": "code/artworks/liven/mastered-audio.js",
+      "current": "code/artworks/liven/mastered-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/liven/sketch.js",
+      "current": "code/artworks/liven/sketch-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/artworks/liven/style.css",
+      "current": "code/artworks/liven/style-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/artworks/liven/ui.js",
+      "current": "code/artworks/liven/ui-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/css/artwork.css",
+      "current": "code/css/artwork-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/clarity.css",
+      "current": "code/css/clarity-2026-09-22-v02.css"
+    },
+    {
+      "previous": "code/css/endings.css",
+      "current": "code/css/endings-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/exhibition.css",
+      "current": "code/css/exhibition-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/fonts.css",
+      "current": "code/css/fonts-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/fullscreen.css",
+      "current": "code/css/fullscreen-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/home.css",
+      "current": "code/css/home-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/journey.css",
+      "current": "code/css/journey-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/living-motion.css",
+      "current": "code/css/living-motion-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/logo-flight.css",
+      "current": "code/css/logo-flight-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/motion.css",
+      "current": "code/css/motion-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/reset.css",
+      "current": "code/css/reset-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/site.css",
+      "current": "code/css/site-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/stage-intros.css",
+      "current": "code/css/stage-intros-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/css/variables.css",
+      "current": "code/css/variables-2026-09-22-v01.css"
+    },
+    {
+      "previous": "code/index.html",
+      "current": "code/index-2026-09-22-v01.html"
+    },
+    {
+      "previous": "code/js/artwork-endings.js",
+      "current": "code/js/artwork-endings-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/content.js",
+      "current": "code/js/content-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/exhibition-content.js",
+      "current": "code/js/exhibition-content-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/exhibition.js",
+      "current": "code/js/exhibition-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/gallery-frame.js",
+      "current": "code/js/gallery-frame-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/heal-mark.js",
+      "current": "code/js/heal-mark-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/installation.js",
+      "current": "code/js/installation-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/journey.js",
+      "current": "code/js/journey-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/living-motion.js",
+      "current": "code/js/living-motion-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/logo-flight.js",
+      "current": "code/js/logo-flight-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/motion.js",
+      "current": "code/js/motion-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/navigation.js",
+      "current": "code/js/navigation-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/research.js",
+      "current": "code/js/research-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/section-scroll.js",
+      "current": "code/js/section-scroll-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/site.js",
+      "current": "code/js/site-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/stage-intros.js",
+      "current": "code/js/stage-intros-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/js/ui-sounds.js",
+      "current": "code/js/ui-sounds-2026-09-22-v01.js"
+    },
+    {
+      "previous": "code/works/adapt.html",
+      "current": "code/works/adapt-2026-09-22-v01.html"
+    },
+    {
+      "previous": "code/works/exhaust.html",
+      "current": "code/works/exhaust-2026-09-22-v01.html"
+    },
+    {
+      "previous": "code/works/harm.html",
+      "current": "code/works/harm-2026-09-22-v01.html"
+    },
+    {
+      "previous": "code/works/liven.html",
+      "current": "code/works/liven-2026-09-22-v01.html"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/about.html",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/about-2026-09-22-v01.html"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/fonts.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/fonts-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/index.html",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/index-2026-09-22-v01.html"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/index.original.html",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/index.original-2026-09-22-v01.html"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/mastered-audio.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/mastered-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/p5.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/p5-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/recorded-audio.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/recorded-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/sketch.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/sketch-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/sketch.original.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/sketch.original-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/style.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/style-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/style.original.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/style.original-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/ui.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/ui-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/ui.original.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/adapt/ui.original-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/index.html",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/index-2026-09-22-v01.html"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/mastered-audio.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/mastered-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/p5.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/p5-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/p5.sound.min.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/p5.sound.min-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/rain-audio.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/rain-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/sketch.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/sketch-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/style.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhaust/style-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhibition-bridge.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhibition-bridge-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhibition-bridge.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/exhibition-bridge-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/gallery-bridge.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/gallery-bridge-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/index.html",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/index-2026-09-22-v01.html"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/atmosphere.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/atmosphere-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/generative.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/generative-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/interface.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/interface-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/pressure.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/pressure-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/render.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/render-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/scene.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/scene-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/systems.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/js/systems-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/mastered-audio.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/mastered-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/p5.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/p5-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/sketch.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/sketch-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/sound.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/sound-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/style.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/harm/style-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/assets/vendor/p5.min.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/assets/vendor/p5.min-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/graphics.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/graphics-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/index.html",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/index-2026-09-22-v01.html"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/mastered-audio.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/mastered-audio-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/sketch.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/sketch-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/style.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/style-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/ui.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/artworks/liven/ui-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/artwork.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/artwork-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/clarity.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/clarity-2026-09-22-v02.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/endings.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/endings-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/exhibition.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/exhibition-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/fonts.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/fonts-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/fullscreen.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/fullscreen-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/home.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/home-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/journey.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/journey-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/living-motion.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/living-motion-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/logo-flight.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/logo-flight-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/motion.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/motion-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/reset.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/reset-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/site.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/site-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/stage-intros.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/stage-intros-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/variables.css",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/css/variables-2026-09-22-v01.css"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/index.html",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/index-2026-09-22-v01.html"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/artwork-endings.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/artwork-endings-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/content.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/content-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/exhibition-content.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/exhibition-content-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/exhibition.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/exhibition-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/gallery-frame.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/gallery-frame-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/heal-mark.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/heal-mark-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/installation.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/installation-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/journey.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/journey-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/living-motion.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/living-motion-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/logo-flight.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/logo-flight-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/motion.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/motion-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/navigation.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/navigation-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/research.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/research-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/section-scroll.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/section-scroll-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/site.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/site-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/stage-intros.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/stage-intros-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/ui-sounds.js",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/js/ui-sounds-2026-09-22-v01.js"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/works/adapt.html",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/works/adapt-2026-09-22-v01.html"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/works/exhaust.html",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/works/exhaust-2026-09-22-v01.html"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/works/harm.html",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/works/harm-2026-09-22-v01.html"
+    },
+    {
+      "previous": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/works/liven.html",
+      "current": "output/A3-submission-2026-09-22/COMM2754-26t1-A3-S4099019-NguyenGiaToanPhuNghia/code/works/liven-2026-09-22-v01.html"
+    },
+    {
+      "previous": "scripts/prepare-pages.cjs",
+      "current": "scripts/prepare-pages-2026-09-22-v01.cjs"
+    },
+    {
+      "previous": "tests/ending-sequence.test.cjs",
+      "current": "tests/ending-sequence-2026-09-22-v01.test.cjs"
+    },
+    {
+      "previous": "tests/exhibition-bridge.test.cjs",
+      "current": "tests/exhibition-bridge-2026-09-22-v01.test.cjs"
+    },
+    {
+      "previous": "tests/gallery-integration.test.cjs",
+      "current": "tests/gallery-integration-2026-09-22-v01.test.cjs"
+    },
+    {
+      "previous": "tests/living-motion.test.cjs",
+      "current": "tests/living-motion-2026-09-22-v01.test.cjs"
+    },
+    {
+      "previous": "tests/logo-flight.test.cjs",
+      "current": "tests/logo-flight-2026-09-22-v01.test.cjs"
+    },
+    {
+      "previous": "tests/preview-server.cjs",
+      "current": "tests/preview-server-2026-09-22-v01.cjs"
+    },
+    {
+      "previous": "tests/production-assets.test.cjs",
+      "current": "tests/production-assets-2026-09-22-v01.test.cjs"
+    },
+    {
+      "previous": "tests/section-scroll.test.cjs",
+      "current": "tests/section-scroll-2026-09-22-v01.test.cjs"
+    },
+    {
+      "previous": "tests/stage-intros.test.cjs",
+      "current": "tests/stage-intros-2026-09-22-v01.test.cjs"
+    },
+    {
+      "previous": "tests/stage3-runtime.test.cjs",
+      "current": "tests/stage3-runtime-2026-09-22-v01.test.cjs"
+    },
+    {
+      "previous": "tests/ui-sounds.test.cjs",
+      "current": "tests/ui-sounds-2026-09-22-v01.test.cjs"
+    },
+    {
+      "previous": "tests/website-shell.test.cjs",
+      "current": "tests/website-shell-2026-09-22-v01.test.cjs"
+    }
+  ],
+  "documentExclusions": "Design document and its support files, code report, typography report, and component reference pages retain their original filenames."
+}

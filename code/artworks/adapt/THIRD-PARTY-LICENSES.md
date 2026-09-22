@@ -1,13 +1,13 @@
 # Third-party licences
 
-## p5.js
+## p5-2026-09-22-v01.js
 
 - Version: 1.9.0
 - Copyright: Processing Foundation and contributors
 - Licence: GNU Lesser General Public License 2.1
-- Included file: `p5.js`
-- Official project: <https://github.com/processing/p5.js>
-- Official licence: <https://github.com/processing/p5.js/blob/main/license.txt>
+- Included file: `p5-2026-09-22-v01.js`
+- Official project: <https://github.com/processing/p5-2026-09-22-v01.js>
+- Official licence: <https://github.com/processing/p5-2026-09-22-v01.js/blob/main/license.txt>
 
 The local runtime copy is included so the assessment can run without a network connection. No ownership claim is made over p5.js.
 

@@ -17,7 +17,7 @@ Scope: refine the existing exhibition, preserving its approved visual direction,
 
 Live Figma: MAIN SITE `1:3`, Navigation Bar `19:509`, SCROLLING BAR `30:617` in `0Lq7wYIzEhyDNLO5r8iFDj`. The original orange background is intentionally superseded by the user's later LIVEN-inspired dark background request. Existing source vector logo, Stack Sans Notch, angled plates, white nav, and diamond rail were retained.
 
-Motion reference: `https://s4129129.github.io/SPEC1-A3/Nana/index.html`. Inspected its fixed-page handoff, preview invitation, transition guard, and 900 ms timing. HEAL retains its continuous magnetic catalogue rather than copying the reference's rigid page structure.
+Motion reference: `https://s4129129.github.io/SPEC1-A3/Nana/index-2026-09-22-v01.html`. Inspected its fixed-page handoff, preview invitation, transition guard, and 900 ms timing. HEAL retains its continuous magnetic catalogue rather than copying the reference's rigid page structure.
 
 The supplied out-of-frame reference remains implemented as straight outlines with angular shards outside the boundaries and a rotated two-plate title pin. No screenshots replace coded UI or live artworks.
 

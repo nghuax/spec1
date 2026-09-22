@@ -1,0 +1,153 @@
+@import url('../css/fonts-2026-09-22-v01.css');
+/* Reading text stays distinct from each artwork's display identity. */
+body[data-heal-embedded] :is(.info-body,.info-content,.sound-settings,.sound-panel,.mixer-panel) {
+  font-family:'Inter',Arial,sans-serif;line-height:1.55;
+}
+body[data-heal-embedded] :is(.info-body p,.info-content p,.info-body li) {
+  font-family:'Inter',Arial,sans-serif;line-height:1.55;
+}
+body[data-heal-embedded] #canvas-holder .stage2-subtitle-text,
+body[data-heal-embedded] .stage2-subtitle-text,
+body[data-heal-embedded] #control-caption,
+body[data-heal-embedded] #liven-ui .subtitle p {
+  font-family:'Inter',Arial,sans-serif;font-weight:550;letter-spacing:0;line-height:1.35;
+}
+/* Integration-only controls: authored canvas compositions remain intact. */
+/* The catalogue supplies its own corner pin. Keep the source badge only when
+   entering the installation; standalone artwork styling is unaffected. */
+body[data-heal-embedded]:not([data-heal-mode="full"]) :is(.stage2-badge-layer,.stage2-badge-title,.stage2-badge-stage,.badge-layer,.badge-title,.badge-stage,#liven-ui .badge,.harm-caption,.stage-heading) {
+  visibility:hidden;
+}
+body[data-heal-embedded] button:focus-visible,
+body[data-heal-embedded] input:focus-visible,
+body[data-heal-embedded] canvas:focus-visible {
+  outline:4px solid white!important;
+  outline-offset:4px;
+  box-shadow:0 0 0 7px #000!important
+}
+
+/* The parent makes offscreen iframes inert. A paused visible artwork must still
+   accept the visitor's first deliberate interaction (reduced motion). */
+
+/* HARM's percentage-positioned HUD shares the 1920 × 1080 canvas scale.
+   Remove minimum desktop type sizes only inside the exhibition, avoiding overlap
+   with the original title and subtitle on compact landscape artboards. */
+body[data-heal-embedded] #canvas-holder { container-type: inline-size; }
+body[data-heal-embedded] #air-load-hud { width: 12.4cqw; }
+body[data-heal-embedded] .air-load-hud__head { min-height: 2.1875cqw; column-gap: .729cqw; }
+body[data-heal-embedded] #air-load-value { font-size: 1.78cqw; }
+body[data-heal-embedded] .air-load-hud__label { font-size: .73cqw; padding-bottom: .26cqw; }
+body[data-heal-embedded] .air-load-hud__caption { font-size: .57cqw; margin-top: .417cqw; }
+body[data-heal-embedded] .air-load-hud__track { height: .26cqw; margin-top: .52cqw; }
+body[data-heal-embedded] #canvas-holder .stage2-subtitle-text { font-size: 1.02cqw; }
+
+/* ADAPT keeps its authored UI proportions inside the fitted landscape viewport.
+   Large accessible equivalents remain available from the exhibition controls. */
+@media(max-width:700px) and (max-height:429px) {
+body[data-heal-embedded] #artwork-controls .icon-button { --control-size: 4.7cqw; }
+body[data-heal-embedded] #artwork-controls .primary-controls .icon-button { --control-size: 6.4cqw; }
+body[data-heal-embedded] #artwork-controls .recovery-status { top: 7%; }
+body[data-heal-embedded] #recovery-value { font-size: 2.3cqw; }
+body[data-heal-embedded] #recovery-label { font-size: .95cqw; }
+body[data-heal-embedded] #interaction-status { font-size: 1cqw; }
+body[data-heal-embedded] #artwork-controls .recovery-heading { gap: .417cqw; }
+body[data-heal-embedded] #artwork-controls progress { height: .26cqw; }
+body[data-heal-embedded] #artwork-controls .utility-controls { gap: .6cqw; }
+body[data-heal-embedded] #artwork-controls .energy-tools { gap: .8cqw; }
+}
+
+/* Fit the original landscape composition inside a small exhibition frame.
+   Full-size keyboard/touch alternatives remain in the exhibition control menu. */
+@media(max-width:700px) and (max-height:429px) {
+  body[data-heal-embedded] #liven-ui .subtitle {
+    left:22.96%;
+    top:87.07%;
+    bottom:auto;
+    width:54.08%;
+    height:9.19%
+  }
+  body[data-heal-embedded] #liven-ui .subtitle-shadow {
+    left:.5%;
+    top:9.7%;
+    width:99%;
+    height:90.3%
+  }
+  body[data-heal-embedded] #liven-ui .subtitle-frame {
+    inset:0;
+    width:100%;
+    height:77.4%
+  }
+  body[data-heal-embedded] #liven-ui .subtitle-panel {
+    left:2.39%;
+    top:16.94%;
+    width:95.22%;
+    height:67.74%
+  }
+  body[data-heal-embedded] #liven-ui .subtitle p {
+    left:5%;
+    top:17%;
+    width:90%;
+    height:65%;
+    font-size:1.4cqw;
+    line-height:1.1
+  }
+  body[data-heal-embedded] #liven-ui .badge-title {
+    font-size:3.75cqw
+  }
+  body[data-heal-embedded] #liven-ui .icon-button {
+    --control-size:4.7cqw
+  }
+  body[data-heal-embedded] #liven-ui .utility-controls {
+    gap:.6cqw
+  }
+  body[data-heal-embedded] #liven-ui .recovery-heading span {
+    font-size:.95cqw
+  }
+  body[data-heal-embedded] #liven-ui .recovery-heading strong {
+    font-size:2.3cqw
+  }
+  body[data-heal-embedded] #liven-ui .recovery-status p {
+    font-size:1cqw;
+    margin:4px 0
+  }
+  body[data-heal-embedded] #liven-ui progress {
+    height:2px
+  }
+}
+
+/* Bottom guidance: readable text over the existing neutral instruction strip. */
+body[data-heal-embedded] #canvas-holder .stage2-subtitle-text {
+  font-size:clamp(16px,1.45cqw,24px);line-height:1.35;
+  height:auto;min-height:6.2%;top:auto;bottom:4%;left:18%;width:64%;padding:8px 12px;
+}
+body[data-heal-embedded] .stage2-figma-ui .stage2-subtitle-text:not(#status-message) {
+  font-size:var(--instruction-size,28px);line-height:1.35;
+  left:220px;width:1480px;top:auto;bottom:42px;height:auto;min-height:80px;
+  padding:12px 24px;background:#f0f0ed;color:#101333;box-sizing:border-box;
+}
+body[data-heal-embedded] #control-caption {
+  font-size:clamp(16px,1.45cqw,24px);line-height:1.4;
+  white-space:normal;width:60%;padding:8px 12px;
+}
+body[data-heal-embedded] #liven-ui .subtitle { left:18%;width:64%; }
+body[data-heal-embedded] #liven-ui .subtitle-panel { visibility:hidden; }
+body[data-heal-embedded] #liven-ui .subtitle p {
+  font-size:clamp(16px,1.45cqw,24px);line-height:1.35;
+  top:auto;bottom:10%;height:auto;min-height:65%;padding:6px 10px;
+  background:#f0f0ed;color:#101333;box-sizing:border-box;
+}
+@media(max-width:700px) {
+  body[data-heal-embedded] #canvas-holder .stage2-subtitle-text { left:8%;width:74%;bottom:2%;font-size:14px; }
+  body[data-heal-embedded] #control-caption { width:62%;bottom:2%;font-size:14px; }
+  body[data-heal-embedded] #liven-ui .subtitle { left:6%;width:76%; }
+  body[data-heal-embedded] #liven-ui .subtitle p { font-size:14px; }
+}
+
+body[data-heal-embedded] .info-popover :is(p,li),
+body[data-heal-embedded] .info-body :is(p,li) { font-family:'Inter',Arial,sans-serif;line-height:1.55; }
+
+body[data-heal-embedded] .project-info-body { font-family:'Inter',Arial,sans-serif;line-height:1.6; }
+
+
+body[data-heal-embedded] :is(.project-info-body,.research-copy,.info-body) h3 { font-family:'Inter',Arial,sans-serif;font-size:16px;line-height:1.4;letter-spacing:.03em;margin:0 0 10px; }
+body[data-heal-embedded] :is(.research-copy,.info-body) a { color:inherit;text-decoration:underline;text-underline-offset:3px; }

@@ -1,21 +1,21 @@
 # Third-Party Licences
 
-HEAL includes local, unmodified runtime copies of p5.js inside the isolated artwork packages. p5.js is developed by the Processing Foundation and contributors and is licensed under the GNU Lesser General Public License version 2.1 (LGPL-2.1).
+HEAL includes local, unmodified runtime copies of p5-2026-09-22-v01.js inside the isolated artwork packages. p5-2026-09-22-v01.js is developed by the Processing Foundation and contributors and is licensed under the GNU Lesser General Public License version 2.1 (LGPL-2.1).
 
-Official project: <https://github.com/processing/p5.js>  
-Official licence text: <https://github.com/processing/p5.js/blob/main/license.txt>
+Official project: <https://github.com/processing/p5-2026-09-22-v01.js>  
+Official licence text: <https://github.com/processing/p5-2026-09-22-v01.js/blob/main/license.txt>
 
 ## Included copies
 
 | Dependency | Version | Location | Used by |
 |---|---:|---|---|
-| p5.js | 1.9.0 | `artworks/harm/p5.js` | HARM |
-| p5.js | 2.3.2 | `artworks/exhaust/p5.js` | EXHAUST |
-| p5.sound | 0.4.1 | `artworks/exhaust/p5.sound.min.js` | EXHAUST |
-| p5.js | 1.9.0 | `artworks/adapt/p5.js` | ADAPT |
-| p5.js | 1.11.10 | `artworks/liven/assets/vendor/p5.min.js` | LIVEN |
+| p5-2026-09-22-v01.js | 1.9.0 | `artworks/harm/p5-2026-09-22-v01.js` | HARM |
+| p5-2026-09-22-v01.js | 2.3.2 | `artworks/exhaust/p5-2026-09-22-v01.js` | EXHAUST |
+| p5.sound | 0.4.1 | `artworks/exhaust/p5.sound.min-2026-09-22-v01.js` | EXHAUST |
+| p5-2026-09-22-v01.js | 1.9.0 | `artworks/adapt/p5-2026-09-22-v01.js` | ADAPT |
+| p5-2026-09-22-v01.js | 1.11.10 | `artworks/liven/assets/vendor/p5.min-2026-09-22-v01.js` | LIVEN |
 
-The p5.js library is not owned by the HEAL group. No ownership claim is made over it. The copies are kept local so that the artworks can run without a network connection and are not merged into the website JavaScript.
+The p5-2026-09-22-v01.js library is not owned by the HEAL group. No ownership claim is made over it. The copies are kept local so that the artworks can run without a network connection and are not merged into the website JavaScript.
 
 The EXHAUST package also includes p5.sound 0.4.1. Its bundled Tone.js components identify Tone.js 15.0.2 and the MIT licence in the distributed source. No ownership claim is made over either dependency.
 

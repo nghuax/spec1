@@ -11,7 +11,7 @@ This program takes the user's mouse input to click the "fossil energy" button th
 
 1. Unzip `COMM2754-2026-S4010990-A2w09-Heal.zip`.
 2. Start a web server in the root directory.
-3. Open the `index.html` file through the web server in a browser to see the results.
+3. Open the `index-2026-09-22-v01.html` file through the web server in a browser to see the results.
 
 No dependencies or plug-in installation is required.
 

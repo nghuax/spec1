@@ -1,6 +1,6 @@
 # HARM v21
 
-Giải nén rồi mở HARM/index.html hoặc chạy qua máy chủ tĩnh cục bộ.
+Giải nén rồi mở HARM/index-2026-09-22-v01.html hoặc chạy qua máy chủ tĩnh cục bộ.
 
 ## Bổ sung v21
 - Nhà và cây trôi vào từ trái, phải hoặc dưới trong khoảng 4.8–6.6 giây, sau đó lơ lửng nhẹ. Nhà vẫn chỉ xuất hiện khi được mở bằng than.
@@ -35,7 +35,7 @@ Nội dung được biên tập từ chủ đề trong ảnh tham khảo; không
 Chrome headless: click than thật, bốn mảnh và một lần đốt, đúng 7 cục đến hoàn tất, bấm nhanh/chậm, tự xả, giữ/thả tùy chọn, thả chuột ngoài canvas, research mở/đóng, reset, màu HUD sau reset, giới hạn số hạt khi chạy lâu, căn nhãn tại kích thước nhỏ, bố cục 16 lần reset. Kiểm tra ảnh 1440×900 và 640×360. Các lượt này không có lỗi JavaScript chưa bắt; không khẳng định bao phủ mọi thiết bị. Một số kiểm tra dùng bước thời gian tăng tốc.
 
 ## Âm thanh — v34
-- Giữ `HARM/` và `designed-sounds/` ở cùng một thư mục cha. `sound.js` dùng đường dẫn `../designed-sounds/`.
+- Giữ `HARM/` và `designed-sounds/` ở cùng một thư mục cha. `sound-2026-09-22-v01.js` dùng đường dẫn `../designed-sounds/`.
 - Keyboard Reverse chỉ dùng cho hover các button; popup 100% không phát âm này.
 - Mouse Click = click UI, Exhaust = mỗi lần đốt than, Microwave = machine bed, Water Tap = smoke ambience, Rice + Oral Irrigator = formation, Plastic Bag = damage, Car Signal = critical alert khi AIR LOAD vừa đạt 100%.
 - Popup hậu quả vẫn xuất hiện sau 5 giây và không có sound cue riêng.

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A complete technical explanation of the HEAL website and its four interactive p5.js artworks.">
+  <meta name="description" content="A complete technical explanation of the HEAL website and its four interactive p5-2026-09-22-v01.js artworks.">
   <meta name="theme-color" content="#141414">
   <title>HEAL — Code Report</title>
   <style>
@@ -388,11 +388,11 @@
   <div class="progress" aria-hidden="true"><span data-progress></span></div>
 
   <header class="topbar">
-    <a class="topbar__brand" href="index.html">HEAL</a>
+    <a class="topbar__brand" href="index-2026-09-22-v01.html">HEAL</a>
     <span class="topbar__title">TECHNICAL CODE REPORT / 20 AUGUST 2026</span>
     <nav class="topbar__links" aria-label="Report links">
       <a href="https://github.com/nghuax/spec1" target="_blank" rel="noreferrer">SOURCE ↗</a>
-      <a href="index.html">LIVE SITE →</a>
+      <a href="index-2026-09-22-v01.html">LIVE SITE →</a>
     </nav>
   </header>
 
@@ -438,18 +438,18 @@
           <p class="kicker">01 / OVERVIEW</p>
           <h2>One shell. Four independent systems.</h2>
         </div>
-        <p class="lead">HEAL is a static, framework-free site. Six public HTML documents provide accessible shells; three JavaScript modules insert shared content and navigation; CSS defines the campaign identity; four local p5.js packages run inside same-origin iframes.</p>
+        <p class="lead">HEAL is a static, framework-free site. Six public HTML documents provide accessible shells; three JavaScript modules insert shared content and navigation; CSS defines the campaign identity; four local p5-2026-09-22-v01.js packages run inside same-origin iframes.</p>
 
         <div class="grid-3">
           <article class="card">
             <span class="file-label">WEBSITE SHELL</span>
             <h3>Renderer-driven pages</h3>
-            <p>The HTML contains semantic mounting points rather than duplicated page content. <code>site.js</code> reads body data attributes and renders the correct page into those mounts.</p>
+            <p>The HTML contains semantic mounting points rather than duplicated page content. <code>site-2026-09-22-v01.js</code> reads body data attributes and renders the correct page into those mounts.</p>
           </article>
           <article class="card">
             <span class="file-label">CONTENT MODEL</span>
             <h3>One source of truth</h3>
-            <p>Project text, chapter order, iframe paths and controls live in <code>content.js</code>. Navigation, home panels and work pages all consume the same objects.</p>
+            <p>Project text, chapter order, iframe paths and controls live in <code>content-2026-09-22-v01.js</code>. Navigation, home panels and work pages all consume the same objects.</p>
           </article>
           <article class="card">
             <span class="file-label">ARTWORK BOUNDARY</span>
@@ -474,9 +474,9 @@
         <div class="architecture" aria-label="Website runtime architecture">
           <div class="architecture__node"><strong>HTML route</strong><span>Body attributes declare page type, root path and chapter.</span></div>
           <div class="architecture__arrow" aria-hidden="true">→</div>
-          <div class="architecture__node"><strong>site.js</strong><span>Calls all render functions; only the matching mount exists.</span></div>
+          <div class="architecture__node"><strong>site-2026-09-22-v01.js</strong><span>Calls all render functions; only the matching mount exists.</span></div>
           <div class="architecture__arrow" aria-hidden="true">→</div>
-          <div class="architecture__node"><strong>content.js</strong><span>Supplies project and chapter data.</span></div>
+          <div class="architecture__node"><strong>content-2026-09-22-v01.js</strong><span>Supplies project and chapter data.</span></div>
           <div class="architecture__arrow" aria-hidden="true">→</div>
           <div class="architecture__node"><strong>Generated DOM</strong><span>Navigation, page content, footer and iframe are inserted.</span></div>
         </div>
@@ -508,30 +508,30 @@
         <p class="lead">The six public page files are deliberately thin. Their job is metadata, stylesheet selection, landmarks and routing context—not repeated content.</p>
 
         <div class="code-block">
-          <div class="code-block__bar"><span>works/harm.html — the page contract</span><button class="copy-code" type="button">COPY</button></div>
+          <div class="code-block__bar"><span>works/harm-2026-09-22-v01.html — the page contract</span><button class="copy-code" type="button">COPY</button></div>
           <pre><code>&lt;body data-page="artwork" data-root=".." data-chapter="harm"&gt;
   &lt;a class="skip-link" href="#main-content"&gt;Skip to main content&lt;/a&gt;
   &lt;header class="site-header" data-site-header&gt;&lt;/header&gt;
   &lt;main class="artwork-main" id="main-content" data-artwork-content&gt;&lt;/main&gt;
   &lt;footer class="site-footer" data-site-footer&gt;&lt;/footer&gt;
-  &lt;script type="module" src="../js/site.js"&gt;&lt;/script&gt;
+  &lt;script type="module" src="../js/site-2026-09-22-v01.js"&gt;&lt;/script&gt;
 &lt;/body&gt;</code></pre>
         </div>
 
         <div class="grid-3" style="margin-top:2rem">
-          <article class="card"><span class="file-label">index.html</span><h4>Homepage shell</h4><p>Declares <code>data-page="home"</code>, mounts <code>data-home-content</code>, and adds <code>home.css</code> for the campaign landing composition.</p></article>
-          <article class="card"><span class="file-label">about.html</span><h4>About shell</h4><p>Declares <code>data-page="about"</code>. Its content is produced by <code>renderAbout()</code> using the same chapter data as the rest of the site.</p></article>
-          <article class="card"><span class="file-label">works/*.html × 4</span><h4>Chapter shells</h4><p>All share <code>artwork.css</code>. Only title, description, theme colour and <code>data-chapter</code> differ, which removes structural drift between chapters.</p></article>
+          <article class="card"><span class="file-label">index-2026-09-22-v01.html</span><h4>Homepage shell</h4><p>Declares <code>data-page="home"</code>, mounts <code>data-home-content</code>, and adds <code>home-2026-09-22-v01.css</code> for the campaign landing composition.</p></article>
+          <article class="card"><span class="file-label">about-2026-09-22-v01.html</span><h4>About shell</h4><p>Declares <code>data-page="about"</code>. Its content is produced by <code>renderAbout()</code> using the same chapter data as the rest of the site.</p></article>
+          <article class="card"><span class="file-label">works/*.html × 4</span><h4>Chapter shells</h4><p>All share <code>artwork-2026-09-22-v01.css</code>. Only title, description, theme colour and <code>data-chapter</code> differ, which removes structural drift between chapters.</p></article>
         </div>
 
         <h3 style="margin-top:3rem">Artwork HTML</h3>
         <table class="function-table">
           <thead><tr><th>Package entry</th><th>What it does</th></tr></thead>
           <tbody>
-            <tr><td><code>artworks/harm/index.html</code></td><td>Creates the 16:9 canvas holder and an <code>aria-live</code> status strip, then loads p5 1.9.0 and the HARM sketch.</td></tr>
-            <tr><td><code>artworks/exhaust/index.html</code></td><td>Provides a labelled main landmark. The sketch itself creates an invisible DOM button over the on-canvas pollutant control.</td></tr>
-            <tr><td><code>artworks/adapt/index.html</code></td><td>Creates the full-window app and a pointer-transparent instruction overlay before loading p5 and the regeneration field.</td></tr>
-            <tr><td><code>artworks/liven/index.html</code></td><td>Loads the minified p5 build in the head, mounts the puzzle in <code>#artwork</code>, then runs its sketch.</td></tr>
+            <tr><td><code>artworks/harm/index-2026-09-22-v01.html</code></td><td>Creates the 16:9 canvas holder and an <code>aria-live</code> status strip, then loads p5 1.9.0 and the HARM sketch.</td></tr>
+            <tr><td><code>artworks/exhaust/index-2026-09-22-v01.html</code></td><td>Provides a labelled main landmark. The sketch itself creates an invisible DOM button over the on-canvas pollutant control.</td></tr>
+            <tr><td><code>artworks/adapt/index-2026-09-22-v01.html</code></td><td>Creates the full-window app and a pointer-transparent instruction overlay before loading p5 and the regeneration field.</td></tr>
+            <tr><td><code>artworks/liven/index-2026-09-22-v01.html</code></td><td>Loads the minified p5 build in the head, mounts the puzzle in <code>#artwork</code>, then runs its sketch.</td></tr>
           </tbody>
         </table>
       </section>
@@ -544,19 +544,19 @@
 
         <div class="grid-3">
           <article class="card">
-            <span class="file-label">js/content.js · 86 source lines</span>
+            <span class="file-label">js/content-2026-09-22-v01.js · 86 source lines</span>
             <h3>Data</h3>
             <p>Exports <code>siteContent</code> plus <code>getChapter()</code> and <code>getChapterIndex()</code>. Chapter objects contain identity, narrative, iframe path, accessible description and controls.</p>
             <p><span class="tag tag--blue">PURE DATA</span><span class="tag">NO DOM</span></p>
           </article>
           <article class="card">
-            <span class="file-label">js/navigation.js · 87 source lines</span>
+            <span class="file-label">js/navigation-2026-09-22-v01.js · 87 source lines</span>
             <h3>Shared chrome</h3>
             <p>Builds the desktop/mobile navigation and footer. It marks the active page with <code>aria-current</code>, manages menu state, closes on Escape and resets when the viewport crosses 840px.</p>
             <p><span class="tag tag--orange">EVENTS</span><span class="tag">ARIA</span></p>
           </article>
           <article class="card">
-            <span class="file-label">js/site.js · 398 source lines</span>
+            <span class="file-label">js/site-2026-09-22-v01.js · 398 source lines</span>
             <h3>Page renderer</h3>
             <p>Renders home, work or about content, builds journey links, monitors iframe loading, and reveals selected elements with <code>IntersectionObserver</code>.</p>
             <p><span class="tag tag--lime">RENDERING</span><span class="tag">IFRAMES</span></p>
@@ -564,7 +564,7 @@
         </div>
 
         <div class="code-block">
-          <div class="code-block__bar"><span>js/site.js — one safe entry point for every page</span><button class="copy-code" type="button">COPY</button></div>
+          <div class="code-block__bar"><span>js/site-2026-09-22-v01.js — one safe entry point for every page</span><button class="copy-code" type="button">COPY</button></div>
           <pre><code>function init() {
   renderNavigation();
   renderFooter();
@@ -602,16 +602,16 @@ init();</code></pre>
         <p class="lead">Six shared stylesheets move from universal foundations to page-specific composition. Cascade order is intentional: tokens and reset load first, common site rules next, then home or artwork-page rules.</p>
 
         <div class="grid-3">
-          <article class="card"><span class="file-label">css/fonts.css</span><h4>Typeface registration</h4><p>Registers the local WOFF2 as a variable font with weights 200–700 and <code>font-display: swap</code>.</p></article>
-          <article class="card"><span class="file-label">css/variables.css</span><h4>Design tokens</h4><p>Defines the eight-colour HEAL palette, fluid spacing, page gutter, header height, border rule and transition curves.</p></article>
-          <article class="card"><span class="file-label">css/reset.css</span><h4>Predictable defaults</h4><p>Normalizes box sizing and margins, applies Stack Sans Notch system-wide, supplies focus/selection rules, and neutralizes motion when requested.</p></article>
-          <article class="card"><span class="file-label">css/site.css</span><h4>Shared layout</h4><p>Sets chapter-specific themes via body attributes, styles navigation/footer, and contains the complete About page system and responsive menu.</p></article>
-          <article class="card"><span class="file-label">css/home.css</span><h4>Homepage composition</h4><p>Controls the giant HEAL word, poster-like type field, chapter colour panels, geometric hover responses and small/landscape adaptations.</p></article>
-          <article class="card"><span class="file-label">css/artwork.css</span><h4>Work-page composition</h4><p>Styles chapter mastheads, progress state, 16:9 iframe, loader/error layers, interaction instructions and adjacent navigation.</p></article>
+          <article class="card"><span class="file-label">css/fonts-2026-09-22-v01.css</span><h4>Typeface registration</h4><p>Registers the local WOFF2 as a variable font with weights 200–700 and <code>font-display: swap</code>.</p></article>
+          <article class="card"><span class="file-label">css/variables-2026-09-22-v01.css</span><h4>Design tokens</h4><p>Defines the eight-colour HEAL palette, fluid spacing, page gutter, header height, border rule and transition curves.</p></article>
+          <article class="card"><span class="file-label">css/reset-2026-09-22-v01.css</span><h4>Predictable defaults</h4><p>Normalizes box sizing and margins, applies Stack Sans Notch system-wide, supplies focus/selection rules, and neutralizes motion when requested.</p></article>
+          <article class="card"><span class="file-label">css/site-2026-09-22-v01.css</span><h4>Shared layout</h4><p>Sets chapter-specific themes via body attributes, styles navigation/footer, and contains the complete About page system and responsive menu.</p></article>
+          <article class="card"><span class="file-label">css/home-2026-09-22-v01.css</span><h4>Homepage composition</h4><p>Controls the giant HEAL word, poster-like type field, chapter colour panels, geometric hover responses and small/landscape adaptations.</p></article>
+          <article class="card"><span class="file-label">css/artwork-2026-09-22-v01.css</span><h4>Work-page composition</h4><p>Styles chapter mastheads, progress state, 16:9 iframe, loader/error layers, interaction instructions and adjacent navigation.</p></article>
         </div>
 
         <div class="code-block">
-          <div class="code-block__bar"><span>css/site.css — attribute-driven chapter theming</span><button class="copy-code" type="button">COPY</button></div>
+          <div class="code-block__bar"><span>css/site-2026-09-22-v01.css — attribute-driven chapter theming</span><button class="copy-code" type="button">COPY</button></div>
           <pre><code>body[data-chapter='harm'] {
   --page-background: var(--heal-ink);
   --page-foreground: var(--heal-white);
@@ -687,9 +687,9 @@ body[data-chapter='adapt'] {
         </div>
 
         <div class="grid-4" style="margin-top:2rem">
-          <article class="card"><span class="file-label">harm/index.html</span><p>Canvas/status mount and dependency order.</p></article>
-          <article class="card"><span class="file-label">harm/style.css</span><p>Maintains 16:9 framing and styles the live status strip.</p></article>
-          <article class="card"><span class="file-label">harm/sketch.js</span><p>2,740 source lines of world, interaction, simulation and drawing logic.</p></article>
+          <article class="card"><span class="file-label">harm/index-2026-09-22-v01.html</span><p>Canvas/status mount and dependency order.</p></article>
+          <article class="card"><span class="file-label">harm/style-2026-09-22-v01.css</span><p>Maintains 16:9 framing and styles the live status strip.</p></article>
+          <article class="card"><span class="file-label">harm/sketch-2026-09-22-v01.js</span><p>2,740 source lines of world, interaction, simulation and drawing logic.</p></article>
           <article class="card"><span class="file-label">harm/perf_test.html</span><p>Development harness for observing the sketch's performance; not linked from the visitor journey.</p></article>
         </div>
       </section>
@@ -723,10 +723,10 @@ body[data-chapter='adapt'] {
         </table>
 
         <div class="grid-4" style="margin-top:2rem">
-          <article class="card"><span class="file-label">exhaust/index.html</span><p>Accessible artwork shell and local script order.</p></article>
-          <article class="card"><span class="file-label">exhaust/style.css</span><p>Canvas reset plus keyboard focus outline for the transparent button.</p></article>
-          <article class="card"><span class="file-label">exhaust/sketch.js</span><p>1,046 source lines of object flow, contamination and procedural drawing.</p></article>
-          <article class="card"><span class="file-label">exhaust/p5.js</span><p>Unmodified p5.js 2.3.2 runtime; third-party LGPL code.</p></article>
+          <article class="card"><span class="file-label">exhaust/index-2026-09-22-v01.html</span><p>Accessible artwork shell and local script order.</p></article>
+          <article class="card"><span class="file-label">exhaust/style-2026-09-22-v01.css</span><p>Canvas reset plus keyboard focus outline for the transparent button.</p></article>
+          <article class="card"><span class="file-label">exhaust/sketch-2026-09-22-v01.js</span><p>1,046 source lines of object flow, contamination and procedural drawing.</p></article>
+          <article class="card"><span class="file-label">exhaust/p5-2026-09-22-v01.js</span><p>Unmodified p5-2026-09-22-v01.js 2.3.2 runtime; third-party LGPL code.</p></article>
         </div>
       </section>
 
@@ -737,7 +737,7 @@ body[data-chapter='adapt'] {
         </div>
 
         <div class="code-block">
-          <div class="code-block__bar"><span>adapt/sketch.js — the central recovery rule</span><button class="copy-code" type="button">COPY</button></div>
+          <div class="code-block__bar"><span>adapt/sketch-2026-09-22-v01.js — the central recovery rule</span><button class="copy-code" type="button">COPY</button></div>
           <pre><code>function moduleRecovery(m) {
   const dual = min(m.sun, m.wind);
   return constrain(dual * 0.84 + (m.sun + m.wind) * 0.08, 0, 1);
@@ -765,10 +765,10 @@ body[data-chapter='adapt'] {
         </table>
 
         <div class="grid-4" style="margin-top:2rem">
-          <article class="card"><span class="file-label">adapt/index.html</span><p>Canvas mount and non-interactive help overlay.</p></article>
-          <article class="card"><span class="file-label">adapt/style.css</span><p>Fullscreen dark field, typography and overlay layout.</p></article>
-          <article class="card"><span class="file-label">adapt/sketch.js</span><p>1,033 source lines of ecosystem modules, tools and recovery.</p></article>
-          <article class="card"><span class="file-label">adapt/p5.js</span><p>Unmodified p5.js 1.9.0 runtime; third-party LGPL code.</p></article>
+          <article class="card"><span class="file-label">adapt/index-2026-09-22-v01.html</span><p>Canvas mount and non-interactive help overlay.</p></article>
+          <article class="card"><span class="file-label">adapt/style-2026-09-22-v01.css</span><p>Fullscreen dark field, typography and overlay layout.</p></article>
+          <article class="card"><span class="file-label">adapt/sketch-2026-09-22-v01.js</span><p>1,033 source lines of ecosystem modules, tools and recovery.</p></article>
+          <article class="card"><span class="file-label">adapt/p5-2026-09-22-v01.js</span><p>Unmodified p5-2026-09-22-v01.js 1.9.0 runtime; third-party LGPL code.</p></article>
         </div>
       </section>
 
@@ -799,10 +799,10 @@ body[data-chapter='adapt'] {
         </table>
 
         <div class="grid-4" style="margin-top:2rem">
-          <article class="card"><span class="file-label">liven/index.html</span><p>Loads p5, font and the puzzle mount.</p></article>
-          <article class="card"><span class="file-label">liven/style.css</span><p>Fullscreen white frame and canvas reset.</p></article>
-          <article class="card"><span class="file-label">liven/sketch.js</span><p>400 source lines; compact class-oriented puzzle logic.</p></article>
-          <article class="card"><span class="file-label">liven/p5.min.js</span><p>Minified p5.js 1.11.13 runtime; third-party LGPL code.</p></article>
+          <article class="card"><span class="file-label">liven/index-2026-09-22-v01.html</span><p>Loads p5, font and the puzzle mount.</p></article>
+          <article class="card"><span class="file-label">liven/style-2026-09-22-v01.css</span><p>Fullscreen white frame and canvas reset.</p></article>
+          <article class="card"><span class="file-label">liven/sketch-2026-09-22-v01.js</span><p>400 source lines; compact class-oriented puzzle logic.</p></article>
+          <article class="card"><span class="file-label">liven/p5.min-2026-09-22-v01.js</span><p>Minified p5-2026-09-22-v01.js 1.11.13 runtime; third-party LGPL code.</p></article>
         </div>
       </section>
 
@@ -815,7 +815,7 @@ body[data-chapter='adapt'] {
         <div class="grid-2">
           <article class="card"><h3>Why iframes?</h3><p>Every p5 package defines global callbacks named <code>setup</code>, <code>draw</code>, <code>keyPressed</code> and <code>windowResized</code>. Loading four sketches into the parent page would overwrite globals. Separate documents provide separate JavaScript realms and CSS scope.</p></article>
           <article class="card"><h3>Why same-origin?</h3><p>All artwork assets live inside the repository. Relative URLs remain portable, no third-party network is required, and browser security does not block the parent page from loading the frames.</p></article>
-          <article class="card"><h3>Shared typography</h3><p>Each artwork entry imports <code>../../css/fonts.css</code>; each sketch also calls <code>textFont('Stack Sans Notch')</code>. DOM labels and canvas text therefore use the same self-hosted variable font.</p></article>
+          <article class="card"><h3>Shared typography</h3><p>Each artwork entry imports <code>../../css/fonts-2026-09-22-v01.css</code>; each sketch also calls <code>textFont('Stack Sans Notch')</code>. DOM labels and canvas text therefore use the same self-hosted variable font.</p></article>
           <article class="card"><h3>Shared narrative</h3><p>The iframe never owns chapter headings or long instructions. Those stay in the parent page, where they remain selectable, responsive and accessible even though the primary visual is a canvas.</p></article>
         </div>
 
@@ -885,43 +885,43 @@ steps:
           <thead><tr><th>File</th><th>Owner</th><th>Kind</th><th>Responsibility</th></tr></thead>
           <tbody>
             <tr><td><code>.github/workflows/deploy-pages.yml</code></td><td class="owner-project">Project</td><td>YAML</td><td>Publishes the <code>code/</code> directory to GitHub Pages on pushes to main or manual dispatch.</td></tr>
-            <tr><td><code>code/index.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>Homepage metadata, shared mounts and module entry point.</td></tr>
-            <tr><td><code>code/about.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>About-page metadata, shared mounts and module entry point.</td></tr>
+            <tr><td><code>code/index-2026-09-22-v01.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>Homepage metadata, shared mounts and module entry point.</td></tr>
+            <tr><td><code>code/about-2026-09-22-v01.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>About-page metadata, shared mounts and module entry point.</td></tr>
             <tr><td><code>code/code-report.html</code></td><td class="owner-project">Project</td><td>HTML report</td><td>Complete technical explanation and searchable file register for the website.</td></tr>
             <tr><td><code>code/website-components.html</code></td><td class="owner-project">Project</td><td>HTML report</td><td>Short pictorial guide to the nine primary interface components.</td></tr>
             <tr><td><code>code/typography-report.html</code></td><td class="owner-project">Project</td><td>HTML report</td><td>Stack Sans Notch specimens, hierarchy, usage and group typography rules.</td></tr>
-            <tr><td><code>code/works/harm.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>HARM chapter shell; declares the <code>harm</code> context.</td></tr>
-            <tr><td><code>code/works/exhaust.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>EXHAUST chapter shell; declares the <code>exhaust</code> context.</td></tr>
-            <tr><td><code>code/works/adapt.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>ADAPT chapter shell; declares the <code>adapt</code> context.</td></tr>
-            <tr><td><code>code/works/liven.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>LIVEN chapter shell; declares the <code>liven</code> context.</td></tr>
-            <tr><td><code>code/js/content.js</code></td><td class="owner-project">Project</td><td>ES module</td><td>Canonical project/chapter data and chapter lookup helpers.</td></tr>
-            <tr><td><code>code/js/navigation.js</code></td><td class="owner-project">Project</td><td>ES module</td><td>Navigation/footer rendering and mobile-menu behaviour.</td></tr>
-            <tr><td><code>code/js/site.js</code></td><td class="owner-project">Project</td><td>ES module</td><td>Home, work and about renderers; iframe state; reveal behaviour.</td></tr>
-            <tr><td><code>code/css/fonts.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Registers the local Stack Sans Notch variable font.</td></tr>
-            <tr><td><code>code/css/variables.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Palette, spacing, layout and timing custom properties.</td></tr>
-            <tr><td><code>code/css/reset.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Global normalization, typography, focus, selection and reduced motion.</td></tr>
-            <tr><td><code>code/css/site.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Global page themes, header/footer and About page layouts.</td></tr>
-            <tr><td><code>code/css/home.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Homepage hero, type field, chapter panels and responsive states.</td></tr>
-            <tr><td><code>code/css/artwork.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Chapter masthead, progress, iframe stage, loader and next/previous nav.</td></tr>
-            <tr><td><code>code/artworks/harm/index.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>HARM canvas holder, live status and script loading.</td></tr>
-            <tr><td><code>code/artworks/harm/style.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>16:9 frame and instruction/status bar styling.</td></tr>
-            <tr><td><code>code/artworks/harm/sketch.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Coal, demand, power, emissions, spatial pollution, damage and rendering.</td></tr>
-            <tr><td><code>code/artworks/harm/p5.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local unmodified p5.js 1.9.0 runtime.</td></tr>
+            <tr><td><code>code/works/harm-2026-09-22-v01.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>HARM chapter shell; declares the <code>harm</code> context.</td></tr>
+            <tr><td><code>code/works/exhaust-2026-09-22-v01.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>EXHAUST chapter shell; declares the <code>exhaust</code> context.</td></tr>
+            <tr><td><code>code/works/adapt-2026-09-22-v01.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>ADAPT chapter shell; declares the <code>adapt</code> context.</td></tr>
+            <tr><td><code>code/works/liven-2026-09-22-v01.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>LIVEN chapter shell; declares the <code>liven</code> context.</td></tr>
+            <tr><td><code>code/js/content-2026-09-22-v01.js</code></td><td class="owner-project">Project</td><td>ES module</td><td>Canonical project/chapter data and chapter lookup helpers.</td></tr>
+            <tr><td><code>code/js/navigation-2026-09-22-v01.js</code></td><td class="owner-project">Project</td><td>ES module</td><td>Navigation/footer rendering and mobile-menu behaviour.</td></tr>
+            <tr><td><code>code/js/site-2026-09-22-v01.js</code></td><td class="owner-project">Project</td><td>ES module</td><td>Home, work and about renderers; iframe state; reveal behaviour.</td></tr>
+            <tr><td><code>code/css/fonts-2026-09-22-v01.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Registers the local Stack Sans Notch variable font.</td></tr>
+            <tr><td><code>code/css/variables-2026-09-22-v01.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Palette, spacing, layout and timing custom properties.</td></tr>
+            <tr><td><code>code/css/reset-2026-09-22-v01.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Global normalization, typography, focus, selection and reduced motion.</td></tr>
+            <tr><td><code>code/css/site-2026-09-22-v01.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Global page themes, header/footer and About page layouts.</td></tr>
+            <tr><td><code>code/css/home-2026-09-22-v01.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Homepage hero, type field, chapter panels and responsive states.</td></tr>
+            <tr><td><code>code/css/artwork-2026-09-22-v01.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Chapter masthead, progress, iframe stage, loader and next/previous nav.</td></tr>
+            <tr><td><code>code/artworks/harm/index-2026-09-22-v01.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>HARM canvas holder, live status and script loading.</td></tr>
+            <tr><td><code>code/artworks/harm/style-2026-09-22-v01.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>16:9 frame and instruction/status bar styling.</td></tr>
+            <tr><td><code>code/artworks/harm/sketch-2026-09-22-v01.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Coal, demand, power, emissions, spatial pollution, damage and rendering.</td></tr>
+            <tr><td><code>code/artworks/harm/p5-2026-09-22-v01.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local unmodified p5-2026-09-22-v01.js 1.9.0 runtime.</td></tr>
             <tr><td><code>code/artworks/harm/perf_test.html</code></td><td class="owner-project">Project</td><td>Test HTML</td><td>Development-only performance observation harness.</td></tr>
             <tr><td><code>code/artworks/harm/README.md</code></td><td class="owner-doc">Documentation</td><td>Markdown</td><td>HARM controls and implementation notes.</td></tr>
-            <tr><td><code>code/artworks/exhaust/index.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>EXHAUST landmark, font/style links and script loading.</td></tr>
-            <tr><td><code>code/artworks/exhaust/style.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Canvas reset and focus indication for the DOM control.</td></tr>
-            <tr><td><code>code/artworks/exhaust/sketch.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Rising pollution, natural-object stream, damage states and drawing.</td></tr>
-            <tr><td><code>code/artworks/exhaust/p5.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local unmodified p5.js 2.3.2 runtime.</td></tr>
-            <tr><td><code>code/artworks/adapt/index.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>ADAPT canvas mount, title/help overlay and script loading.</td></tr>
-            <tr><td><code>code/artworks/adapt/style.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Fullscreen app and informational overlay styling.</td></tr>
-            <tr><td><code>code/artworks/adapt/sketch.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Balanced sun/wind recovery field, smoke, modules and particles.</td></tr>
-            <tr><td><code>code/artworks/adapt/p5.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local unmodified p5.js 1.9.0 runtime.</td></tr>
+            <tr><td><code>code/artworks/exhaust/index-2026-09-22-v01.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>EXHAUST landmark, font/style links and script loading.</td></tr>
+            <tr><td><code>code/artworks/exhaust/style-2026-09-22-v01.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Canvas reset and focus indication for the DOM control.</td></tr>
+            <tr><td><code>code/artworks/exhaust/sketch-2026-09-22-v01.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Rising pollution, natural-object stream, damage states and drawing.</td></tr>
+            <tr><td><code>code/artworks/exhaust/p5-2026-09-22-v01.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local unmodified p5-2026-09-22-v01.js 2.3.2 runtime.</td></tr>
+            <tr><td><code>code/artworks/adapt/index-2026-09-22-v01.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>ADAPT canvas mount, title/help overlay and script loading.</td></tr>
+            <tr><td><code>code/artworks/adapt/style-2026-09-22-v01.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Fullscreen app and informational overlay styling.</td></tr>
+            <tr><td><code>code/artworks/adapt/sketch-2026-09-22-v01.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Balanced sun/wind recovery field, smoke, modules and particles.</td></tr>
+            <tr><td><code>code/artworks/adapt/p5-2026-09-22-v01.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local unmodified p5-2026-09-22-v01.js 1.9.0 runtime.</td></tr>
             <tr><td><code>code/artworks/adapt/README.md</code></td><td class="owner-doc">Documentation</td><td>Markdown</td><td>ADAPT package overview and controls.</td></tr>
-            <tr><td><code>code/artworks/liven/index.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>LIVEN canvas mount, font/style links and script loading.</td></tr>
-            <tr><td><code>code/artworks/liven/style.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Fullscreen puzzle frame and canvas reset.</td></tr>
-            <tr><td><code>code/artworks/liven/sketch.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Orbiting drag pieces, Earth slots, renewable progress and icons.</td></tr>
-            <tr><td><code>code/artworks/liven/p5.min.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local minified p5.js 1.11.13 runtime.</td></tr>
+            <tr><td><code>code/artworks/liven/index-2026-09-22-v01.html</code></td><td class="owner-project">Project</td><td>HTML</td><td>LIVEN canvas mount, font/style links and script loading.</td></tr>
+            <tr><td><code>code/artworks/liven/style-2026-09-22-v01.css</code></td><td class="owner-project">Project</td><td>CSS</td><td>Fullscreen puzzle frame and canvas reset.</td></tr>
+            <tr><td><code>code/artworks/liven/sketch-2026-09-22-v01.js</code></td><td class="owner-project">Project</td><td>p5 sketch</td><td>Orbiting drag pieces, Earth slots, renewable progress and icons.</td></tr>
+            <tr><td><code>code/artworks/liven/p5.min-2026-09-22-v01.js</code></td><td class="owner-vendor">Vendor</td><td>Library</td><td>Local minified p5-2026-09-22-v01.js 1.11.13 runtime.</td></tr>
             <tr><td><code>code/assets/fonts/stack-sans-notch-variable.woff2</code></td><td class="owner-vendor">Vendor</td><td>Font</td><td>Self-hosted Stack Sans Notch variable webfont, weights 200–700.</td></tr>
             <tr><td><code>code/assets/fonts/OFL.txt</code></td><td class="owner-doc">Documentation</td><td>Licence</td><td>SIL Open Font License 1.1 governing the font.</td></tr>
             <tr><td><code>code/README.md</code></td><td class="owner-doc">Documentation</td><td>Markdown</td><td>Project overview, controls, serving instructions and structure.</td></tr>
@@ -938,10 +938,10 @@ steps:
         </div>
 
         <div class="grid-2">
-          <article class="card"><h3>Change wording</h3><p>Edit <code>js/content.js</code>. Keep shared chapter titles, statements, descriptions and instructions out of individual HTML shells.</p></article>
-          <article class="card"><h3>Change site colours</h3><p>Edit palette tokens in <code>css/variables.css</code>, then verify chapter overrides in <code>css/site.css</code> and hard-coded artwork palettes separately.</p></article>
-          <article class="card"><h3>Change navigation</h3><p>Edit <code>js/navigation.js</code>. Preserve <code>aria-current</code>, Escape handling and root-relative routing.</p></article>
-          <article class="card"><h3>Change a simulation</h3><p>Edit only that artwork's <code>sketch.js</code>. Test it standalone and through its iframe because pointer coordinates and resize behaviour differ.</p></article>
+          <article class="card"><h3>Change wording</h3><p>Edit <code>js/content-2026-09-22-v01.js</code>. Keep shared chapter titles, statements, descriptions and instructions out of individual HTML shells.</p></article>
+          <article class="card"><h3>Change site colours</h3><p>Edit palette tokens in <code>css/variables-2026-09-22-v01.css</code>, then verify chapter overrides in <code>css/site-2026-09-22-v01.css</code> and hard-coded artwork palettes separately.</p></article>
+          <article class="card"><h3>Change navigation</h3><p>Edit <code>js/navigation-2026-09-22-v01.js</code>. Preserve <code>aria-current</code>, Escape handling and root-relative routing.</p></article>
+          <article class="card"><h3>Change a simulation</h3><p>Edit only that artwork's <code>sketch-2026-09-22-v01.js</code>. Test it standalone and through its iframe because pointer coordinates and resize behaviour differ.</p></article>
           <article class="card"><h3>Add final credits</h3><p>Populate the intentionally empty fields in <code>siteContent.project</code> and each chapter's <code>credit</code>. Conditional rendering will expose them automatically.</p></article>
           <article class="card"><h3>Release changes</h3><p>Serve <code>code/</code> over HTTP, test all routes and artworks, commit, then push to <code>main</code>. GitHub Pages deploys the same folder.</p></article>
         </div>

@@ -2,7 +2,7 @@
 
 Each chapter now contains a stage title, short brief and substantial live artwork preview in one composition. There is one magnetic chapter anchor. Approaching a chapter scales the title from 1.08 to 1 while the brief and preview reveal; all are visible at rest. Short screens retain a readable internal scroll range.
 
-The GitHub reference was inspected at https://s4129129.github.io/SPEC1-A3/Nana/index.html for combined chapter content, preview affordance, fullscreen entry and return. Its visual design was not copied. HEAL keeps its orange/cobalt palette, Stack Sans Notch, offset plates and floating shapes.
+The GitHub reference was inspected at https://s4129129.github.io/SPEC1-A3/Nana/index-2026-09-22-v01.html for combined chapter content, preview affordance, fullscreen entry and return. Its visual design was not copied. HEAL keeps its orange/cobalt palette, Stack Sans Notch, offset plates and floating shapes.
 
 ## Fullscreen behaviour
 
