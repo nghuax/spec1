@@ -38,8 +38,8 @@
   info.innerHTML = `<header><h2 id="info-title">LIVEN / RESEARCH</h2>${button('info-close', 'close', 'Close information')}</header>
     <div class="research-body">
       <p>Bringing Earth back to life starts with changing how we power our world.</p>
-      <p>Solar, wind and hydropower can generate electricity without continuously burning fossil fuels, helping reduce greenhouse-gas emissions and harmful air pollution. Renewable energy is projected to provide around <strong>43% of global electricity by 2030</strong> (International Energy Agency 2025).</p>
-      <p>Reducing these environmental pressures gives nature more space to recover. Healthier ecosystems can support biodiversity, fertile soil, cleaner water and greater carbon storage (United Nations Environment Programme 2024).</p>
+      <p>Solar, wind and hydropower can generate electricity without continuously burning fossil fuels, helping reduce greenhouse-gas emissions and harmful air pollution. Renewable energy is projected to provide around <strong>43% of global electricity by 2030</strong> (<a href="https://www.iea.org/reports/renewables-2025/renewable-electricity?" target="_blank" rel="noopener noreferrer">International Energy Agency 2025</a>).</p>
+      <p>Reducing these environmental pressures gives nature more space to recover. Healthier ecosystems can support biodiversity, fertile soil, cleaner water and greater carbon storage (<a href="https://www.unep.org/topics/nature-action/conservation-sustainable-use-nature/ecosystem-restoration" target="_blank" rel="noopener noreferrer">United Nations Environment Programme 2024</a>).</p>
       <p><strong>LIVEN represents this transition.</strong><br>Every clean-energy source placed back into the Earth is a step toward recovery.</p>
       <p>But change does not only happen at a global scale.<br><strong>It starts where we live.</strong></p>
       <footer>NGUYEN TRAN PHUC DUONG · SID: S4001970</footer>

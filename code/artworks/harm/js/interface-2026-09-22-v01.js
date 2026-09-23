@@ -20,6 +20,7 @@ function isInfoCloseHit(px, py) {
 }
 
 function syncSampleUIState() {
+  syncResearchCopy();
   const sampleUI = document.getElementById('sample-ui');
   const infoButton = document.getElementById('info-ui');
   if (sampleUI) sampleUI.classList.toggle('is-info-open', Boolean(infoOpen));
@@ -142,28 +143,6 @@ function drawInformationOverlay() {
   line(closeX + 37, closeY + 17, closeX + 20, closeY + 34);
   noStroke();
   pop();
-
-  // Concise research and interaction meaning, within the existing information panel.
-  const leftX = x + pad;
-  const contentW = w - pad * 2;
-  const topY = bodyY + 30;
-  fill(12,16,27); textAlign(LEFT,TOP); textStyle(NORMAL);
-  textFont('Inter'); textSize(26); textLeading(36);
-  text('YOUR ACTION / Click coal to power the machine. Every burn also adds pollution. The growing AIR LOAD makes that environmental cost visible.',
-    leftX,topY,contentW,110);
-  text('ENERGY + ENVIRONMENT / Burning fossil fuels releases greenhouse gases. HARM lets you explore the tension between powering daily life and protecting the world around us.',
-    leftX,topY+126,contentW,120);
-  text('SDG 7 / Affordable, reliable and sustainable energy for everyone.',
-    leftX,topY+264,contentW,46);
-  fill(35,63,184);
-  text('Sources: UN DESA — Goal 7; UN — What is renewable energy?',
-    leftX,topY+306,contentW,32);
-  fill(12,16,27);
-  text('Explore the linked sources in ABOUT. The artwork is an interpretation of environmental pressure, not a scientific measurement of emissions.',
-    leftX,topY+340,contentW,120);
-  fill(160,166,176,120); rect(leftX,y+h-68,contentW,1);
-  fill(42,47,64); textSize(16); textStyle(NORMAL);
-  text('NGO DAC PHU   ·   SID: S3936790',leftX,y+h-46);
 
   rectMode(CENTER);
   pop();
@@ -325,4 +304,26 @@ function updateCompletion() {
     setStatus('100% · AIR POLLUTION HAS REACHED A CRITICAL LEVEL', 12, 3);
   }
 
+}
+
+// Scrollable HTML copy preserves readable text and clickable citations on the scaled artwork.
+let researchCopy;
+function syncResearchCopy() {
+  if (!researchCopy) {
+    researchCopy = document.createElement('div');
+    researchCopy.className = 'harm-research-copy';
+    researchCopy.setAttribute('role','region');
+    researchCopy.setAttribute('aria-label','HARM research');
+    researchCopy.tabIndex = 0;
+    researchCopy.innerHTML = "<p>With the way most of us live, we are constantly producing harmful substances into the air, the soil, and the water, polluting them and harming the very thing that gave us a place to live. There are several ways we are harming the Earth. and here are some of them.</p><p>Fossil fuels have been a fundamental part of our lives ever since the Industrial Revolution took place. In 2025, we have burned more than twice the amount of coal, 5 times the amount of oil, and 7 times the amount of gas compared to 1950 (Ritchie H and Rosado P 2022). However, as many benefits as fossil fuels give us, they also produce much CO2 in the air, which gets stuck in the atmosphere, causing the greenhouse effect on our planet.</p><p>Each year, over 2 billion metric tons of unsustainable waste are thrown away worldwide (<a href=\"https://wedocs.unep.org/items/36e16872-2f02-4447-a3c1-c939bf50ea92\" target=\"_blank\" rel=\"noopener noreferrer\">United Nations Environment Programme and International Solid Waste Association 2024</a>). In developing countries, trash is also thrown into water sources, contaminating the water. This caused many people to not have access to clean drinking water, leading to serious health issues. We are producing much more trash than we have ever been.</p>";
+    document.body.append(researchCopy);
+    researchCopy.style.cssText = 'position:fixed;z-index:30;overflow:auto;box-sizing:border-box;color:#0c101b;background:#f1f1f1;font-family:Inter,Arial,sans-serif;line-height:1.6;padding:12px;';
+    ['pointerdown','mousedown','click','touchstart','wheel'].forEach(type=>researchCopy.addEventListener(type,event=>event.stopPropagation()));
+  }
+  researchCopy.hidden = !infoOpen;
+  if (!infoOpen) return;
+  const canvas = document.querySelector('canvas');
+  if (!canvas) return;
+  const r = canvas.getBoundingClientRect(), scale = r.width / W;
+  Object.assign(researchCopy.style,{left:(r.left+146*scale)+'px',top:(r.top+270*scale)+'px',width:(1626*scale)+'px',height:(490*scale)+'px',fontSize:Math.max(16,24*scale)+'px'});
 }
